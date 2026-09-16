@@ -1,0 +1,133 @@
+services:
+
+  kafka:
+    image: apache/kafka:3.8.1
+    container_name: edrxdr-kafka
+
+    ports:
+      - "9092:9092"
+
+    environment:
+      KAFKA_NODE_ID: 1
+      KAFKA_PROCESS_ROLES: broker,controller
+
+      KAFKA_LISTENERS: >
+        INTERNAL://0.0.0.0:29092,
+        EXTERNAL://0.0.0.0:9092,
+        CONTROLLER://0.0.0.0:29093
+
+      KAFKA_ADVERTISED_LISTENERS: >
+        INTERNAL://kafka:29092,
+        EXTERNAL://${HOST_IP:-127.0.0.1}:9092
+
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: >
+        INTERNAL:PLAINTEXT,
+        EXTERNAL:PLAINTEXT,
+        CONTROLLER:PLAINTEXT
+
+      KAFKA_INTER_BROKER_LISTENER_NAME: INTERNAL
+      KAFKA_CONTROLLER_LISTENER_NAMES: CONTROLLER
+
+      KAFKA_CONTROLLER_QUORUM_VOTERS: >
+        1@kafka:29093
+
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
+      KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
+      KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS: 0
+
+      CLUSTER_ID: MkU3OEVBNTcwNTJENDM2Qk
+
+    restart: unless-stopped
+
+    networks:
+      - edrxdr-net
+
+
+  normalizer:
+    build:
+      context: ./normalizer
+
+    container_name: edrxdr-normalizer
+
+    depends_on:
+      - kafka
+
+    restart: unless-stopped
+
+    networks:
+      - edrxdr-net
+
+
+  opensearch:
+    image: opensearchproject/opensearch:2.11.0
+
+    container_name: edrxdr-opensearch
+
+    environment:
+      - discovery.type=single-node
+      - plugins.security.disabled=true
+      - OPENSEARCH_JAVA_OPTS=-Xms1g -Xmx1g
+
+    ports:
+      - "9200:9200"
+
+    volumes:
+      - opensearch-data:/usr/share/opensearch/data
+
+    restart: unless-stopped
+
+    networks:
+      - edrxdr-net
+
+
+  indexer:
+    build:
+      context: ./indexer
+
+    container_name: edrxdr-indexer
+
+    depends_on:
+      - kafka
+      - opensearch
+
+    restart: unless-stopped
+
+    networks:
+      - edrxdr-net
+
+
+  morpheus:
+    image: nvcr.io/nvidia/morpheus/morpheus:25.06-runtime
+
+    container_name: edrxdr-morpheus
+
+    profiles:
+      - gpu
+
+    depends_on:
+      - kafka
+      - normalizer
+
+    volumes:
+      - ./morpheus:/workspace/edrxdr-morpheus
+
+    working_dir: /workspace/edrxdr-morpheus
+
+    command:
+      - /bin/bash
+      - /workspace/edrxdr-morpheus/start.sh
+
+    gpus: all
+
+    networks:
+      - edrxdr-net
+
+
+networks:
+  edrxdr-net:
+    name: edrxdr-net
+
+
+volumes:
+  opensearch-data:
