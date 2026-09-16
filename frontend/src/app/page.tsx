@@ -2,55 +2,42 @@
 
 import { useEffect, useState } from "react";
 
-/* =========================================================
-   TYPES
-========================================================= */
+type WazuhAlert = {
+  id: string;
+  timestamp?: string;
+  rule_id: string;
+  rule_level: number;
+  description: string;
+  agent_id: string;
+  agent_name: string;
+  agent_ip: string;
+  location: string;
+  mitre_id: string[];
+  mitre_tactic: string[];
+  mitre_technique: string[];
+};
 
 type SecurityEvent = {
   id: string;
   index: string;
-
   timestamp?: string;
-
   event_type?: string;
   source_type?: string;
-
   sensor?: string;
-
   ibdev?: string;
   interface?: string;
-
-  rx_packets?: number;
-  tx_packets?: number;
-
-  rx_bytes?: number;
-  tx_bytes?: number;
-
-  delta_rx_packets?: number;
-  delta_tx_packets?: number;
-
-  delta_rx_bytes?: number;
-  delta_tx_bytes?: number;
-
-  rx_errors?: number;
-  tx_errors?: number;
-
   threat_score?: number;
   threat_class?: string;
-
   analysis_engine?: string;
 };
 
 type SystemStatus = {
   bluefield: boolean;
   doca: boolean;
-
   kafka: boolean;
   normalizer: boolean;
-
   opensearch: boolean;
   indexer: boolean;
-
   morpheus: boolean;
 
   gpuFabric:
@@ -58,237 +45,279 @@ type SystemStatus = {
     | "waiting"
     | "unknown"
     | "offline";
+
+  wazuh: boolean;
+  wazuhManager: boolean;
+  wazuhIndexer: boolean;
+  wazuhDashboard: boolean;
+  wazuhForwarder: boolean;
+  wazuhAgent: boolean;
 };
 
-/* =========================================================
-   MAIN PAGE
-========================================================= */
+const emptyStatus: SystemStatus = {
+  bluefield: false,
+  doca: false,
+  kafka: false,
+  normalizer: false,
+  opensearch: false,
+  indexer: false,
+  morpheus: false,
+  gpuFabric: "unknown",
+
+  wazuh: false,
+  wazuhManager: false,
+  wazuhIndexer: false,
+  wazuhDashboard: false,
+  wazuhForwarder: false,
+  wazuhAgent: false,
+};
 
 export default function Home() {
-  const [events, setEvents] = useState<SecurityEvent[]>([]);
+  const [status, setStatus] =
+    useState<SystemStatus>(emptyStatus);
 
-  const [status, setStatus] = useState<SystemStatus>({
-    bluefield: false,
-    doca: false,
+  const [wazuhAlerts, setWazuhAlerts] =
+    useState<WazuhAlert[]>([]);
 
-    kafka: false,
-    normalizer: false,
+  const [events, setEvents] =
+    useState<SecurityEvent[]>([]);
 
-    opensearch: false,
-    indexer: false,
-
-    morpheus: false,
-
-    gpuFabric: "unknown",
-  });
-
-  const [loading, setLoading] = useState(true);
-
-  const [lastUpdated, setLastUpdated] =
-    useState<string>("");
-
-  /* =======================================================
-     LOAD EVENTS
-  ======================================================= */
-
-  async function loadEvents() {
-    try {
-      const response = await fetch("/api/events", {
-        cache: "no-store",
-      });
-
-      if (!response.ok) {
-        throw new Error(
-          `Events API returned ${response.status}`
-        );
-      }
-
-      const data = await response.json();
-
-      setEvents(data.events || []);
-
-      setLastUpdated(
-        new Date().toLocaleTimeString()
-      );
-    } catch (error) {
-      console.error(
-        "Failed to load security events:",
-        error
-      );
-    } finally {
-      setLoading(false);
-    }
-  }
-
-  /* =======================================================
-     LOAD PIPELINE STATUS
-  ======================================================= */
+  const [updated, setUpdated] =
+    useState("-");
 
   async function loadStatus() {
     try {
-      const response = await fetch("/api/status", {
-        cache: "no-store",
-      });
+      const response = await fetch(
+        "/api/status",
+        { cache: "no-store" }
+      );
 
       if (!response.ok) {
-        throw new Error(
-          `Status API returned ${response.status}`
-        );
+        return;
       }
 
-      const data = await response.json();
+      const data =
+        await response.json();
 
       setStatus(data);
     } catch (error) {
       console.error(
-        "Failed to load system status:",
+        "Status API error:",
         error
       );
     }
   }
 
-  /* =======================================================
-     AUTO REFRESH
-  ======================================================= */
+  async function loadWazuh() {
+    try {
+      const response = await fetch(
+        "/api/wazuh",
+        { cache: "no-store" }
+      );
+
+      if (!response.ok) {
+        return;
+      }
+
+      const data =
+        await response.json();
+
+      setWazuhAlerts(
+        data.alerts || []
+      );
+    } catch (error) {
+      console.error(
+        "Wazuh API error:",
+        error
+      );
+    }
+  }
+
+  async function loadEvents() {
+    try {
+      const response = await fetch(
+        "/api/events",
+        { cache: "no-store" }
+      );
+
+      if (!response.ok) {
+        return;
+      }
+
+      const data =
+        await response.json();
+
+      setEvents(
+        data.events || []
+      );
+    } catch (error) {
+      console.error(
+        "Events API error:",
+        error
+      );
+    }
+  }
+
+  async function refresh() {
+    await Promise.all([
+      loadStatus(),
+      loadWazuh(),
+      loadEvents(),
+    ]);
+
+    setUpdated(
+      new Date().toLocaleTimeString()
+    );
+  }
 
   useEffect(() => {
-    loadEvents();
-    loadStatus();
+    refresh();
 
-    const timer = setInterval(() => {
-      loadEvents();
-      loadStatus();
-    }, 5000);
+    const timer =
+      setInterval(
+        refresh,
+        5000
+      );
 
-    return () => clearInterval(timer);
+    return () =>
+      clearInterval(timer);
   }, []);
 
-  /* =======================================================
-     METRICS
-  ======================================================= */
+  /*
+   * Do not display simulated Morpheus output.
+   * Only real Morpheus results are accepted here.
+   */
+  const morpheusEvents =
+    events.filter(
+      (event) =>
+        event.analysis_engine !==
+          "morpheus-simulator" &&
+        event.analysis_engine
+    );
 
-  const suspiciousEvents = events.filter(
-    (event) =>
-      event.threat_class === "suspicious" ||
-      event.threat_class === "malicious" ||
-      (event.threat_score ?? 0) >= 0.7
-  );
+  const latestWazuh =
+    wazuhAlerts[0];
+
+  const highAlerts =
+    wazuhAlerts.filter(
+      (alert) =>
+        alert.rule_level >= 7
+    );
+
+  const criticalAlerts =
+    wazuhAlerts.filter(
+      (alert) =>
+        alert.rule_level >= 12
+    );
 
   const maxThreatScore =
-    events.length > 0
+    morpheusEvents.length > 0
       ? Math.max(
-          ...events.map(
-            (event) => event.threat_score ?? 0
+          ...morpheusEvents.map(
+            (event) =>
+              event.threat_score ?? 0
           )
         )
-      : 0;
+      : null;
 
-  const totalRxPackets = events.reduce(
-    (total, event) =>
-      total + (event.rx_packets ?? 0),
-    0
-  );
-
-  const totalTxPackets = events.reduce(
-    (total, event) =>
-      total + (event.tx_packets ?? 0),
-    0
-  );
-
-  const totalRxBytes = events.reduce(
-    (total, event) =>
-      total + (event.rx_bytes ?? 0),
-    0
-  );
-
-  const totalTxBytes = events.reduce(
-    (total, event) =>
-      total + (event.tx_bytes ?? 0),
-    0
-  );
-
-  const latestEvent = events[0];
-
-  const coreSystemOnline =
+  const coreOnline =
     status.bluefield &&
     status.doca &&
+    status.wazuhManager &&
+    status.wazuhForwarder &&
     status.kafka &&
     status.normalizer &&
     status.opensearch &&
     status.indexer;
 
-  /* =======================================================
-     UI
-  ======================================================= */
-
   return (
     <main className="min-h-screen bg-[#05070a] text-white">
+
       {/* HEADER */}
+      <header className="border-b border-white/10 bg-[#080b10]">
+        <div className="mx-auto flex max-w-[1500px] items-center justify-between px-6 py-5">
 
-      <header className="border-b border-white/10 bg-[#090c11]">
-        <div className="mx-auto flex max-w-7xl items-center justify-between px-6 py-5">
-          <div>
-            <div className="flex items-center gap-3">
-              <div className="flex h-10 w-10 items-center justify-center rounded-lg border border-green-500/30 bg-green-500/10 font-bold text-green-400">
-                X
-              </div>
+          <div className="flex items-center gap-4">
+            <div className="flex h-11 w-11 items-center justify-center rounded-lg border border-green-500/30 bg-green-500/10 font-bold text-green-400">
+              X
+            </div>
 
-              <div>
-                <h1 className="text-2xl font-bold tracking-wide">
-                  EDRXDR
-                </h1>
+            <div>
+              <h1 className="text-2xl font-bold tracking-wide">
+                EDRXDR
+              </h1>
 
-                <p className="text-sm text-gray-400">
-                  Intelligent Threat Detection Pipeline
-                </p>
-              </div>
+              <p className="text-sm text-gray-400">
+                Wazuh + NVIDIA BlueField-3 + DOCA + Morpheus
+              </p>
             </div>
           </div>
 
           <div className="text-right">
             <div
-              className={`text-sm ${
-                coreSystemOnline
-                  ? "text-green-400"
-                  : "text-red-400"
-              }`}
+              className={
+                coreOnline
+                  ? "text-sm text-green-400"
+                  : "text-sm text-red-400"
+              }
             >
-              {coreSystemOnline
+              {coreOnline
                 ? "● Core System Online"
                 : "● System Degraded"}
             </div>
 
             <div className="mt-1 text-xs text-gray-500">
-              Updated: {lastUpdated || "-"}
+              Updated: {updated}
             </div>
           </div>
+
         </div>
       </header>
 
-      {/* CONTENT */}
+      <div className="mx-auto max-w-[1500px] px-6 py-8">
 
-      <div className="mx-auto max-w-7xl px-6 py-8">
-        {/* =================================================
-            PIPELINE STATUS
-        ================================================= */}
-
+        {/* PIPELINE STATUS */}
         <section className="mb-8">
-          <div className="mb-4 flex items-center justify-between">
-            <div>
-              <h2 className="text-lg font-semibold">
-                Pipeline Status
-              </h2>
+          <h2 className="text-xl font-semibold">
+            Pipeline Status
+          </h2>
 
-              <p className="mt-1 text-xs text-gray-500">
-                Real-time infrastructure health
-              </p>
-            </div>
-          </div>
+          <p className="mb-4 mt-1 text-sm text-gray-500">
+            Real-time infrastructure health
+          </p>
 
-          <div className="grid gap-3 sm:grid-cols-2 md:grid-cols-4 xl:grid-cols-8">
+          <div className="grid gap-3 sm:grid-cols-2 md:grid-cols-4 xl:grid-cols-6">
+
+            <StatusCard
+              name="Wazuh Agent"
+              state={
+                status.wazuhAgent
+                  ? "online"
+                  : "offline"
+              }
+            />
+
+            <StatusCard
+              name="Wazuh Manager"
+              state={
+                status.wazuhManager
+                  ? "online"
+                  : "offline"
+              }
+            />
+
+            <StatusCard
+              name="Wazuh Forwarder"
+              state={
+                status.wazuhForwarder
+                  ? "online"
+                  : "offline"
+              }
+            />
+
             <StatusCard
               name="BlueField-3"
-              status={
+              state={
                 status.bluefield
                   ? "online"
                   : "offline"
@@ -297,7 +326,7 @@ export default function Home() {
 
             <StatusCard
               name="DOCA"
-              status={
+              state={
                 status.doca
                   ? "online"
                   : "offline"
@@ -306,7 +335,7 @@ export default function Home() {
 
             <StatusCard
               name="Kafka"
-              status={
+              state={
                 status.kafka
                   ? "online"
                   : "offline"
@@ -315,7 +344,7 @@ export default function Home() {
 
             <StatusCard
               name="Normalizer"
-              status={
+              state={
                 status.normalizer
                   ? "online"
                   : "offline"
@@ -324,27 +353,32 @@ export default function Home() {
 
             <StatusCard
               name="Morpheus"
-              status={
+              state={
                 status.morpheus
                   ? "online"
-                  : status.gpuFabric === "waiting"
+                  : status.gpuFabric ===
+                      "waiting"
                     ? "waiting"
                     : "offline"
               }
             />
 
             <StatusCard
-              name="OpenSearch"
-              status={
-                status.opensearch
+              name="H100 Fabric"
+              state={
+                status.gpuFabric ===
+                "ready"
                   ? "online"
-                  : "offline"
+                  : status.gpuFabric ===
+                      "waiting"
+                    ? "waiting"
+                    : "offline"
               }
             />
 
             <StatusCard
               name="Indexer"
-              status={
+              state={
                 status.indexer
                   ? "online"
                   : "offline"
@@ -352,377 +386,463 @@ export default function Home() {
             />
 
             <StatusCard
-              name="H100 Fabric"
-              status={
-                status.gpuFabric === "ready"
+              name="OpenSearch"
+              state={
+                status.opensearch
                   ? "online"
-                  : status.gpuFabric === "waiting"
-                    ? "waiting"
-                    : "offline"
+                  : "offline"
               }
             />
+
+            <StatusCard
+              name="Wazuh Dashboard"
+              state={
+                status.wazuhDashboard
+                  ? "online"
+                  : "offline"
+              }
+            />
+
           </div>
 
-          {/* GPU STATUS MESSAGE */}
-
-          {status.gpuFabric === "waiting" && (
-            <div className="mt-3 rounded-lg border border-yellow-500/20 bg-yellow-500/5 px-4 py-3 text-sm text-yellow-300">
-              NVIDIA Morpheus is waiting for H100 GPU
-              Fabric initialization. Current threat
-              results are using simulated Morpheus
-              output.
+          {!status.morpheus && (
+            <div className="mt-4 rounded-lg border border-yellow-500/20 bg-yellow-500/5 px-4 py-3 text-sm text-yellow-300">
+              NVIDIA Morpheus is waiting for H100 GPU Fabric.
+              Wazuh and BlueField events are already streaming
+              through Kafka → Normalizer → morpheus-input.
+              No simulated Morpheus result is displayed.
             </div>
           )}
+        </section>
 
-          {status.gpuFabric === "ready" &&
-            status.morpheus && (
-              <div className="mt-3 rounded-lg border border-green-500/20 bg-green-500/5 px-4 py-3 text-sm text-green-300">
-                NVIDIA H100 Fabric is ready and
-                Morpheus is online.
+        {/* METRICS */}
+        <section className="mb-8 grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+
+          <MetricCard
+            title="Wazuh Alerts"
+            value={wazuhAlerts.length}
+            subtitle="Recent endpoint alerts"
+          />
+
+          <MetricCard
+            title="High-Level Alerts"
+            value={highAlerts.length}
+            subtitle="Wazuh rule level ≥ 7"
+          />
+
+          <MetricCard
+            title="Critical Alerts"
+            value={criticalAlerts.length}
+            subtitle="Wazuh rule level ≥ 12"
+          />
+
+          <MetricCard
+            title="Morpheus Threat Score"
+            value={
+              maxThreatScore === null
+                ? "Waiting"
+                : maxThreatScore.toFixed(2)
+            }
+            subtitle={
+              status.morpheus
+                ? "Real GPU analysis"
+                : "No fallback / simulator"
+            }
+          />
+
+        </section>
+
+        {/* WAZUH + BLUEFIELD */}
+        <section className="mb-8 grid gap-6 lg:grid-cols-2">
+
+          {/* WAZUH */}
+          <div className="rounded-xl border border-white/10 bg-[#0c1016] p-6">
+
+            <div className="mb-6">
+              <h2 className="text-xl font-semibold">
+                Wazuh Endpoint Security
+              </h2>
+
+              <p className="mt-1 text-sm text-gray-500">
+                Endpoint / Host detection
+              </p>
+            </div>
+
+            {latestWazuh ? (
+              <div className="space-y-5">
+
+                <div className="flex items-start justify-between gap-4">
+
+                  <div>
+                    <div className="text-xs text-gray-500">
+                      Latest Alert
+                    </div>
+
+                    <div className="mt-1 font-medium">
+                      {latestWazuh.description}
+                    </div>
+                  </div>
+
+                  <LevelBadge
+                    level={
+                      latestWazuh.rule_level
+                    }
+                  />
+
+                </div>
+
+                <div className="grid grid-cols-2 gap-4">
+
+                  <InfoCard
+                    label="Agent"
+                    value={
+                      latestWazuh.agent_name
+                    }
+                  />
+
+                  <InfoCard
+                    label="Rule ID"
+                    value={
+                      latestWazuh.rule_id
+                    }
+                  />
+
+                  <InfoCard
+                    label="Rule Level"
+                    value={
+                      latestWazuh.rule_level
+                    }
+                  />
+
+                  <InfoCard
+                    label="Location"
+                    value={
+                      latestWazuh.location ||
+                      "-"
+                    }
+                  />
+
+                </div>
+
+                <div>
+                  <div className="mb-2 text-xs text-gray-500">
+                    MITRE ATT&CK
+                  </div>
+
+                  <div className="flex flex-wrap gap-2">
+
+                    {latestWazuh.mitre_id.length > 0
+                      ? latestWazuh.mitre_id.map(
+                          (id) => (
+                            <span
+                              key={id}
+                              className="rounded-md bg-purple-500/10 px-2 py-1 text-xs text-purple-300"
+                            >
+                              {id}
+                            </span>
+                          )
+                        )
+                      : (
+                        <span className="text-sm text-gray-500">
+                          No MITRE mapping
+                        </span>
+                      )}
+
+                  </div>
+                </div>
+
+                <div>
+                  <div className="mb-1 text-xs text-gray-500">
+                    MITRE Tactics
+                  </div>
+
+                  <div className="text-sm text-gray-300">
+                    {latestWazuh.mitre_tactic.join(", ") || "-"}
+                  </div>
+                </div>
+
+              </div>
+            ) : (
+              <div className="text-gray-500">
+                Waiting for Wazuh alerts...
               </div>
             )}
-        </section>
 
-        {/* =================================================
-            METRICS
-        ================================================= */}
-
-        <section className="mb-8 grid gap-4 md:grid-cols-2 xl:grid-cols-4">
-          <MetricCard
-            title="Security Events"
-            value={events.length}
-            subtitle="Indexed events"
-          />
-
-          <MetricCard
-            title="Suspicious"
-            value={suspiciousEvents.length}
-            subtitle="Threat detections"
-          />
-
-          <MetricCard
-            title="Highest Threat Score"
-            value={maxThreatScore.toFixed(2)}
-            subtitle="Threat probability 0.00 - 1.00"
-          />
-
-          <MetricCard
-            title="BlueField Packets"
-            value={totalRxPackets + totalTxPackets}
-            subtitle={`RX ${totalRxPackets} / TX ${totalTxPackets}`}
-          />
-        </section>
-
-        {/* =================================================
-            THREAT + NETWORK
-        ================================================= */}
-
-        <section className="mb-8 grid gap-6 lg:grid-cols-2">
-          {/* Threat */}
-
-          <div className="rounded-xl border border-white/10 bg-[#0c1016] p-6">
-            <div className="mb-6 flex items-center justify-between">
-              <div>
-                <h2 className="text-lg font-semibold">
-                  Threat Analysis
-                </h2>
-
-                <p className="mt-1 text-xs text-gray-500">
-                  Morpheus threat classification
-                </p>
-              </div>
-
-              <ThreatBadge
-                value={
-                  latestEvent?.threat_class ||
-                  "unknown"
-                }
-              />
-            </div>
-
-            <div className="flex flex-col items-center gap-8 sm:flex-row">
-              <ThreatScore score={maxThreatScore} />
-
-              <div className="w-full space-y-4 text-sm">
-                <InfoRow
-                  label="Detection"
-                  value={
-                    suspiciousEvents.length > 0
-                      ? "Suspicious Activity"
-                      : "Normal Activity"
-                  }
-                />
-
-                <InfoRow
-                  label="Analysis Engine"
-                  value={
-                    latestEvent?.analysis_engine ||
-                    (status.morpheus
-                      ? "NVIDIA Morpheus"
-                      : "Waiting for Morpheus")
-                  }
-                />
-
-                <InfoRow
-                  label="Sensor"
-                  value={
-                    latestEvent?.sensor ||
-                    "NVIDIA BlueField-3"
-                  }
-                />
-
-                <InfoRow
-                  label="Event Type"
-                  value={
-                    latestEvent?.event_type ||
-                    "network_telemetry"
-                  }
-                />
-              </div>
-            </div>
           </div>
 
-          {/* BlueField */}
-
+          {/* BLUEFIELD */}
           <div className="rounded-xl border border-white/10 bg-[#0c1016] p-6">
+
             <div className="mb-6">
-              <h2 className="text-lg font-semibold">
-                BlueField Network Telemetry
+              <h2 className="text-xl font-semibold">
+                BlueField Network Security
               </h2>
 
-              <p className="mt-1 text-xs text-gray-500">
-                NVIDIA BlueField-3 + DOCA monitoring
+              <p className="mt-1 text-sm text-gray-500">
+                NVIDIA BlueField-3 + DOCA telemetry
               </p>
             </div>
 
-            <div className="space-y-5">
-              <TrafficBar
-                label="RX Packets"
-                value={totalRxPackets}
-                max={Math.max(
-                  totalRxPackets,
-                  totalTxPackets,
-                  1
-                )}
-              />
+            <div className="grid grid-cols-2 gap-4">
 
-              <TrafficBar
-                label="TX Packets"
-                value={totalTxPackets}
-                max={Math.max(
-                  totalRxPackets,
-                  totalTxPackets,
-                  1
-                )}
-              />
-            </div>
-
-            <div className="mt-8 grid grid-cols-2 gap-4">
-              <SmallMetric
-                title="RX Bytes"
-                value={formatBytes(totalRxBytes)}
-              />
-
-              <SmallMetric
-                title="TX Bytes"
-                value={formatBytes(totalTxBytes)}
-              />
-
-              <SmallMetric
-                title="Interface"
+              <InfoCard
+                label="BlueField"
                 value={
-                  latestEvent?.interface || "-"
+                  status.bluefield
+                    ? "Online"
+                    : "Offline"
                 }
-                mono
               />
 
-              <SmallMetric
-                title="DOCA Device"
-                value={latestEvent?.ibdev || "-"}
-                mono
+              <InfoCard
+                label="DOCA"
+                value={
+                  status.doca
+                    ? "Online"
+                    : "Offline"
+                }
               />
+
+              <InfoCard
+                label="Kafka Topic"
+                value="bluefield-events"
+              />
+
+              <InfoCard
+                label="Destination"
+                value="morpheus-input"
+              />
+
             </div>
+
+            <div className="mt-6 rounded-lg border border-blue-500/20 bg-blue-500/5 p-4">
+
+              <div className="text-sm font-medium text-blue-300">
+                Network Telemetry Pipeline
+              </div>
+
+              <div className="mt-2 text-sm leading-7 text-gray-400">
+                BlueField-3 → DOCA → bluefield_monitor
+                → Kafka bluefield-events → Normalizer
+                → morpheus-input
+              </div>
+
+            </div>
+
           </div>
+
         </section>
 
-        {/* =================================================
-            RECENT EVENTS
-        ================================================= */}
+        {/* RECENT WAZUH */}
+        <section className="mb-8 overflow-hidden rounded-xl border border-white/10 bg-[#0c1016]">
 
-        <section className="overflow-hidden rounded-xl border border-white/10 bg-[#0c1016]">
-          <div className="flex items-center justify-between border-b border-white/10 px-6 py-4">
-            <div>
-              <h2 className="text-lg font-semibold">
-                Recent Security Events
-              </h2>
-
-              <p className="mt-1 text-xs text-gray-500">
-                OpenSearch indexed security telemetry
-              </p>
-            </div>
-
-            <div className="text-xs text-gray-500">
-              {events.length} events
-            </div>
-          </div>
-
-          {loading ? (
-            <div className="p-8 text-center text-gray-400">
-              Loading security events...
-            </div>
-          ) : events.length === 0 ? (
-            <div className="p-8 text-center text-gray-400">
-              No security events found
-            </div>
-          ) : (
-            <div className="overflow-x-auto">
-              <table className="w-full text-left text-sm">
-                <thead className="bg-black/30 text-xs uppercase text-gray-500">
-                  <tr>
-                    <th className="px-6 py-3">
-                      Time
-                    </th>
-
-                    <th className="px-6 py-3">
-                      Source
-                    </th>
-
-                    <th className="px-6 py-3">
-                      Interface
-                    </th>
-
-                    <th className="px-6 py-3">
-                      Class
-                    </th>
-
-                    <th className="px-6 py-3">
-                      Score
-                    </th>
-
-                    <th className="px-6 py-3">
-                      Engine
-                    </th>
-                  </tr>
-                </thead>
-
-                <tbody>
-                  {events.map((event) => (
-                    <tr
-                      key={event.id}
-                      className="border-t border-white/5 transition hover:bg-white/5"
-                    >
-                      <td className="whitespace-nowrap px-6 py-4 text-gray-400">
-                        {event.timestamp
-                          ? new Date(
-                              event.timestamp
-                            ).toLocaleString()
-                          : "-"}
-                      </td>
-
-                      <td className="px-6 py-4">
-                        {event.sensor ||
-                          event.source_type ||
-                          "-"}
-                      </td>
-
-                      <td className="px-6 py-4 font-mono text-xs">
-                        {event.interface || "-"}
-                      </td>
-
-                      <td className="px-6 py-4">
-                        <ThreatBadge
-                          value={
-                            event.threat_class ||
-                            "unknown"
-                          }
-                        />
-                      </td>
-
-                      <td className="px-6 py-4 font-semibold">
-                        {(
-                          event.threat_score ?? 0
-                        ).toFixed(2)}
-                      </td>
-
-                      <td className="px-6 py-4 text-gray-400">
-                        {event.analysis_engine || "-"}
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          )}
-        </section>
-
-        {/* =================================================
-            PIPELINE
-        ================================================= */}
-
-        <section className="mt-8 rounded-xl border border-white/10 bg-[#0c1016] p-6">
-          <div className="mb-5">
-            <h2 className="text-lg font-semibold">
-              EDRXDR Pipeline
+          <div className="border-b border-white/10 px-6 py-5">
+            <h2 className="text-xl font-semibold">
+              Recent Wazuh Alerts
             </h2>
 
-            <p className="mt-1 text-xs text-gray-500">
-              Real-time security processing architecture
+            <p className="mt-1 text-sm text-gray-500">
+              Real endpoint alerts from Wazuh Manager
             </p>
           </div>
 
-          <div className="flex flex-wrap items-center gap-2 text-sm">
-            <PipelineBox
-              text="BlueField-3"
-              state={
-                status.bluefield
-                  ? "online"
-                  : "offline"
-              }
-            />
+          <div className="overflow-x-auto">
 
-            <Arrow />
+            <table className="w-full text-left text-sm">
 
-            <PipelineBox
-              text="DOCA"
-              state={
-                status.doca
-                  ? "online"
-                  : "offline"
-              }
-            />
+              <thead className="bg-black/30 text-xs uppercase text-gray-500">
+                <tr>
+                  <th className="px-5 py-3">
+                    Time
+                  </th>
 
-            <Arrow />
+                  <th className="px-5 py-3">
+                    Agent
+                  </th>
 
-            <PipelineBox
-              text="Kafka"
-              state={
-                status.kafka
-                  ? "online"
-                  : "offline"
-              }
-            />
+                  <th className="px-5 py-3">
+                    Rule
+                  </th>
 
-            <Arrow />
+                  <th className="px-5 py-3">
+                    Level
+                  </th>
+
+                  <th className="px-5 py-3">
+                    Description
+                  </th>
+
+                  <th className="px-5 py-3">
+                    MITRE
+                  </th>
+                </tr>
+              </thead>
+
+              <tbody>
+
+                {wazuhAlerts
+                  .slice(0, 20)
+                  .map(
+                    (alert) => (
+                      <tr
+                        key={alert.id}
+                        className="border-t border-white/5 hover:bg-white/5"
+                      >
+
+                        <td className="whitespace-nowrap px-5 py-4 text-xs text-gray-400">
+                          {alert.timestamp
+                            ? new Date(
+                                alert.timestamp
+                              ).toLocaleString()
+                            : "-"}
+                        </td>
+
+                        <td className="px-5 py-4">
+                          {alert.agent_name}
+                        </td>
+
+                        <td className="px-5 py-4 font-mono">
+                          {alert.rule_id}
+                        </td>
+
+                        <td className="px-5 py-4">
+                          <LevelBadge
+                            level={
+                              alert.rule_level
+                            }
+                          />
+                        </td>
+
+                        <td className="max-w-md px-5 py-4">
+                          {alert.description}
+                        </td>
+
+                        <td className="px-5 py-4 text-xs text-purple-300">
+                          {alert.mitre_id.join(", ") || "-"}
+                        </td>
+
+                      </tr>
+                    )
+                  )}
+
+              </tbody>
+
+            </table>
+
+          </div>
+
+        </section>
+
+        {/* UNIFIED PIPELINE */}
+        <section className="rounded-xl border border-white/10 bg-[#0c1016] p-6">
+
+          <h2 className="text-xl font-semibold">
+            EDRXDR Unified Pipeline
+          </h2>
+
+          <p className="mb-6 mt-1 text-sm text-gray-500">
+            Wazuh Endpoint Security + NVIDIA BlueField Network Security
+          </p>
+
+          <div className="grid gap-6 lg:grid-cols-2">
+
+            <div className="space-y-3">
+              <div className="text-sm font-medium text-gray-400">
+                Endpoint / EDR
+              </div>
+
+              <PipelineBox
+                text="Wazuh Agent"
+                online={status.wazuhAgent}
+              />
+
+              <div className="text-center text-gray-600">
+                ↓
+              </div>
+
+              <PipelineBox
+                text="Wazuh Manager"
+                online={status.wazuhManager}
+              />
+
+              <div className="text-center text-gray-600">
+                ↓
+              </div>
+
+              <PipelineBox
+                text="Kafka: wazuh-alerts"
+                online={status.wazuhForwarder}
+              />
+            </div>
+
+            <div className="space-y-3">
+              <div className="text-sm font-medium text-gray-400">
+                Network / DPU
+              </div>
+
+              <PipelineBox
+                text="NVIDIA BlueField-3"
+                online={status.bluefield}
+              />
+
+              <div className="text-center text-gray-600">
+                ↓
+              </div>
+
+              <PipelineBox
+                text="NVIDIA DOCA"
+                online={status.doca}
+              />
+
+              <div className="text-center text-gray-600">
+                ↓
+              </div>
+
+              <PipelineBox
+                text="Kafka: bluefield-events"
+                online={status.kafka}
+              />
+            </div>
+
+          </div>
+
+          <div className="my-6 text-center text-2xl text-gray-600">
+            ↓
+          </div>
+
+          <div className="flex flex-wrap items-center justify-center gap-3">
 
             <PipelineBox
               text="Normalizer"
-              state={
-                status.normalizer
-                  ? "online"
-                  : "offline"
-              }
+              online={status.normalizer}
             />
 
             <Arrow />
 
             <PipelineBox
+              text="morpheus-input"
+              online={status.kafka}
+            />
+
+            <Arrow />
+
+            <StateBox
               text="NVIDIA Morpheus"
               state={
                 status.morpheus
                   ? "online"
-                  : status.gpuFabric === "waiting"
-                    ? "waiting"
-                    : "offline"
+                  : "waiting"
+              }
+            />
+
+            <Arrow />
+
+            <StateBox
+              text="morpheus-output"
+              state={
+                status.morpheus
+                  ? "online"
+                  : "waiting"
               }
             />
 
@@ -730,40 +850,77 @@ export default function Home() {
 
             <PipelineBox
               text="Indexer"
-              state={
-                status.indexer
-                  ? "online"
-                  : "offline"
-              }
+              online={status.indexer}
             />
 
             <Arrow />
 
             <PipelineBox
               text="OpenSearch"
-              state={
-                status.opensearch
-                  ? "online"
-                  : "offline"
-              }
+              online={status.opensearch}
             />
 
             <Arrow />
 
-            <PipelineBox
-              text="Dashboard"
+            <StateBox
+              text="EDRXDR Dashboard"
               state="online"
             />
+
           </div>
+
         </section>
+
       </div>
+
     </main>
   );
 }
 
-/* =========================================================
-   COMPONENTS
-========================================================= */
+function StatusCard({
+  name,
+  state,
+}: {
+  name: string;
+  state:
+    | "online"
+    | "waiting"
+    | "offline";
+}) {
+  const config = {
+    online: {
+      text: "● Online",
+      style:
+        "border-green-500/25 text-green-400",
+    },
+
+    waiting: {
+      text: "● Waiting",
+      style:
+        "border-yellow-500/25 text-yellow-400",
+    },
+
+    offline: {
+      text: "● Offline",
+      style:
+        "border-red-500/25 text-red-400",
+    },
+  };
+
+  return (
+    <div
+      className={`rounded-lg border bg-[#0c1016] p-4 ${config[state].style}`}
+    >
+      <div className="font-medium text-white">
+        {name}
+      </div>
+
+      <div className="mt-2 text-xs">
+        {config[state].text}
+      </div>
+    </div>
+  );
+}
 
 function MetricCard({
   title,
@@ -776,6 +933,7 @@ function MetricCard({
 }) {
   return (
     <div className="rounded-xl border border-white/10 bg-[#0c1016] p-5">
+
       <div className="text-sm text-gray-400">
         {title}
       </div>
@@ -787,229 +945,97 @@ function MetricCard({
       <div className="mt-1 text-xs text-gray-500">
         {subtitle}
       </div>
+
     </div>
   );
 }
 
-function StatusCard({
-  name,
-  status,
-}: {
-  name: string;
-  status: "online" | "waiting" | "offline";
-}) {
-  const config = {
-    online: {
-      text: "● Online",
-      color: "text-green-400",
-      border: "border-green-500/20",
-    },
-
-    waiting: {
-      text: "● Waiting",
-      color: "text-yellow-400",
-      border: "border-yellow-500/20",
-    },
-
-    offline: {
-      text: "● Offline",
-      color: "text-red-400",
-      border: "border-red-500/20",
-    },
-  };
-
-  return (
-    <div
-      className={`rounded-lg border bg-[#0c1016] p-4 ${config[status].border}`}
-    >
-      <div className="text-sm font-medium">
-        {name}
-      </div>
-
-      <div
-        className={`mt-2 text-xs ${config[status].color}`}
-      >
-        {config[status].text}
-      </div>
-    </div>
-  );
-}
-
-function ThreatScore({
-  score,
-}: {
-  score: number;
-}) {
-  const percentage = Math.round(score * 100);
-
-  const border =
-    score >= 0.7
-      ? "border-red-500"
-      : score >= 0.4
-        ? "border-yellow-500"
-        : "border-green-500";
-
-  return (
-    <div
-      className={`flex h-36 w-36 shrink-0 items-center justify-center rounded-full border-8 ${border}`}
-    >
-      <div className="text-center">
-        <div className="text-3xl font-bold">
-          {percentage}%
-        </div>
-
-        <div className="text-xs text-gray-400">
-          Threat Score
-        </div>
-      </div>
-    </div>
-  );
-}
-
-function ThreatBadge({
-  value,
-}: {
-  value: string;
-}) {
-  const normalized = value.toLowerCase();
-
-  let style =
-    "bg-gray-500/10 text-gray-400";
-
-  if (
-    normalized === "suspicious" ||
-    normalized === "malicious"
-  ) {
-    style =
-      "bg-red-500/10 text-red-400";
-  } else if (
-    normalized === "normal" ||
-    normalized === "benign"
-  ) {
-    style =
-      "bg-green-500/10 text-green-400";
-  } else if (
-    normalized === "warning"
-  ) {
-    style =
-      "bg-yellow-500/10 text-yellow-400";
-  }
-
-  return (
-    <span
-      className={`rounded-full px-3 py-1 text-xs font-medium ${style}`}
-    >
-      {value}
-    </span>
-  );
-}
-
-function InfoRow({
+function InfoCard({
   label,
   value,
 }: {
   label: string;
-  value: string;
+  value: string | number;
 }) {
   return (
-    <div>
+    <div className="rounded-lg bg-black/30 p-4">
+
       <div className="text-xs text-gray-500">
         {label}
       </div>
 
-      <div className="mt-1 font-medium">
+      <div className="mt-1 break-all text-sm font-medium">
         {value}
       </div>
+
     </div>
   );
 }
 
-function SmallMetric({
-  title,
-  value,
-  mono = false,
+function LevelBadge({
+  level,
 }: {
-  title: string;
-  value: string | number;
-  mono?: boolean;
+  level: number;
 }) {
-  return (
-    <div className="rounded-lg bg-black/30 p-4">
-      <div className="text-xs text-gray-500">
-        {title}
-      </div>
+  let style =
+    "bg-green-500/10 text-green-400";
 
-      <div
-        className={`mt-1 text-sm font-medium ${
-          mono ? "font-mono" : ""
-        }`}
-      >
-        {value}
-      </div>
-    </div>
-  );
-}
-
-function TrafficBar({
-  label,
-  value,
-  max,
-}: {
-  label: string;
-  value: number;
-  max: number;
-}) {
-  const width =
-    max > 0
-      ? Math.min(
-          100,
-          (value / max) * 100
-        )
-      : 0;
+  if (level >= 12) {
+    style =
+      "bg-red-500/20 text-red-300";
+  } else if (level >= 7) {
+    style =
+      "bg-orange-500/10 text-orange-300";
+  } else if (level >= 4) {
+    style =
+      "bg-yellow-500/10 text-yellow-300";
+  }
 
   return (
-    <div>
-      <div className="mb-2 flex justify-between text-sm">
-        <span className="text-gray-400">
-          {label}
-        </span>
-
-        <span>{value}</span>
-      </div>
-
-      <div className="h-2 overflow-hidden rounded bg-white/10">
-        <div
-          className="h-full bg-blue-500 transition-all duration-500"
-          style={{
-            width: `${width}%`,
-          }}
-        />
-      </div>
-    </div>
+    <span
+      className={`whitespace-nowrap rounded-full px-3 py-1 text-xs font-medium ${style}`}
+    >
+      Level {level}
+    </span>
   );
 }
 
 function PipelineBox({
   text,
+  online,
+}: {
+  text: string;
+  online: boolean;
+}) {
+  return (
+    <div
+      className={
+        online
+          ? "rounded-lg border border-green-500/30 bg-green-500/5 px-4 py-2 text-center text-sm text-green-300"
+          : "rounded-lg border border-red-500/30 bg-red-500/5 px-4 py-2 text-center text-sm text-red-300"
+      }
+    >
+      {text}
+    </div>
+  );
+}
+
+function StateBox({
+  text,
   state,
 }: {
   text: string;
-  state: "online" | "waiting" | "offline";
+  state:
+    | "online"
+    | "waiting";
 }) {
-  const config = {
-    online:
-      "border-green-500/30 bg-green-500/5 text-green-300",
-
-    waiting:
-      "border-yellow-500/40 bg-yellow-500/10 text-yellow-300",
-
-    offline:
-      "border-red-500/30 bg-red-500/10 text-red-300",
-  };
-
   return (
     <div
-      className={`rounded-lg border px-4 py-2 ${config[state]}`}
+      className={
+        state === "online"
+          ? "rounded-lg border border-green-500/30 bg-green-500/5 px-4 py-2 text-center text-sm text-green-300"
+          : "rounded-lg border border-yellow-500/30 bg-yellow-500/5 px-4 py-2 text-center text-sm text-yellow-300"
+      }
     >
       {text}
     </div>
@@ -1022,31 +1048,4 @@ function Arrow() {
       →
     </span>
   );
-}
-
-/* =========================================================
-   HELPERS
-========================================================= */
-
-function formatBytes(bytes: number) {
-  if (bytes === 0) {
-    return "0 B";
-  }
-
-  const units = [
-    "B",
-    "KB",
-    "MB",
-    "GB",
-    "TB",
-  ];
-
-  const index = Math.floor(
-    Math.log(bytes) / Math.log(1024)
-  );
-
-  const value =
-    bytes / Math.pow(1024, index);
-
-  return `${value.toFixed(2)} ${units[index]}`;
 }

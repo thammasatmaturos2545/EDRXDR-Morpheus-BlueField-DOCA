@@ -24,6 +24,29 @@ async function dockerRunning(name: string) {
   }
 }
 
+async function dockerComposeServiceRunning(
+  service: string
+) {
+  try {
+    const { stdout } = await execFileAsync(
+      "docker",
+      [
+        "ps",
+        "--filter",
+        `label=com.docker.compose.service=${service}`,
+        "--filter",
+        "status=running",
+        "--format",
+        "{{.Names}}",
+      ]
+    );
+
+    return stdout.trim().length > 0;
+  } catch {
+    return false;
+  }
+}
+
 async function serviceRunning(name: string) {
   try {
     const { stdout } = await execFileAsync(
@@ -52,10 +75,14 @@ async function getGPUFabric() {
     );
 
     const completed =
-      stdout.includes("State                             : Completed");
+      stdout.includes(
+        "State                             : Completed"
+      );
 
     const success =
-      stdout.includes("Status                            : Success");
+      stdout.includes(
+        "Status                            : Success"
+      );
 
     if (completed && success) {
       return "ready";
@@ -66,14 +93,12 @@ async function getGPUFabric() {
     }
 
     return "unknown";
-
   } catch {
     return "offline";
   }
 }
 
 export async function GET() {
-
   const [
     bluefield,
     kafka,
@@ -81,25 +106,83 @@ export async function GET() {
     opensearch,
     indexer,
     morpheus,
+
+    wazuhManager,
+    wazuhIndexer,
+    wazuhDashboard,
+    wazuhForwarder,
+    wazuhAgent,
+
     gpuFabric,
   ] = await Promise.all([
     serviceRunning("edrxdr-bluefield"),
-    dockerRunning("edrxdr-kafka"),
-    dockerRunning("edrxdr-normalizer"),
-    dockerRunning("edrxdr-opensearch"),
-    dockerRunning("edrxdr-indexer"),
-    dockerRunning("edrxdr-morpheus"),
+
+    dockerRunning(
+      "edrxdr-kafka"
+    ),
+
+    dockerRunning(
+      "edrxdr-normalizer"
+    ),
+
+    dockerRunning(
+      "edrxdr-opensearch"
+    ),
+
+    dockerRunning(
+      "edrxdr-indexer"
+    ),
+
+    dockerRunning(
+      "edrxdr-morpheus"
+    ),
+
+    dockerComposeServiceRunning(
+      "wazuh.manager"
+    ),
+
+    dockerComposeServiceRunning(
+      "wazuh.indexer"
+    ),
+
+    dockerComposeServiceRunning(
+      "wazuh.dashboard"
+    ),
+
+    dockerComposeServiceRunning(
+      "wazuh.forwarder"
+    ),
+
+    serviceRunning(
+      "wazuh-agent"
+    ),
+
     getGPUFabric(),
   ]);
+
+  const wazuh =
+    wazuhManager &&
+    wazuhIndexer &&
+    wazuhForwarder;
 
   return NextResponse.json({
     bluefield,
     doca: bluefield,
+
     kafka,
     normalizer,
+
     opensearch,
     indexer,
+
     morpheus,
     gpuFabric,
+
+    wazuh,
+    wazuhManager,
+    wazuhIndexer,
+    wazuhDashboard,
+    wazuhForwarder,
+    wazuhAgent,
   });
 }

@@ -1,97 +1,732 @@
-# EDRXDR Morpheus BlueField DOCA
+# EDRXDR — Intelligent Threat Detection Pipeline
 
-ระบบ **EDR/XDR Intelligent Threat Detection Pipeline** สำหรับตรวจจับและวิเคราะห์ภัยคุกคามด้านเครือข่าย โดยพัฒนาบนเทคโนโลยีของ NVIDIA และระบบ Event Streaming
+ระบบต้นแบบ **EDR/XDR Intelligent Threat Detection Pipeline** สำหรับรวบรวม วิเคราะห์ และแสดงผลข้อมูลด้าน Cybersecurity จากทั้งฝั่ง **Endpoint Security** และ **Network Security**
 
-โปรเจกต์นี้ใช้ **NVIDIA BlueField-3 + NVIDIA DOCA** สำหรับเก็บ Network Telemetry แล้วส่งข้อมูลผ่าน **Apache Kafka** ไปยัง **NVIDIA Morpheus** เพื่อทำ GPU-accelerated Threat Analysis จากนั้นบันทึกผลลง **OpenSearch** และแสดงผลผ่าน **Next.js Security Dashboard**
+ระบบผสานเทคโนโลยี:
 
-> หมายเหตุ: ปัจจุบันส่วน NVIDIA Morpheus ยังรอการแก้ไข H100 GPU Fabric จากฝั่ง HGX/KVM Host โดยส่วนอื่นของ Pipeline สามารถทำงานได้แล้ว
+- Wazuh
+- NVIDIA BlueField-3
+- NVIDIA DOCA
+- Apache Kafka
+- NVIDIA Morpheus
+- NVIDIA H100
+- OpenSearch
+- Next.js
+
+เป้าหมายคือรวบรวม Security Events จากหลายแหล่งให้อยู่ในรูปแบบเดียวกัน ก่อนส่งเข้าสู่ NVIDIA Morpheus สำหรับ GPU-accelerated Threat Analysis และแสดงผลผ่าน Unified EDR/XDR Dashboard
 
 ---
 
-## Architecture
+# Architecture
 
-```text
-              NVIDIA BlueField-3
-                       │
-                       ▼
-                 NVIDIA DOCA
-                       │
-                       ▼
-              bluefield_monitor
-                       │
-                   JSON Event
-                       │
-                       ▼
-            Kafka: bluefield-events
-                       │
-                       ▼
-                  Normalizer
-                       │
-                       ▼
-            Kafka: morpheus-input
-                       │
-                       ▼
-              NVIDIA Morpheus
-             GPU Threat Analysis
-                       │
-                       ▼
-            Kafka: morpheus-output
-                       │
-                       ▼
-                    Indexer
-                       │
-                       ▼
-                  OpenSearch
-                       │
-                       ▼
-                  Next.js API
-             /api/events /api/status
-                       │
-                       ▼
-               EDRXDR Dashboard
+```mermaid
+flowchart TD
+
+    A[Endpoint / Host]
+    B[Wazuh Agent]
+    C[Wazuh Manager]
+    D[alerts.json]
+    E[Wazuh Forwarder]
+    F[Kafka: wazuh-alerts]
+
+    G[Network Traffic]
+    H[NVIDIA BlueField-3]
+    I[NVIDIA DOCA]
+    J[bluefield_monitor]
+    K[Kafka: bluefield-events]
+
+    L[Multi-Source Normalizer]
+    M[Kafka: morpheus-input]
+
+    N[NVIDIA Morpheus]
+    O[Kafka: morpheus-output]
+
+    P[Indexer]
+    Q[OpenSearch]
+    R[EDRXDR Next.js Dashboard]
+
+    A --> B
+    B --> C
+    C --> D
+    D --> E
+    E --> F
+
+    G --> H
+    H --> I
+    I --> J
+    J --> K
+
+    F --> L
+    K --> L
+
+    L --> M
+    M --> N
+    N --> O
+
+    O --> P
+    P --> Q
+    Q --> R
 ```
 
 ---
 
-## เทคโนโลยีที่ใช้
+# Current Data Flow
 
-| เทคโนโลยี | หน้าที่ |
-|---|---|
-| NVIDIA BlueField-3 | Network/DPU Telemetry Source |
-| NVIDIA DOCA | เข้าถึงและประมวลผลข้อมูลจาก BlueField |
-| NVIDIA DPDK | High-performance packet processing |
-| Apache Kafka | Event Streaming / Message Broker |
-| Python | Normalizer และ Indexer |
-| C | BlueField / DOCA Monitor |
-| NVIDIA Morpheus | GPU-accelerated Security Analytics |
-| NVIDIA H100 | GPU สำหรับ Morpheus |
-| OpenSearch | จัดเก็บและค้นหา Security Events |
-| Next.js | Security Dashboard |
-| TypeScript / React | Frontend |
-| Docker Compose | จัดการ Services |
+```text
+                   ENDPOINT / HOST
+                         │
+                         ▼
+                    Wazuh Agent
+                         │
+                         ▼
+                   Wazuh Manager
+                         │
+                         ▼
+                    alerts.json
+                         │
+                         ▼
+                  Wazuh Forwarder
+                         │
+                         ▼
+                Kafka: wazuh-alerts
+                         │
+                         │
+                         ├──────────────────┐
+                                            │
+                 NETWORK                    │
+                    │                       │
+                    ▼                       │
+            NVIDIA BlueField-3              │
+                    │                       │
+                    ▼                       │
+               NVIDIA DOCA                  │
+                    │                       │
+                    ▼                       │
+            bluefield_monitor               │
+                    │                       │
+                    ▼                       │
+         Kafka: bluefield-events ───────────┤
+                                            │
+                                            ▼
+                                  Multi-Source Normalizer
+                                            │
+                                            ▼
+                                   Kafka: morpheus-input
+                                            │
+                                            ▼
+                                    NVIDIA Morpheus
+                                   GPU Threat Analysis
+                                            │
+                                            ▼
+                                  Kafka: morpheus-output
+                                            │
+                                            ▼
+                                         Indexer
+                                            │
+                                            ▼
+                                        OpenSearch
+                                            │
+                                            ▼
+                                   EDRXDR Dashboard
+```
 
 ---
 
-## โครงสร้างโปรเจกต์
+# Project Objectives
+
+ระบบถูกออกแบบเพื่อรองรับ:
+
+- Endpoint Detection and Response
+- Extended Detection and Response
+- Security Log Collection
+- Authentication Monitoring
+- File Integrity Monitoring
+- Vulnerability Detection
+- Network Telemetry
+- DPU-based Security Monitoring
+- Real-time Event Streaming
+- Multi-source Event Normalization
+- GPU Security Analytics
+- Threat Classification
+- Threat Scoring
+- MITRE ATT&CK Mapping
+- Security Event Storage
+- Unified Security Dashboard
+- Automated Response ในขั้นถัดไป
+
+---
+
+# 1. Wazuh Endpoint Security
+
+Wazuh ทำหน้าที่เป็น Endpoint Security / EDR Layer ของระบบ
+
+Wazuh ใช้สำหรับ:
+
+- Security Logs
+- Authentication Events
+- SSH Events
+- sudo / PAM Events
+- File Integrity Monitoring
+- Vulnerability Detection
+- Security Rules
+- Security Alerts
+- MITRE ATT&CK Mapping
+
+Pipeline:
+
+```text
+Wazuh Agent
+    ↓
+Wazuh Manager
+    ↓
+alerts.json
+    ↓
+Wazuh Forwarder
+    ↓
+Kafka: wazuh-alerts
+```
+
+ตัวอย่าง Alert ที่ระบบตรวจพบจริง:
+
+```text
+Rule 5402
+Successful sudo to ROOT executed.
+
+Rule 5501
+PAM: Login session opened.
+
+Rule 5502
+PAM: Login session closed.
+
+Rule 5715
+sshd: authentication success.
+```
+
+ตัวอย่าง Wazuh Alert:
+
+```json
+{
+  "rule": {
+    "level": 3,
+    "description": "Successful sudo to ROOT executed.",
+    "id": "5402",
+    "mitre": {
+      "id": [
+        "T1548.003"
+      ],
+      "tactic": [
+        "Privilege Escalation",
+        "Defense Evasion"
+      ],
+      "technique": [
+        "Sudo and Sudo Caching"
+      ]
+    }
+  },
+  "agent": {
+    "id": "001",
+    "name": "oa-hgx-h100-bu-02"
+  }
+}
+```
+
+Wazuh Manager สร้าง Alert ที่:
+
+```text
+/var/ossec/logs/alerts/alerts.json
+```
+
+จากนั้น Wazuh Forwarder ส่ง Alert เข้า Kafka Topic:
+
+```text
+wazuh-alerts
+```
+
+---
+
+# 2. NVIDIA BlueField-3
+
+NVIDIA BlueField-3 ทำหน้าที่เป็น Network / DPU Telemetry Source
+
+Hardware ที่ตรวจพบ:
+
+```text
+NVIDIA BlueField-3
+Integrated ConnectX-7 Network Controller
+```
+
+ตรวจสอบ Hardware:
+
+```bash
+lspci | grep -Ei "BlueField|Mellanox|ConnectX"
+```
+
+Network Interfaces:
+
+```text
+mlx5_0
+→ enp6s17f0np0
+
+mlx5_1
+→ enp6s17f1np1
+```
+
+---
+
+# 3. NVIDIA DOCA
+
+NVIDIA DOCA ใช้สำหรับเข้าถึง BlueField Device และประมวลผล Network Telemetry
+
+ตรวจสอบ DOCA Devices:
+
+```bash
+sudo /opt/mellanox/doca/tools/doca_caps --list-devs
+```
+
+ตัวอย่าง:
+
+```text
+PCI: 0000:06:11.0
+ibdev_name: mlx5_0
+iface_name: enp6s17f0np0
+
+PCI: 0000:06:11.1
+ibdev_name: mlx5_1
+iface_name: enp6s17f1np1
+```
+
+---
+
+# 4. BlueField Monitor
+
+`bluefield_monitor` พัฒนาด้วยภาษา C
+
+หน้าที่:
+
+- อ่าน RX Packets
+- อ่าน TX Packets
+- อ่าน RX Bytes
+- อ่าน TX Bytes
+- อ่าน RX Errors
+- อ่าน TX Errors
+- สร้าง JSON Telemetry
+- ส่งข้อมูลไปยัง Kafka
+
+ตัวอย่าง:
+
+```json
+{
+  "timestamp": "2026-09-16T17:31:56Z",
+  "source": "bluefield",
+  "ibdev": "mlx5_0",
+  "interface": "enp6s17f0np0",
+  "rx_packets": 0,
+  "tx_packets": 0,
+  "rx_bytes": 0,
+  "tx_bytes": 0,
+  "rx_errors": 0,
+  "tx_errors": 0
+}
+```
+
+ข้อมูลจะถูกส่งเข้าสู่:
+
+```text
+Kafka: bluefield-events
+```
+
+---
+
+# 5. Apache Kafka
+
+Apache Kafka เป็น Event Streaming Layer หลักของระบบ
+
+Kafka Topics:
+
+```text
+bluefield-events
+wazuh-alerts
+morpheus-input
+morpheus-output
+```
+
+ตรวจสอบ:
+
+```bash
+docker exec edrxdr-kafka \
+  /opt/kafka/bin/kafka-topics.sh \
+  --bootstrap-server localhost:9092 \
+  --list
+```
+
+## bluefield-events
+
+รับ Raw Network Telemetry จาก:
+
+```text
+BlueField-3
+↓
+DOCA
+↓
+bluefield_monitor
+```
+
+## wazuh-alerts
+
+รับ Endpoint Security Alerts จาก:
+
+```text
+Wazuh Manager
+↓
+alerts.json
+↓
+Wazuh Forwarder
+```
+
+## morpheus-input
+
+รับ Event ที่ผ่าน Multi-Source Normalizer แล้ว
+
+```text
+BlueField Events ──┐
+                   ├──→ Normalizer → morpheus-input
+Wazuh Alerts ──────┘
+```
+
+## morpheus-output
+
+ใช้รับผล Threat Analysis จาก NVIDIA Morpheus
+
+```text
+NVIDIA Morpheus
+↓
+morpheus-output
+```
+
+---
+
+# 6. Multi-Source Normalizer
+
+Normalizer รับข้อมูลจากทั้ง:
+
+```text
+bluefield-events
+wazuh-alerts
+```
+
+พร้อมกัน
+
+แล้วแปลงให้อยู่ใน Common EDR/XDR Schema
+
+```text
+bluefield-events ─────┐
+                      │
+                      ├──→ Multi-Source Normalizer
+                      │             ↓
+wazuh-alerts ─────────┘       morpheus-input
+```
+
+ตัวอย่าง Wazuh Normalized Event:
+
+```json
+{
+  "event_type": "endpoint_security_alert",
+  "source_type": "wazuh",
+  "source_product": "wazuh",
+  "rule_id": "5402",
+  "rule_level": 3,
+  "rule_description": "Successful sudo to ROOT executed.",
+  "agent_name": "oa-hgx-h100-bu-02",
+  "mitre_id": [
+    "T1548.003"
+  ],
+  "mitre_tactic": [
+    "Privilege Escalation",
+    "Defense Evasion"
+  ]
+}
+```
+
+ตัวอย่าง BlueField Normalized Event:
+
+```json
+{
+  "event_type": "network_telemetry",
+  "source_type": "bluefield",
+  "source_product": "nvidia-bluefield-3",
+  "ibdev": "mlx5_0",
+  "interface": "enp6s17f0np0",
+  "rx_packets": 0,
+  "tx_packets": 0,
+  "rx_bytes": 0,
+  "tx_bytes": 0
+}
+```
+
+---
+
+# 7. NVIDIA Morpheus
+
+NVIDIA Morpheus ทำหน้าที่เป็น GPU Security Analytics Layer
+
+Pipeline ที่เตรียมไว้:
+
+```text
+morpheus-input
+      ↓
+Deserialize
+      ↓
+GPU Processing
+      ↓
+Threat Analysis
+      ↓
+Threat Classification
+      ↓
+Threat Score
+      ↓
+Serialize
+      ↓
+morpheus-output
+```
+
+Morpheus Container:
+
+```text
+nvcr.io/nvidia/morpheus/morpheus:25.06-runtime
+```
+
+---
+
+# Current NVIDIA H100 Status
+
+ระบบสามารถตรวจพบ:
+
+```text
+NVIDIA H100 80GB HBM3
+```
+
+แต่ GPU Fabric ยังเป็น:
+
+```text
+Fabric
+    State  : In Progress
+    Status : N/A
+```
+
+ทำให้ NVIDIA Morpheus / cuDF ยังไม่สามารถ Initialize CUDA ได้
+
+Error:
+
+```text
+cudaErrorSystemNotReady:
+system not yet initialized
+```
+
+สถานะที่ต้องการคือ:
+
+```text
+Fabric
+    State  : Completed
+    Status : Success
+```
+
+เมื่อ GPU Fabric พร้อม ระบบจะสามารถเปิด:
+
+```text
+morpheus-input
+      ↓
+NVIDIA Morpheus
+      ↓
+GPU Threat Analysis
+      ↓
+morpheus-output
+```
+
+ได้จริง
+
+---
+
+# No Simulator / No Fallback
+
+โปรเจกต์นี้ไม่ใช้ Morpheus Simulator หรือ Fallback
+
+ข้อมูลจำลองเดิม เช่น:
+
+```text
+threat_score: 0.82
+threat_class: suspicious
+analysis_engine: morpheus-simulator
+```
+
+ถูกลบออกจาก OpenSearch แล้ว
+
+ดังนั้นหาก NVIDIA Morpheus ยังไม่พร้อม Dashboard จะแสดง:
+
+```text
+Morpheus: Waiting
+Threat Score: Waiting
+```
+
+แทนการสร้างผลลัพธ์จำลอง
+
+---
+
+# 8. Indexer
+
+Indexer จะรับข้อมูลจาก:
+
+```text
+Kafka: morpheus-output
+```
+
+แล้วส่งเข้าสู่ OpenSearch
+
+```text
+morpheus-output
+      ↓
+Indexer
+      ↓
+OpenSearch
+```
+
+Indexer พร้อมทำงานเมื่อ NVIDIA Morpheus เริ่มส่งข้อมูลจริง
+
+---
+
+# 9. OpenSearch
+
+OpenSearch ใช้เป็น Security Event Storage
+
+ตรวจสอบ:
+
+```bash
+curl http://localhost:9200
+```
+
+Index Naming:
+
+```text
+edrxdr-events-YYYY.MM.DD
+```
+
+ค้นหา Event:
+
+```bash
+curl \
+  "http://localhost:9200/edrxdr-events-*/_search?pretty"
+```
+
+---
+
+# 10. Unified EDRXDR Dashboard
+
+Dashboard หลักพัฒนาด้วย:
+
+```text
+Next.js
+React
+TypeScript
+Tailwind CSS
+```
+
+เปิด Development Server:
+
+```bash
+cd frontend
+
+npm install
+
+npm run dev -- \
+  --hostname 0.0.0.0 \
+  --port 3000
+```
+
+เปิด Dashboard:
+
+```text
+http://HOST_IP:3000
+```
+
+Dashboard รวมข้อมูลจากทั้ง Wazuh และ NVIDIA BlueField ในหน้าเดียว
+
+แสดง:
+
+- Wazuh Agent Status
+- Wazuh Manager Status
+- Wazuh Forwarder Status
+- Wazuh Alerts
+- Wazuh Rule ID
+- Wazuh Rule Level
+- MITRE ATT&CK
+- NVIDIA BlueField-3 Status
+- NVIDIA DOCA Status
+- Kafka Status
+- Normalizer Status
+- NVIDIA Morpheus Status
+- H100 GPU Fabric Status
+- Indexer Status
+- OpenSearch Status
+- Unified EDRXDR Pipeline
+
+---
+
+# Wazuh Native Dashboard
+
+Wazuh Native Dashboard ยังถูกใช้สำหรับ Administration / Debugging
+
+เปิด:
+
+```text
+https://HOST_IP:8443
+```
+
+ส่วน Dashboard หลักของโปรเจกต์คือ:
+
+```text
+http://HOST_IP:3000
+```
+
+ดังนั้น:
+
+```text
+Wazuh Dashboard
+→ Administration / Debugging
+
+EDRXDR Dashboard
+→ Unified SOC / Security Monitoring
+```
+
+---
+
+# Project Structure
 
 ```text
 EDRXDR-Morpheus/
 │
 ├── bluefield-agent/
 │   ├── meson.build
+│   │
 │   └── src/
 │       ├── bluefield_monitor.c
 │       └── bluefield_probe.c
 │
 ├── frontend/
-│   ├── src/
-│   │   └── app/
-│   │       ├── api/
-│   │       │   ├── events/
-│   │       │   └── status/
-│   │       └── page.tsx
 │   ├── package.json
-│   └── package-lock.json
+│   ├── package-lock.json
+│   │
+│   └── src/
+│       └── app/
+│           ├── page.tsx
+│           │
+│           └── api/
+│               ├── events/
+│               │   └── route.ts
+│               │
+│               ├── status/
+│               │   └── route.ts
+│               │
+│               └── wazuh/
+│                   └── route.ts
 │
 ├── normalizer/
 │   ├── Dockerfile
@@ -106,6 +741,19 @@ EDRXDR-Morpheus/
 ├── morpheus/
 │   └── start.sh
 │
+├── wazuh/
+│   ├── .env.example
+│   ├── docker-compose.yml.example
+│   │
+│   ├── forwarder/
+│   │   ├── Dockerfile
+│   │   ├── forwarder.py
+│   │   └── requirements.txt
+│   │
+│   └── config/
+│       └── wazuh_dashboard/
+│           └── wazuh.yml.example
+│
 ├── compose.yml
 ├── .env.example
 ├── .gitignore
@@ -114,271 +762,198 @@ EDRXDR-Morpheus/
 
 ---
 
-# การทำงานของ Pipeline
+# Current Project Status
 
-## 1. NVIDIA BlueField-3
+| Component | Status |
+|---|---|
+| Wazuh Agent | ✅ Working |
+| Wazuh Manager | ✅ Working |
+| Wazuh Indexer | ✅ Working |
+| Wazuh Dashboard | ✅ Working |
+| Wazuh Forwarder | ✅ Working |
+| Kafka `wazuh-alerts` | ✅ Working |
+| NVIDIA BlueField-3 | ✅ Detected / Working |
+| NVIDIA DOCA | ✅ Working |
+| BlueField Monitor | ✅ Working |
+| Kafka `bluefield-events` | ✅ Working |
+| Apache Kafka | ✅ Working |
+| Multi-Source Normalizer | ✅ Working |
+| Kafka `morpheus-input` | ✅ Wazuh + BlueField |
+| NVIDIA H100 | ✅ Detected |
+| H100 GPU Fabric | ⏳ In Progress |
+| NVIDIA Morpheus | ⏳ Waiting for GPU Fabric |
+| Kafka `morpheus-output` | ⏳ Waiting for Morpheus |
+| Indexer | ✅ Ready |
+| OpenSearch | ✅ Working |
+| Unified EDRXDR Dashboard | ✅ Working |
+| Morpheus Simulator | ❌ Removed |
+| Fallback Threat Analysis | ❌ Not used |
+| Automated Response | ⏳ Planned after Morpheus |
 
-BlueField-3 ทำหน้าที่เป็น Network Telemetry Source
+---
 
-อุปกรณ์ที่ใช้ในการพัฒนา:
+# Current Working Pipeline
+
+```text
+Wazuh Agent ✅
+    ↓
+Wazuh Manager ✅
+    ↓
+alerts.json ✅
+    ↓
+Wazuh Forwarder ✅
+    ↓
+wazuh-alerts ✅
+    │
+    │
+    ├────────────────────────┐
+                             │
+BlueField-3 ✅                │
+    ↓                        │
+DOCA ✅                      │
+    ↓                        │
+bluefield_monitor ✅         │
+    ↓                        │
+bluefield-events ✅ ─────────┤
+                             ▼
+                      Normalizer ✅
+                             ↓
+                     morpheus-input ✅
+                             ↓
+                     Morpheus ⏳
+                             ↓
+                    morpheus-output
+                             ↓
+                         Indexer
+                             ↓
+                       OpenSearch
+                             ↓
+                   EDRXDR Dashboard ✅
+```
+
+---
+
+# Automated Response
+
+Automated Response ถูกวางไว้เป็นขั้นถัดไป หลังจาก NVIDIA Morpheus สามารถทำ GPU Threat Analysis จริงได้
+
+เป้าหมายคือใช้ข้อมูลจากหลายแหล่งร่วมกัน:
+
+```text
+Wazuh Alert Severity
+        +
+Morpheus Threat Score
+        +
+Morpheus Classification
+        +
+BlueField Network Context
+        ↓
+Automated Response Engine
+```
+
+ตัวอย่าง Response:
+
+```text
+Alert
+Investigate
+Block IP
+Isolate Host
+Create Incident
+Incident Report
+```
+
+เหตุผลที่ยังไม่เปิด Automated Response จริงในปัจจุบัน คือระบบต้องการใช้ผลจาก NVIDIA Morpheus จริงประกอบการตัดสินใจก่อนดำเนินการ Response ที่มีผลต่อระบบ
+
+---
+
+# Security
+
+Repository จะไม่เก็บ Passwords, Tokens, Certificates หรือ Private Keys จริง
+
+ไฟล์ Local Only:
+
+```text
+wazuh/.env
+wazuh/docker-compose.yml
+wazuh/config/wazuh_dashboard/wazuh.yml
+wazuh/config/wazuh_indexer_ssl_certs/
+```
+
+ไฟล์เหล่านี้ถูกเพิ่มใน:
+
+```text
+.gitignore
+```
+
+Repository จะเก็บเฉพาะ Template:
+
+```text
+wazuh/.env.example
+wazuh/docker-compose.yml.example
+wazuh/config/wazuh_dashboard/wazuh.yml.example
+```
+
+ตัวอย่าง Environment Template:
+
+```env
+WAZUH_INDEXER_PASSWORD=CHANGE_ME
+WAZUH_API_PASSWORD=CHANGE_ME
+WAZUH_DASHBOARD_PASSWORD=CHANGE_ME
+```
+
+ห้าม Commit:
+
+```text
+.env
+Private Keys
+Certificates
+API Tokens
+Passwords
+Secrets
+```
+
+ขึ้น GitHub
+
+---
+
+# Technology Stack
+
+## Security
+
+```text
+Wazuh
+NVIDIA Morpheus
+MITRE ATT&CK
+```
+
+## NVIDIA
 
 ```text
 NVIDIA BlueField-3
-Integrated ConnectX-7
+NVIDIA ConnectX-7
+NVIDIA DOCA
+NVIDIA DPDK
+NVIDIA H100
+NVIDIA Morpheus
 ```
 
-ตรวจสอบอุปกรณ์:
-
-```bash
-lspci | grep -Ei "BlueField|Mellanox|ConnectX"
-```
-
-ตรวจสอบ DOCA Device:
-
-```bash
-sudo /opt/mellanox/doca/tools/doca_caps --list-devs
-```
-
-ตัวอย่าง:
+## Data Pipeline
 
 ```text
-PCI: 0000:06:11.0
-ibdev_name: mlx5_0
-
-PCI: 0000:06:11.1
-ibdev_name: mlx5_1
+Apache Kafka
+Python
+C
+Docker
+Docker Compose
 ```
 
----
-
-## 2. NVIDIA DOCA
-
-DOCA ใช้สำหรับเข้าถึง BlueField device และเก็บข้อมูล Network Telemetry
-
-ตัวอย่างข้อมูลที่ได้จาก `bluefield_monitor`:
-
-```json
-{
-  "timestamp": "2026-09-16T13:46:30Z",
-  "source": "bluefield",
-  "ibdev": "mlx5_0",
-  "interface": "enp6s17f0np0",
-  "rx_packets": 0,
-  "tx_packets": 0,
-  "rx_bytes": 0,
-  "tx_bytes": 0,
-  "rx_errors": 0,
-  "tx_errors": 0
-}
-```
-
----
-
-## 3. Apache Kafka
-
-Kafka ทำหน้าที่เป็น Event Streaming Platform ของระบบ
-
-Pipeline ใช้ Topic หลัก 3 ตัว:
+## Storage
 
 ```text
-bluefield-events
-morpheus-input
-morpheus-output
+OpenSearch
 ```
 
-### bluefield-events
-
-รับข้อมูลดิบจาก BlueField Monitor
-
-```text
-BlueField
-   ↓
-DOCA
-   ↓
-bluefield_monitor
-   ↓
-bluefield-events
-```
-
-### morpheus-input
-
-รับข้อมูลที่ผ่าน Normalizer แล้ว เพื่อรอ NVIDIA Morpheus วิเคราะห์
-
-```text
-bluefield-events
-      ↓
-Normalizer
-      ↓
-morpheus-input
-```
-
-### morpheus-output
-
-รับผล Threat Analysis จาก NVIDIA Morpheus
-
-```text
-Morpheus
-   ↓
-morpheus-output
-```
-
----
-
-# Normalizer
-
-Normalizer ทำหน้าที่แปลงข้อมูล BlueField ให้อยู่ใน Common Security Event Schema
-
-ตัวอย่าง:
-
-```json
-{
-  "timestamp": "2026-09-16T13:46:30Z",
-  "event_type": "network_telemetry",
-  "source_type": "bluefield",
-  "sensor": "nvidia-bluefield-3",
-  "ibdev": "mlx5_0",
-  "interface": "enp6s17f0np0",
-  "rx_packets": 0,
-  "tx_packets": 0,
-  "delta_rx_packets": 0,
-  "delta_tx_packets": 0
-}
-```
-
-ข้อมูลจะถูกส่งต่อไปยัง:
-
-```text
-morpheus-input
-```
-
----
-
-# NVIDIA Morpheus
-
-NVIDIA Morpheus เป็นส่วนสำหรับทำ GPU-accelerated Security Analytics
-
-Flow ที่ออกแบบไว้คือ:
-
-```text
-morpheus-input
-      ↓
-from-kafka
-      ↓
-deserialize
-      ↓
-GPU Processing / Inference
-      ↓
-Threat Score / Classification
-      ↓
-serialize
-      ↓
-to-kafka
-      ↓
-morpheus-output
-```
-
-Morpheus ใช้ Container:
-
-```text
-nvcr.io/nvidia/morpheus/morpheus:25.06-runtime
-```
-
-ตรวจสอบ GPU Fabric ก่อนเปิด Morpheus:
-
-```bash
-nvidia-smi -q -i 0 | grep -i -A 3 Fabric
-```
-
-สถานะที่ต้องการ:
-
-```text
-Fabric
-    State  : Completed
-    Status : Success
-```
-
-จากนั้นเปิด Morpheus:
-
-```bash
-docker compose --profile gpu up -d morpheus
-```
-
-ดู Log:
-
-```bash
-docker compose logs -f morpheus
-```
-
----
-
-# สถานะ H100 GPU ปัจจุบัน
-
-ปัจจุบัน H100 สามารถมองเห็นได้จาก VM:
-
-```text
-NVIDIA H100 80GB HBM3
-```
-
-แต่ GPU Fabric ยังเป็น:
-
-```text
-Fabric
-    State  : In Progress
-    Status : N/A
-```
-
-ทำให้ Morpheus / cuDF ไม่สามารถ Initialize CUDA ได้ และเกิด:
-
-```text
-cudaErrorSystemNotReady: system not yet initialized
-```
-
-ปัญหานี้ต้องแก้จากฝั่ง **HGX / KVM Host / NVIDIA Fabric Manager**
-
-เมื่อแก้สำเร็จต้องได้:
-
-```text
-State  : Completed
-Status : Success
-```
-
-จากนั้นจึงสามารถเปิด Morpheus จริงได้
-
----
-
-# OpenSearch
-
-OpenSearch ใช้สำหรับเก็บ Security Events หลังจากออกจาก `morpheus-output`
-
-ตรวจสอบ:
-
-```bash
-curl http://localhost:9200
-```
-
-ดู Index:
-
-```bash
-curl "http://localhost:9200/_cat/indices?v"
-```
-
-Security Events จะถูกเก็บใน:
-
-```text
-edrxdr-events-YYYY.MM.DD
-```
-
-ค้นหาข้อมูล:
-
-```bash
-curl "http://localhost:9200/edrxdr-events-*/_search?pretty"
-```
-
----
-
-# Dashboard
-
-Frontend พัฒนาด้วย:
+## Frontend
 
 ```text
 Next.js
@@ -387,318 +962,140 @@ TypeScript
 Tailwind CSS
 ```
 
-ติดตั้ง Dependencies:
+---
 
-```bash
-cd frontend
-npm install
-```
+# Next Steps
 
-เปิด Development Server:
+## 1. Fix H100 GPU Fabric
 
-```bash
-npm run dev -- --hostname 0.0.0.0
-```
-
-เข้า Dashboard:
+สถานะปัจจุบัน:
 
 ```text
-http://HOST_IP:3000
+State  : In Progress
+Status : N/A
 ```
 
----
-
-## Dashboard แสดงข้อมูล
-
-Dashboard สามารถแสดง:
-
-- สถานะ NVIDIA BlueField-3
-- สถานะ NVIDIA DOCA
-- สถานะ Kafka
-- สถานะ Normalizer
-- สถานะ NVIDIA Morpheus
-- สถานะ H100 GPU Fabric
-- สถานะ Indexer
-- สถานะ OpenSearch
-- Security Events
-- Threat Score
-- Threat Classification
-- BlueField RX/TX Packets
-- BlueField RX/TX Bytes
-- Network Interface
-- DOCA Device
-- Recent Security Events
-
-ระบบ Refresh ข้อมูลทุกประมาณ 5 วินาที
-
----
-
-# API
-
-## Security Events API
+เป้าหมาย:
 
 ```text
-GET /api/events
+State  : Completed
+Status : Success
 ```
-
-ใช้ดึง Security Events จาก OpenSearch
 
 ---
 
-## Infrastructure Status API
+## 2. Enable NVIDIA Morpheus
+
+เมื่อ H100 Fabric พร้อม:
 
 ```text
-GET /api/status
-```
-
-ตัวอย่าง:
-
-```json
-{
-  "bluefield": true,
-  "doca": true,
-  "kafka": true,
-  "normalizer": true,
-  "opensearch": true,
-  "indexer": true,
-  "morpheus": false,
-  "gpuFabric": "waiting"
-}
+morpheus-input
+      ↓
+NVIDIA Morpheus
+      ↓
+GPU Threat Analysis
+      ↓
+Threat Score
+      ↓
+Threat Classification
+      ↓
+morpheus-output
 ```
 
 ---
 
-# การติดตั้ง
+## 3. Validate End-to-End AI Pipeline
 
-## 1. Clone Repository
-
-```bash
-git clone https://github.com/YOUR_USERNAME/EDRXDR-Morpheus-BlueField-DOCA.git
-```
-
-เข้าโปรเจกต์:
-
-```bash
-cd EDRXDR-Morpheus-BlueField-DOCA
-```
-
----
-
-## 2. ตั้งค่า Environment
-
-สร้าง `.env`:
-
-```bash
-cp .env.example .env
-```
-
-แก้:
-
-```bash
-nano .env
-```
-
-กำหนด IP ของ VM/Host:
-
-```env
-HOST_IP=YOUR_VM_IP
-```
-
-ตัวอย่าง:
-
-```env
-HOST_IP=172.16.30.147
-```
-
-ไฟล์ `.env` จะไม่ถูก Upload ขึ้น GitHub
-
----
-
-## 3. ตั้งค่า DPDK
-
-```bash
-export PKG_CONFIG_PATH=/opt/mellanox/dpdk/lib/x86_64-linux-gnu/pkgconfig:$PKG_CONFIG_PATH
-```
-
-ตรวจสอบ:
-
-```bash
-pkg-config --modversion libdpdk
-pkg-config --modversion doca-common
-pkg-config --modversion doca-flow
-```
-
----
-
-## 4. ตั้งค่า HugePages
-
-```bash
-echo 1024 | sudo tee \
-/sys/kernel/mm/hugepages/hugepages-2048kB/nr_hugepages
-```
-
-สร้าง Mount Point:
-
-```bash
-sudo mkdir -p /mnt/huge
-```
-
-Mount:
-
-```bash
-sudo mount \
--t hugetlbfs \
--o pagesize=2M \
-nodev \
-/mnt/huge
-```
-
-ตรวจสอบ:
-
-```bash
-grep -i Huge /proc/meminfo
-```
-
----
-
-## 5. Build BlueField Agent
-
-```bash
-mkdir -p build
-```
-
-```bash
-meson setup \
-  build/bluefield-agent \
-  bluefield-agent
-```
-
-Compile:
-
-```bash
-ninja -C build/bluefield-agent
-```
-
-ทดสอบ BlueField:
-
-```bash
-./build/bluefield-agent/bluefield_probe
-```
-
-รัน Monitor:
-
-```bash
-./build/bluefield-agent/bluefield_monitor
-```
-
----
-
-## 6. เปิด Infrastructure
-
-```bash
-docker compose up -d --build
-```
-
-ตรวจสอบ:
-
-```bash
-docker compose ps
-```
-
-Core services:
+ทดสอบ:
 
 ```text
-edrxdr-kafka
-edrxdr-normalizer
-edrxdr-indexer
-edrxdr-opensearch
+Wazuh
+   ┐
+   │
+   ├→ Normalizer
+   │      ↓
+BlueField ┘  morpheus-input
+              ↓
+          Morpheus
+              ↓
+        morpheus-output
+              ↓
+           Indexer
+              ↓
+         OpenSearch
+              ↓
+          Dashboard
 ```
 
 ---
 
-## 7. ตรวจ Kafka
+## 4. Automated Response
 
-ดู BlueField Events:
-
-```bash
-docker exec edrxdr-kafka \
-  /opt/kafka/bin/kafka-console-consumer.sh \
-  --bootstrap-server localhost:9092 \
-  --topic bluefield-events \
-  --max-messages 2
-```
-
-ดู Morpheus Input:
-
-```bash
-docker exec edrxdr-kafka \
-  /opt/kafka/bin/kafka-console-consumer.sh \
-  --bootstrap-server localhost:9092 \
-  --topic morpheus-input \
-  --max-messages 2
-```
-
----
-
-# สถานะโปรเจกต์ปัจจุบัน
-
-| Component | Status |
-|---|---|
-| NVIDIA BlueField-3 | ✅ ทำงาน |
-| NVIDIA DOCA | ✅ ทำงาน |
-| DPDK Runtime | ✅ ทำงาน |
-| BlueField Probe | ✅ ทำงาน |
-| BlueField Monitor | ✅ ทำงาน |
-| Kafka | ✅ ทำงาน |
-| Normalizer | ✅ ทำงาน |
-| `bluefield-events` | ✅ ทำงาน |
-| `morpheus-input` | ✅ ทำงาน |
-| NVIDIA Morpheus | ⏳ รอ H100 Fabric |
-| H100 GPU Fabric | ⏳ In Progress |
-| `morpheus-output` | ✅ Topic พร้อม |
-| Indexer | ✅ ทำงาน |
-| OpenSearch | ✅ ทำงาน |
-| Next.js API | ✅ ทำงาน |
-| Security Dashboard | ✅ ทำงาน |
-
----
-
-# Pipeline ปัจจุบัน
+หลัง Morpheus พร้อม จะพัฒนา Response Playbook:
 
 ```text
-BlueField-3 ✅
-     ↓
-NVIDIA DOCA ✅
-     ↓
-bluefield_monitor ✅
-     ↓
-Kafka: bluefield-events ✅
-     ↓
-Normalizer ✅
-     ↓
-Kafka: morpheus-input ✅
-     ↓
-NVIDIA Morpheus ⏳
-     ↓
-Kafka: morpheus-output
-     ↓
-Indexer ✅
-     ↓
-OpenSearch ✅
-     ↓
-Next.js Dashboard ✅
+Threat Detected
+      ↓
+Risk Evaluation
+      ↓
+Response Decision
+      ↓
+┌───────────────┬────────────────┐
+│               │                │
+▼               ▼                ▼
+Alert        Block IP       Isolate Host
+│
+▼
+Incident Report
 ```
 
 ---
 
-# เป้าหมายของโปรเจกต์
+# Project Summary
 
-เป้าหมายของระบบคือสร้าง EDR/XDR Security Pipeline ที่สามารถนำข้อมูล Network Telemetry จาก NVIDIA BlueField มาวิเคราะห์ด้วย GPU Security Analytics และแสดงผลผ่าน Dashboard แบบ Real-time
+ปัจจุบัน EDRXDR Pipeline สามารถรับ Security Events จากทั้ง:
 
-เมื่อ H100 GPU Fabric พร้อม ระบบจะสามารถเปิด NVIDIA Morpheus เพื่อทำ Threat Analysis จริงใน Pipeline ได้
+```text
+Wazuh Endpoint Security
+```
+
+และ:
+
+```text
+NVIDIA BlueField-3 / DOCA Network Telemetry
+```
+
+ได้พร้อมกัน
+
+ข้อมูลจากทั้งสองแหล่งสามารถไหลผ่าน:
+
+```text
+Wazuh / BlueField
+        ↓
+Apache Kafka
+        ↓
+Multi-Source Normalizer
+        ↓
+morpheus-input
+```
+
+ได้สำเร็จแล้ว
+
+Unified Dashboard สามารถแสดง Wazuh Endpoint Alerts และสถานะ BlueField / DOCA Pipeline ในหน้าเดียวกันได้
+
+ส่วนที่เหลือคือการแก้ไข **NVIDIA H100 GPU Fabric** เพื่อเปิด NVIDIA Morpheus สำหรับ GPU Threat Analysis จริง
+
+หลังจาก Morpheus พร้อม จะพัฒนา **Automated Response / Response Playbook** ต่อ เพื่อให้ระบบ EDR/XDR สามารถตรวจจับ วิเคราะห์ และตอบสนองต่อภัยคุกคามได้แบบ End-to-End
 
 ---
 
 ## License
 
-โปรเจกต์นี้จัดทำขึ้นเพื่อการศึกษา การวิจัย และการพัฒนาต้นแบบด้าน Cybersecurity, EDR/XDR, NVIDIA BlueField, DOCA และ NVIDIA Morpheus
+โปรเจกต์นี้จัดทำขึ้นเพื่อการศึกษา การวิจัย และการพัฒนาต้นแบบด้าน:
+
+- Cybersecurity
+- EDR / XDR
+- NVIDIA BlueField
+- NVIDIA DOCA
+- NVIDIA Morpheus
+- GPU / DPU Security Analytics

@@ -36,3 +36,26 @@ compose.yml.before-*
 *.swp
 .DS_Store
 Thumbs.db
+
+# Wazuh generated certificates
+wazuh/config/wazuh_indexer_ssl_certs/
+
+# Backup / temporary files
+*.old
+*.broken
+*.backup
+*.bak
+
+# Private keys / certificates
+*.pem
+*.key
+
+# Wazuh local runtime configuration / secrets
+wazuh/.env
+wazuh/docker-compose.yml
+wazuh/config/wazuh_dashboard/wazuh.yml
+
+# Wazuh certificates / private keys
+wazuh/config/wazuh_indexer_ssl_certs/
+*.pem
+*.key
