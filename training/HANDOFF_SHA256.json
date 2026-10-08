@@ -1,0 +1,20 @@
+{
+  "HANDOFF.md": "71b4638317517111dca3842428b1aab7cc59e7913e9eac23c5fe13faba8dc0df",
+  "LATEST_STATUS.md": "9c4318a7950551f9f47b0c94f6af990828fa4664dc81212661a2c5e0e433756a",
+  "LOCAL_VALIDATION.json": "ca46608295ac6107b440a609890c4d397ea8e2fc4b0731f38833604719e88b63",
+  "NEXT_STEPS_TH.md": "158692d8a1764b7718cc3c1e5f216565a0d6e51b56f8ebf516d0dec809f851da",
+  "README.md": "1437f180dc2fcecf9f0feb1f74e90b9d747cdba148b699ea0997153bee0ddd18",
+  "build_context_dataset.py": "8c8ef58a61405cc02b7d5a5dd1482d8658695b111e1c9e1310e874cf19a083e7",
+  "check_morpheus_offline.py": "3ea018be632bb0ce3247759e5f66d12cec58fd581b9b36317c749a260e5f60f0",
+  "morpheus_bert_special_tokens.py": "42061f6932fecafc19cd7510a0f79d15de13f5a9c958f5b3ff5e58e0dcc4497a",
+  "morpheus_context_inference.py": "93f65aeba619f92c60dcd0af7aa484b2f49a0ef75688f8ceb863a3a7153d0e68",
+  "quality_metrics.py": "56f57d0d747ac6b578da200833fdf0949e42caaab872ee31b387fceb7805b560",
+  "raw_event_contract.py": "cb806fa42dd54e2032bf3987e91b96e7b68a3246b4a9293134e151a534e45fbd",
+  "run_context_v2.sh": "261d68ce319a9d0148e32a59a6a27fa867e40088da29cf5da1d1e2f0845c609d",
+  "run_morpheus_offline.sh": "c46d07e302bad9905f26d492b971cf54b36417d53287e9df542b54235d8746e3",
+  "run_raw_offline.sh": "5363120dd9834173a69ba4dcd90974bb254891d53543f597d42abaee8937421b",
+  "run_training.sh": "cebd3fc03eaf5fbd93051bf49d5200203b394a7e4a13a380f7a8de34cb3b8b0c",
+  "test_raw_contract.py": "2de944b82e780a467cc16bf15af5d8b16f70b6f79c3e7abee6f0f352c4db7925",
+  "train_context_v2.py": "af3ab8d9110777cc71bcd041ad8b23434e9cbd260b419bf6f8c6b4475e64d407",
+  "train_wazuh_severity.py": "1941ec8d23f0efada2a93f0e0f6cfa3302725eaefb82b219b171076e43bf5272"
+}

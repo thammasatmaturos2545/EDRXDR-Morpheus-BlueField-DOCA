@@ -1,0 +1,53 @@
+{
+  "status": "PASS",
+  "rows": 1367,
+  "compared_rows": 1367,
+  "issues": {},
+  "first_issues": [],
+  "max_absolute_score_error": 0.0,
+  "tolerance": {
+    "atol": 0.0001,
+    "rtol": 0.0001
+  },
+  "threshold": 0.5,
+  "bf16": true,
+  "checkpoint": "/models/wazuh-severity-context-v2-balanced-20261008T190719Z-1398863",
+  "dataset_manifest_sha256": "354e3c9dc9febe49173fa416cdd943cf3512540dded5f18e0ae3d800908b8669",
+  "checkpoint_weights_sha256": "8547792bdff3897388b07891bc2c57e0f76e81e2bb09e2b8ce55be48bfc31363",
+  "adapter_sha256": "93f65aeba619f92c60dcd0af7aa484b2f49a0ef75688f8ceb863a3a7153d0e68",
+  "preprocessing": "native body tokens + project-local CLS/SEP framing, length 256",
+  "preprocessing_adapter_sha256": "42061f6932fecafc19cd7510a0f79d15de13f5a9c958f5b3ff5e58e0dcc4497a",
+  "versions": {
+    "torch": "2.4.0+cu124",
+    "transformers": "4.44.2",
+    "cupy": "13.3.0",
+    "cudf": "25.02.02"
+  },
+  "scope": "Technical parity; optional raw reconstruction recorded in raw_event_check. No production-readiness claim.",
+  "held_out_data_used": false,
+  "raw_event_check": {
+    "status": "PASS",
+    "reconstructed_rows": 6546,
+    "source_sha256": {
+      "2026/Oct/ossec-alerts-01.json.gz": "b1a24246cbfed158e76894c57d2766c7e46007b4d5a476f5a8715088473a3680",
+      "2026/Oct/ossec-alerts-02.json.gz": "87f75a53fd9fdc7ae48bb20fb0d8841606012e34321695484ebad7445140cf9e",
+      "2026/Oct/ossec-alerts-06.json.gz": "712c4a426e299b5b5c91abfe5613879557b33c0e1c02e6e18d25c7eabd5d7fe7",
+      "2026/Oct/ossec-alerts-07.json.gz": "7fd802d6ccd69864f86e6b70f10233a632a3d5a685a3dc5ce6994e4b32f5fd5f",
+      "2026/Sep/ossec-alerts-16.json.gz": "3ab773621012362597576d54319ab88c8a724936a6b5285ef7d962f79d5302b0",
+      "2026/Sep/ossec-alerts-17.json.gz": "3790ae82dc9f94c88b79b5c37e6817b808fe97cf6497be1813a21fa506734ff8",
+      "2026/Sep/ossec-alerts-21.json.gz": "e216879d45bcff23040520e6da2a52712db66290fd9d7532c6227744141897b9",
+      "2026/Sep/ossec-alerts-22.json.gz": "0c949e485d29c35efbc504503fea7502d76cb7cf46f1b4d7c0ebfc0cf3b0606a",
+      "2026/Sep/ossec-alerts-23.json.gz": "a5e8d174b027b9c06ab48d4b38358a73445b0b0a43b289f69a0d0e882b8fc232",
+      "2026/Sep/ossec-alerts-24.json.gz": "dfef0eabd1d7f6881c36f1a4942e642533a6e30821b56ddb67377d1f810f69e7",
+      "2026/Sep/ossec-alerts-25.json.gz": "a33700f5cbe75aea6384ab4683636f5ce9d5ef05238cef0d3907433ef3167308",
+      "2026/Sep/ossec-alerts-27.json.gz": "74d9cad72d4fe57d54cdce4d021e905c3cb117a111fcb2cd27ea0e065d4059ff",
+      "2026/Sep/ossec-alerts-28.json.gz": "93d53abdc9c9c510c80b7d7b4380e6f91a1c07ec8bb25c0d6f0cde45db471ec8",
+      "2026/Sep/ossec-alerts-29.json.gz": "fc997e7ed43d1166a76f77a14c72e8e7908085283ebe216cb23b07ede94bd403",
+      "2026/Sep/ossec-alerts-30.json.gz": "66c665113ee0603ff236ee98a0cf7cd7e2ffa5cb57f9be1792d4cdb1c9b198ca"
+    },
+    "contract": "wazuh-context-v2-raw-1",
+    "held_out_data_used": false
+  },
+  "raw_adapter_sha256": "cb806fa42dd54e2032bf3987e91b96e7b68a3246b4a9293134e151a534e45fbd",
+  "text_builder_sha256": "8c8ef58a61405cc02b7d5a5dd1482d8658695b111e1c9e1310e874cf19a083e7"
+}

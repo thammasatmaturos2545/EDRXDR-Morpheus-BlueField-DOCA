@@ -1,0 +1,11 @@
+{
+  "original_archive_hashes": "PASS",
+  "unchanged_frozen_adapters_and_builder": true,
+  "cpu_unittest_cases": 5,
+  "cpu_unittest_status": "PASS",
+  "python_syntax": "PASS",
+  "shell_syntax": "PASS",
+  "h100_raw_integration": "PENDING",
+  "new_training": "NOT_RUN",
+  "shadow": "NOT_CONNECTED"
+}

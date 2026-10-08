@@ -1,0 +1,82 @@
+{
+  "scope": "development_only",
+  "threshold": 0.5,
+  "overall": {
+    "n": 1314,
+    "tp": 528,
+    "fp": 258,
+    "tn": 528,
+    "fn": 0,
+    "precision": 0.6717557251908397,
+    "recall": 1.0,
+    "f1": 0.8036529680365296,
+    "false_positive_rate": 0.3282442748091603
+  },
+  "per_rule": {
+    "23504": {
+      "n": 528,
+      "tp": 528,
+      "fp": 0,
+      "tn": 0,
+      "fn": 0,
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1": 1.0,
+      "false_positive_rate": null
+    },
+    "2901": {
+      "n": 258,
+      "tp": 0,
+      "fp": 258,
+      "tn": 0,
+      "fn": 0,
+      "precision": 0.0,
+      "recall": null,
+      "f1": 0.0,
+      "false_positive_rate": 1.0
+    },
+    "5501": {
+      "n": 278,
+      "tp": 0,
+      "fp": 0,
+      "tn": 278,
+      "fn": 0,
+      "precision": null,
+      "recall": null,
+      "f1": null,
+      "false_positive_rate": 0.0
+    },
+    "5502": {
+      "n": 250,
+      "tp": 0,
+      "fp": 0,
+      "tn": 250,
+      "fn": 0,
+      "precision": null,
+      "recall": null,
+      "f1": null,
+      "false_positive_rate": 0.0
+    }
+  },
+  "proposed_limits": {
+    "precision": 0.85,
+    "recall": 0.9,
+    "f1": 0.85,
+    "false_positive_rate": 0.1
+  },
+  "proposed_gate_results": {
+    "precision": false,
+    "recall": true,
+    "f1": false,
+    "false_positive_rate": false,
+    "per_rule": false
+  },
+  "development_numeric_gate_pass": false,
+  "shadow_authorized": false,
+  "production_ready": false,
+  "limitations": [
+    "Single-seed development set",
+    "Positive validation covers only one rule",
+    "Numerical pass cannot establish generalization or authorize deployment"
+  ]
+}
