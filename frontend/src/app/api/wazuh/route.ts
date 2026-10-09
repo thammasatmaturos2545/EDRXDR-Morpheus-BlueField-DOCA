@@ -19,7 +19,7 @@ async function getManagerContainer() {
         "status=running",
         "--format",
         "{{.Names}}",
-      ]
+      ], { timeout: 5000 }
     );
 
   return (
@@ -63,6 +63,7 @@ export async function GET() {
         {
           maxBuffer:
             5 * 1024 * 1024,
+          timeout: 10000,
         }
       );
 
@@ -107,9 +108,7 @@ export async function GET() {
             "unknown",
 
           rule_level:
-            Number(
-              rule.level || 0
-            ),
+            typeof rule.level === "number" && Number.isInteger(rule.level) && rule.level >= 0 && rule.level <= 15 ? rule.level : null,
 
           description:
             rule.description ||
@@ -119,9 +118,7 @@ export async function GET() {
             rule.groups || [],
 
           firedtimes:
-            Number(
-              rule.firedtimes || 0
-            ),
+            typeof rule.firedtimes === "number" && Number.isFinite(rule.firedtimes) ? rule.firedtimes : null,
 
           agent_id:
             agent.id ||

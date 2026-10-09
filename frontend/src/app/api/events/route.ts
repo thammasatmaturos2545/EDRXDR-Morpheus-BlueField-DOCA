@@ -18,6 +18,7 @@ export async function GET() {
 
         body: JSON.stringify({
           size: 100,
+          track_total_hits: true,
 
           sort: [
             {
@@ -29,11 +30,12 @@ export async function GET() {
           ],
 
           query: {
-            match_all: {},
+            bool: { filter: [{ term: { processing_mode: "live" } }], must_not: [{ term: { analysis_engine: "morpheus-simulator" } }] },
           },
         }),
 
         cache: "no-store",
+        signal: AbortSignal.timeout(10000),
       }
     );
 
@@ -53,6 +55,7 @@ export async function GET() {
 
     const data = await response.json();
 
+    if (!Array.isArray(data.hits?.hits) || data.timed_out || (data._shards?.failed ?? 0) > 0) throw new Error("Invalid or incomplete OpenSearch response");
     const events =
       data.hits?.hits?.map(
         (hit: {
@@ -60,14 +63,14 @@ export async function GET() {
           _index: string;
           _source: Record<string, unknown>;
         }) => ({
+          ...hit._source,
           id: hit._id,
           index: hit._index,
-          ...hit._source,
         })
       ) ?? [];
 
     return NextResponse.json({
-      total: data.hits?.total?.value ?? 0,
+      total: data.hits?.total?.value ?? null,
       events,
     });
   } catch (error) {
