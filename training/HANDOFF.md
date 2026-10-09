@@ -1,14 +1,14 @@
 # EDR/XDR Development Handoff
 
-Generated from live Git/Docker/test state at `2026-10-10T02:36:31+07:00`.
+Generated from live Git/Docker/test state at `2026-10-10T02:51:54+07:00`.
 
 ## Resume point
 ```bash
 cd ~/EDRXDR-Morpheus
 ```
 
-- Branch: `work/raw-offline-pass-1367`
-- Commit: `8fffe837d39e29e8c8ac187215050ca216398246`
+- Branch: `work/shadow-mode-v1`
+- Commit: `4dae1f7223838c07ac3882bd1cf786e0f20dd9dc`
 - Milestone: Replay Severity + Behavioral integration works in development.
 - Multi-event join: **8/8 UID joins verified**
 - Production ready: **NO**
@@ -58,37 +58,17 @@ Do not switch Behavioral v1.4 back to `replay-morpheus-input`; it does not prese
 | `docker compose config` | **PASS** |
 | Next.js production build | **PASS** |
 | `git diff --check` | **PASS** |
-| Secret-pattern scan | **PASS (reviewed; placeholders/comments/test strings only)** |
+| Secret-pattern scan | **PASS (targeted scan: no matches; broader repo scan reviewed placeholders/comments/test strings only)** |
 | OpenSearch multi-event join | **8/8 UID joins verified** |
 
 ## Git files not yet committed
 ```text
-M frontend/src/app/api/replay/events/route.ts
- M frontend/src/app/dashboard.tsx
-?? replay/
-?? training/analyze_rule_2901.py
-?? training/experiments/
+(none)
 ```
 
 Untracked:
 ```text
-replay/archive_replay_loader.py
-replay/behavioral_indexer.py
-replay/behavioral_replay.py
-replay/compose.local.yml
-replay/compose.yml
-replay/indexer_replay.py
-replay/inference_replay.py
-replay/morpheus_replay_engine.py
-replay/normalizer_replay.py
-training/analyze_rule_2901.py
-training/experiments/temporal-v1/balanced-report.json
-training/experiments/temporal-v1/build_temporal_v1.py
-training/experiments/temporal-v1/dataset-manifest.json
-training/experiments/temporal-v1/PLAN.md
-training/experiments/temporal-v1/README.md
-training/experiments/temporal-v1/train_temporal_v1.py
-training/experiments/temporal-v1/unweighted-report.json
+(none)
 ```
 
 ## Dataset/model Docker volumes

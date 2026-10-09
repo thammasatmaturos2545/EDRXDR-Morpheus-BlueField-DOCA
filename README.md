@@ -1103,11 +1103,11 @@ Unified Dashboard สามารถแสดง Wazuh Endpoint Alerts และ
 <!-- EDRXDR_CURRENT_STATUS_START -->
 ## Current Project Status
 
-Last verified: `2026-10-10T02:36:31+07:00`
+Last verified: `2026-10-10T02:51:54+07:00`
 
 **Status:** Replay/Development integration is functional; **not production-ready**. Automated response remains disabled.
 
-- Git: branch `work/raw-offline-pass-1367`, commit `8fffe83`.
+- Git: branch `work/shadow-mode-v1`, commit `4dae1f7`.
 - Severity and Behavioral v1.4 use separate replay paths joined by `event_uid`.
 - Behavioral runtime uses raw Wazuh fields (`decoder.name`, `location`, `data.*`).
 - OpenSearch: `replay-severity-v1`, `replay-behavioral-v1`.
@@ -1121,7 +1121,7 @@ Last verified: `2026-10-10T02:36:31+07:00`
 | `docker compose config` | **PASS** |
 | Next.js production build | **PASS** |
 | `git diff --check` | **PASS** |
-| Secret-pattern scan | **PASS (reviewed; placeholders/comments/test strings only)** |
+| Secret-pattern scan | **PASS (targeted scan: no matches; broader repo scan reviewed placeholders/comments/test strings only)** |
 | OpenSearch multi-event join | **8/8 UID joins verified** |
 
 > Severity score is a Wazuh-severity proxy, not attack probability. Behavioral anomaly/novelty is supporting evidence, not a malicious classifier.
