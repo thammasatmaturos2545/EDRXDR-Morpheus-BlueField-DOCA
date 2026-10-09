@@ -1,34 +1,200 @@
-# Latest status — 2026-10-09
+# Latest Project Status
 
-Run: morpheus-raw-offline-check-20261008T203523Z-1803526
+Last verified: `2026-10-10T02:36:31+07:00`
 
-## Verified H100 results
-- Raw reconstruction: PASS, 6546 development rows.
-- Morpheus/HF parity: PASS, 1367/1367 inputs.
-- Maximum absolute score error: 0.0.
-- Precision: 67.18%.
-- Recall: 100.00%.
-- F1: 80.37%.
-- False-positive rate: 32.82%.
-- Rule 2901: 258 false positives out of 258.
-- Model quality gates have not passed.
-- No new training, shadow deployment or automated response.
-- Test/reserve data were not used.
+## Executive status
 
-## Evidence
-Original reports are in ../reports/morpheus-raw-offline-check-20261008T203523Z-1803526/.
-Four source hashes were checked against parity_report.json.
-The checker itself is not source-hash-attested by that report.
-New hashes record current files; they do not prove additional execution.
+**Replay/Development integration is working. Production readiness has not been established.**
 
-## Historical documentation
-PENDING statements in earlier documents describe the pre-run state.
-LOCAL_VALIDATION.json records the earlier local checks.
-Read this file first for current integration status.
+- Branch: `work/raw-offline-pass-1367`
+- Commit: `8fffe837d39e29e8c8ac187215050ca216398246`
+- Automated response: **OFF**
+- Shadow deployment: **NOT ENABLED**
+- Production ready: **NO**
+- Multi-event Severity↔Behavioral verification: **8/8 UID joins verified**
 
-## Next experiment
-Keep v2b as baseline and preserve existing split memberships.
-Do not move rule 2901 into training under the existing experiment.
-Keep old-test quarantine and all 479 reserve events untouched.
-Document any new dataset/split policy before training.
-Rerun parity whenever the model or preprocessing changes.
+## Verification
+
+| Check | Result |
+|---|---|
+| Python `py_compile` | **PASS** |
+| `docker compose config` | **PASS** |
+| Next.js production build | **PASS** |
+| `git diff --check` | **PASS** |
+| Secret-pattern scan | **PASS (reviewed; placeholders/comments/test strings only)** |
+| OpenSearch multi-event join | **8/8 UID joins verified** |
+
+## Kafka consumer state
+
+| Consumer group | Topic | Current | End | Lag |
+|---|---|---:|---:|---:|
+| `replay-normalizer-v1` | `replay-wazuh-alerts` | 9 | 9 | 0 |
+| `replay-inference-v1` | `replay-morpheus-input` | 9 | 9 | 0 |
+| `replay-indexer-v1` | `replay-morpheus-output` | 10 | 10 | 0 |
+| `replay-behavioral-raw-v1` | `replay-behavioral-input` | 8 | 8 | 0 |
+| `replay-behavioral-indexer-v1` | `replay-behavioral-output` | 10 | 10 | 0 |
+
+## Current data flow
+
+```text
+Wazuh raw archive
+  +--> archive_replay_loader.py
+       +--> replay-wazuh-alerts -> normalizer -> replay-morpheus-input -> H100 inference -> replay-morpheus-output -> replay-severity-v1
+       +--> replay-behavioral-input -> behavioral_replay.py -> replay-behavioral-output -> replay-behavioral-v1
+
+replay-severity-v1 + replay-behavioral-v1 -> event_uid join -> /api/replay/events -> /replay
+```
+
+## Completed work / results
+
+### Temporal-v1
+### balanced
+- `dev-all.jsonl`: N=1310, TP=1188, FP=1, TN=105, FN=16, Recall=0.9867109634551495, F1=0.9928959465106562, FPR=0.009433962264150943
+- `dev-seen.jsonl`: N=1291, TP=1188, FP=1, TN=102, FN=0, Recall=1.0, F1=0.9995793016407236, FPR=0.009708737864077669
+- `dev-unseen.jsonl`: N=19, TP=0, FP=0, TN=3, FN=16, Recall=0.0, F1=None, FPR=0.0
+### unweighted
+- `dev-all.jsonl`: N=1310, TP=1188, FP=0, TN=106, FN=16, Recall=0.9867109634551495, F1=0.9933110367892978, FPR=0.0
+- `dev-seen.jsonl`: N=1291, TP=1188, FP=0, TN=103, FN=0, Recall=1.0, F1=1.0, FPR=0.0
+- `dev-unseen.jsonl`: N=19, TP=0, FP=0, TN=3, FN=16, Recall=0.0, F1=None, FPR=0.0
+
+Interpretation: seen-rule results are strong, unseen high-severity generalization remains weak, and this is development evidence only.
+
+### Behavioral v1.4
+Verified states: `insufficient_feature_diversity`, `behavioral_anomaly`, `behavioral_anomaly+semantic_novelty`, `novel_cohort`, `limited_history`.
+
+### Multi-event replay
+| Rule | Lvl | Severity | Score | Behavioral state | Routing | Support | AE | Novel | UID join |
+|---:|---:|---|---:|---|---|---:|---:|---|---|
+| 503 | 3 | `low_severity` | 0.000607 | `novel_cohort` | `novel_cohort` | 0 | N/A | True | PASS |
+| 2901 | 3 | `high_severity` | 0.999374 | `insufficient_feature_diversity` | `local_model` | 240 | N/A | False | PASS |
+| 5402 | 3 | `low_severity` | 0.000431 | `behavioral_anomaly` | `local_model` | 127 | 1.399x | False | PASS |
+| 5403 | 4 | `low_severity` | 0.000553 | `behavioral_anomaly+semantic_novelty` | `local_model` | 127 | 70.407x | True | PASS |
+| 5901 | 8 | `low_severity` | 0.017986 | `novel_cohort` | `novel_cohort` | 0 | N/A | True | PASS |
+| 5902 | 8 | `low_severity` | 0.001927 | `novel_cohort` | `novel_cohort` | 0 | N/A | True | PASS |
+| 5904 | 8 | `high_severity` | 0.996517 | `novel_cohort` | `novel_cohort` | 0 | N/A | True | PASS |
+| 19011 | 9 | `high_severity` | 0.999144 | `limited_history` | `limited_history` | 4 | N/A | False | PASS |
+
+## Reports / evidence
+- `training/experiments/temporal-v1/dataset-manifest.json`
+- `training/experiments/temporal-v1/balanced-report.json`
+- `training/experiments/temporal-v1/unweighted-report.json`
+- `training/experiments/temporal-v1/PLAN.md`
+- `training/experiments/temporal-v1/README.md`
+- `/tmp/multireplay-behavioral.log` (if present)
+- `/tmp/multireplay-behavioral-index.log` (if present)
+- `/tmp/multireplay-severity.log` (if present)
+- `/tmp/multireplay-severity-index.log` (if present)
+- `/tmp/replay-api-joined-3101.json` (if present)
+
+## Docker datasets / models
+### `edrxdr-dataset`
+- Docker mountpoint: `/docker/volumes/edrxdr-dataset/_data`
+- Top-level entries:
+  - `wazuh-context-v2-20261008T185539Z-1179365`
+  - `wazuh-history-20261008T184838Z-1179365`
+### `edrxdr-model-output`
+- Docker mountpoint: `/docker/volumes/edrxdr-model-output/_data`
+- Top-level entries:
+  - `morpheus-behavioral-v1-4-dev`
+  - `morpheus-offline-check-20261008T191811Z-1451355`
+  - `morpheus-offline-check-20261008T192047Z-1463522`
+  - `morpheus-offline-check-20261008T192400Z-1478287`
+  - `morpheus-offline-check-20261008T194638Z-1580961`
+  - `morpheus-offline-check-20261008T194814Z-1588236`
+  - `morpheus-raw-offline-check-20261008T203523Z-1803526`
+  - `wazuh-severity-context-v2-balanced-20261008T190719Z-1398863`
+  - `wazuh-severity-context-v2-smoke-20261008T190209Z-1373668`
+  - `wazuh-severity-context-v2-train-20261008T190301Z-1377612`
+  - `wazuh-severity-nlp-v1-smoke-20261007T135726Z-1881188`
+  - `wazuh-severity-nlp-v1-train-20261008T182138Z-1189522`
+  - `wazuh-severity-temporal-v1-balanced-20261009`
+  - `wazuh-severity-temporal-v1-unweighted-20261009`
+
+Behavioral runtime: `edrxdr-model-output:/morpheus-behavioral-v1-4-dev` (development only; automated response disabled).
+Known data roots: `wazuh-context-v2-20261008T185539Z-1179365`, `wazuh-history-20261008T184838Z-1179365`.
+
+## Git state
+Branch: `work/raw-offline-pass-1367`
+Commit: `8fffe837d39e29e8c8ac187215050ca216398246`
+
+### Modified / untracked
+```text
+M frontend/src/app/api/replay/events/route.ts
+ M frontend/src/app/dashboard.tsx
+?? replay/
+?? training/analyze_rule_2901.py
+?? training/experiments/
+```
+
+### Untracked
+```text
+replay/archive_replay_loader.py
+replay/behavioral_indexer.py
+replay/behavioral_replay.py
+replay/compose.local.yml
+replay/compose.yml
+replay/indexer_replay.py
+replay/inference_replay.py
+replay/morpheus_replay_engine.py
+replay/normalizer_replay.py
+training/analyze_rule_2901.py
+training/experiments/temporal-v1/balanced-report.json
+training/experiments/temporal-v1/build_temporal_v1.py
+training/experiments/temporal-v1/dataset-manifest.json
+training/experiments/temporal-v1/PLAN.md
+training/experiments/temporal-v1/README.md
+training/experiments/temporal-v1/train_temporal_v1.py
+training/experiments/temporal-v1/unweighted-report.json
+```
+
+## Running containers
+```text
+edrxdr-replay-opensearch-1	opensearchproject/opensearch:2.11.0	Up 21 hours	9200/tcp, 9300/tcp, 9600/tcp, 9650/tcp
+edrxdr-replay-normalizer-1	edrxdr-morpheus-normalizer:latest	Up 21 hours
+edrxdr-replay-kafka-1	apache/kafka:3.8.1	Up 21 hours	9092/tcp
+edrxdr-normalizer	edrxdr-morpheus-normalizer	Up 2 days
+edrxdr-wazuh-forwarder	wazuh-wazuh.forwarder	Up 2 days
+wazuh-wazuh.dashboard-1	wazuh/wazuh-dashboard:4.14.7	Up 2 days	443/tcp, 0.0.0.0:8443->5601/tcp, [::]:8443->5601/tcp
+wazuh-wazuh.indexer-1	wazuh/wazuh-indexer:4.14.7	Up 2 days	0.0.0.0:9201->9200/tcp, [::]:9201->9200/tcp
+wazuh-wazuh.manager-1	wazuh/wazuh-manager:4.14.7	Up 2 days	0.0.0.0:1514-1515->1514-1515/tcp, [::]:1514-1515->1514-1515/tcp, 0.0.0.0:514->514/udp, [::]:514->514/udp, 0.0.0.0:55000->55000/tcp, [::]:55000->55000/tcp, 1516/tcp
+edrxdr-indexer	edrxdr-morpheus-indexer	Up 2 days
+edrxdr-kafka	apache/kafka:3.8.1	Up 2 days	0.0.0.0:9092->9092/tcp, [::]:9092->9092/tcp
+edrxdr-opensearch	opensearchproject/opensearch:2.11.0	Up 2 days	9300/tcp, 9600/tcp, 0.0.0.0:9200->9200/tcp, [::]:9200->9200/tcp, 9650/tcp
+```
+
+## Relevant files outside repo
+- `/tmp/multireplay-selected.tsv` — selected multi-event source pointers
+- `/tmp/multireplay-selected.log` — multi-event candidate selection
+- `/tmp/multireplay-publish-remaining3.log` — multi-event publish log
+- `/tmp/multireplay-existing-behavioral.log` — Behavioral replay for 2901/503
+- `/tmp/multireplay-existing-behavioral-index.log` — Behavioral indexing for 2901/503
+- `/tmp/multireplay-behavioral.log` — Behavioral replay for remaining multi-event set
+- `/tmp/multireplay-behavioral-index.log` — Behavioral indexing log
+- `/tmp/multireplay-severity.log` — Severity GPU inference log
+- `/tmp/multireplay-severity-index.log` — Severity indexing log
+- `/tmp/replay-api-joined-3101.json` — temporary API join response
+- `/tmp/edrxdr-temporal-v1` — generated temporal-v1 dataset
+- `/tmp/edrxdr-temporal-v1-run` — temporal-v1 run artifacts
+- `/tmp/edrxdr-temporal-v1-unweighted` — unweighted temporal-v1 run artifacts
+- `/tmp/edrxdr-anomaly-v1` — Behavioral feature dataset v1
+- `/tmp/edrxdr-anomaly-v1-run` — anomaly v1 run artifacts
+- `/tmp/edrxdr-anomaly-v1-1-run` — anomaly v1.1 run artifacts
+- `/tmp/edrxdr-anomaly-v1-2-run` — anomaly v1.2 run artifacts
+- `/tmp/edrxdr-anomaly-v1-3-run` — anomaly v1.3 run artifacts
+
+## Known issues
+- Rule 2901 remains a Severity false-positive example.
+- Temporal-v1 does not reliably detect tested unseen high-severity rules.
+- `dpkg-decoder|/var/log/dpkg.log` is intentionally not AE-scored due to insufficient feature diversity.
+- `sca|sca` is limited-history.
+- Novel cohort != malicious.
+- No independent attack ground truth is established.
+- Automated response remains disabled.
+
+## Next steps
+1. Multi-event UID join = `8/8`; persist evidence before Shadow Mode.
+2. Review `git diff --check` and `git status --short`.
+3. Review the three updated docs.
+4. Stage/commit the Replay E2E + Behavioral v1.4 checkpoint when ready.
+5. Keep automated response OFF.
+6. Design Shadow Mode only after checkpoint/evidence are finalized.

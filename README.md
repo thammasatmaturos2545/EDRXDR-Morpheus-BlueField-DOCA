@@ -1099,3 +1099,30 @@ Unified Dashboard สามารถแสดง Wazuh Endpoint Alerts และ
 - NVIDIA DOCA
 - NVIDIA Morpheus
 - GPU / DPU Security Analytics
+
+<!-- EDRXDR_CURRENT_STATUS_START -->
+## Current Project Status
+
+Last verified: `2026-10-10T02:36:31+07:00`
+
+**Status:** Replay/Development integration is functional; **not production-ready**. Automated response remains disabled.
+
+- Git: branch `work/raw-offline-pass-1367`, commit `8fffe83`.
+- Severity and Behavioral v1.4 use separate replay paths joined by `event_uid`.
+- Behavioral runtime uses raw Wazuh fields (`decoder.name`, `location`, `data.*`).
+- OpenSearch: `replay-severity-v1`, `replay-behavioral-v1`.
+- Multi-event verification: **8/8 UID joins verified**.
+- Details: [`training/LATEST_STATUS.md`](training/LATEST_STATUS.md)
+- Handoff: [`training/HANDOFF.md`](training/HANDOFF.md)
+
+| Check | Result |
+|---|---|
+| Python `py_compile` | **PASS** |
+| `docker compose config` | **PASS** |
+| Next.js production build | **PASS** |
+| `git diff --check` | **PASS** |
+| Secret-pattern scan | **PASS (reviewed; placeholders/comments/test strings only)** |
+| OpenSearch multi-event join | **8/8 UID joins verified** |
+
+> Severity score is a Wazuh-severity proxy, not attack probability. Behavioral anomaly/novelty is supporting evidence, not a malicious classifier.
+<!-- EDRXDR_CURRENT_STATUS_END -->

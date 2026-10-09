@@ -1,0 +1,59 @@
+{
+  "experiment": "wazuh-severity-temporal-v1",
+  "status": "development-only",
+  "production_ready": false,
+  "source_dataset": "wazuh-context-v2-20261008T185539Z-1179365",
+  "source_train_sha256": "447fb0069eca0209e79fcd0c68412a8de6811a77f565de9c84a3eb4cd306933b",
+  "source_manifest_sha256": "354e3c9dc9febe49173fa416cdd943cf3512540dded5f18e0ae3d800908b8669",
+  "time_basis": "Wazuh UTC archive/event date",
+  "boundary": "2026-10-07T00:00:00Z",
+  "train_rows": 3922,
+  "dev_all_rows": 1310,
+  "dev_clean_rows": 1306,
+  "dev_seen_rows": 1291,
+  "dev_unseen_rows": 19,
+  "exact_overlap_later_rows": 4,
+  "train_labels": {
+    "low_severity": 2740,
+    "high_severity": 1182
+  },
+  "dev_all_labels": {
+    "low_severity": 106,
+    "high_severity": 1204
+  },
+  "dev_clean_labels": {
+    "low_severity": 102,
+    "high_severity": 1204
+  },
+  "dev_seen_labels": {
+    "low_severity": 103,
+    "high_severity": 1188
+  },
+  "dev_unseen_labels": {
+    "low_severity": 3,
+    "high_severity": 16
+  },
+  "unseen_rules": [
+    "19011",
+    "503",
+    "5901",
+    "5902",
+    "5904"
+  ],
+  "event_id_overlap": 0,
+  "rule_label_conflicts": 0,
+  "timezone_verification": {
+    "boundary_crossing_candidates": 25,
+    "source_date_equals_wazuh_utc": "25/25",
+    "full_log_date_equals_asia_bangkok": "25/25",
+    "partition_adjustment_required": false
+  },
+  "notes": [
+    "Only original v2 training split was used.",
+    "Original validation was not used.",
+    "Old-test quarantine was not used.",
+    "Reserve-new-rules set was not used.",
+    "dev-clean excludes four later exact-text overlaps.",
+    "Unseen-rule metrics are exploratory because support is only 19 rows."
+  ]
+}

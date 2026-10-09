@@ -1,0 +1,155 @@
+name: edrxdr-replay
+
+services:
+  kafka:
+    image: apache/kafka:3.8.1
+    pull_policy: never
+    restart: "no"
+    cpus: 2
+    mem_limit: 2g
+    environment:
+      KAFKA_NODE_ID: 1
+      KAFKA_PROCESS_ROLES: broker,controller
+      KAFKA_LISTENERS: INTERNAL://:29092,CONTROLLER://:29093
+      KAFKA_ADVERTISED_LISTENERS: INTERNAL://kafka:29092
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: INTERNAL:PLAINTEXT,CONTROLLER:PLAINTEXT
+      KAFKA_INTER_BROKER_LISTENER_NAME: INTERNAL
+      KAFKA_CONTROLLER_LISTENER_NAMES: CONTROLLER
+      KAFKA_CONTROLLER_QUORUM_VOTERS: 1@kafka:29093
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
+      KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
+      KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS: 0
+      KAFKA_AUTO_CREATE_TOPICS_ENABLE: "false"
+      KAFKA_LOG_DIRS: /tmp/kraft-combined-logs
+      KAFKA_LOG_RETENTION_HOURS: 24
+      KAFKA_LOG_RETENTION_BYTES: 268435456
+      KAFKA_HEAP_OPTS: -Xms512m -Xmx512m
+      CLUSTER_ID: MkU3OEVBNTcwNTJENDM2Qk
+    volumes:
+      - replay-kafka-data:/tmp/kraft-combined-logs
+    networks:
+      - replay-net
+
+  opensearch:
+    image: opensearchproject/opensearch:2.11.0
+    pull_policy: never
+    restart: "no"
+    cpus: 2
+    mem_limit: 3g
+    environment:
+      discovery.type: single-node
+      node.store.allow_mmap: "false"
+      DISABLE_INSTALL_DEMO_CONFIG: "true"
+      DISABLE_SECURITY_PLUGIN: "true"
+      OPENSEARCH_JAVA_OPTS: -Xms1g -Xmx1g
+    volumes:
+      - replay-opensearch-data:/usr/share/opensearch/data
+    networks:
+      - replay-net
+
+
+  normalizer:
+    image: edrxdr-morpheus-normalizer:latest
+    pull_policy: never
+    restart: "no"
+    cpus: 1
+    mem_limit: 512m
+    entrypoint: ["python", "-B", "-u"]
+    command: ["/replay/normalizer_replay.py"]
+    environment:
+      PYTHONDONTWRITEBYTECODE: "1"
+    volumes:
+      - .:/replay:ro
+      - ../normalizer:/source/normalizer:ro
+    networks:
+      - replay-net
+
+
+  inference:
+    image: edrxdr-morpheus-train:25.06
+    pull_policy: never
+    profiles: ["gpu-replay"]
+    restart: "no"
+    cpus: 4
+    mem_limit: 16g
+    shm_size: 1g
+    entrypoint: ["/opt/conda/envs/morpheus/bin/python", "-B", "-u"]
+    command: ["/replay/inference_replay.py"]
+    environment:
+      PYTHONPATH: /scripts:/replay
+      HF_HOME: /tmp/hf-cache
+      HF_HUB_OFFLINE: "1"
+      TRANSFORMERS_OFFLINE: "1"
+      TOKENIZERS_PARALLELISM: "false"
+      OMP_NUM_THREADS: "4"
+    tmpfs:
+      - /tmp:rw,size=1g
+    volumes:
+      - .:/replay:ro
+      - ../training:/scripts:ro
+      - model-output:/models:ro
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              device_ids: ["0"]
+              capabilities: [gpu]
+    networks:
+      - replay-net
+
+
+  behavioral:
+    image: edrxdr-morpheus-train:25.06
+    pull_policy: never
+    profiles: ["behavioral-replay"]
+    restart: "no"
+    cpus: 2
+    mem_limit: 4g
+    entrypoint:
+      - /opt/conda/envs/morpheus/bin/python
+      - -B
+      - -u
+    command:
+      - /replay/behavioral_replay.py
+    environment:
+      PYTHONDONTWRITEBYTECODE: "1"
+      OMP_NUM_THREADS: "2"
+    volumes:
+      - .:/replay:ro
+      - model-output:/models:ro
+    networks:
+      - replay-net
+
+  behavioral-indexer:
+    image: edrxdr-morpheus-normalizer:latest
+    pull_policy: never
+    profiles: ["behavioral-replay"]
+    restart: "no"
+    cpus: 1
+    mem_limit: 512m
+    entrypoint:
+      - python
+      - -B
+      - -u
+    command:
+      - /replay/behavioral_indexer.py
+    environment:
+      PYTHONDONTWRITEBYTECODE: "1"
+    volumes:
+      - .:/replay:ro
+    networks:
+      - replay-net
+
+networks:
+  replay-net:
+    internal: true
+
+volumes:
+  replay-kafka-data:
+  replay-opensearch-data:
+
+  model-output:
+    external: true
+    name: edrxdr-model-output
