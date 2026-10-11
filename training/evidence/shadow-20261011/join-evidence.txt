@@ -1,0 +1,12 @@
+
+/evidence/join-check-20261010T192035112516Z.json
+{
+  "status": "PASS",
+  "joined_occurrences": 32,
+  "raw_hash_matches": 32,
+  "false_positive_candidates": 13,
+  "ae_scored": 0,
+  "semantic_novelty": 1,
+  "joined_evidence_sha256": "41ea206d7f5c61df958634bfab041cc5bf1b15b51f4a0759c43f3b0cd21d9a2e",
+  "scope": "Shadow occurrence join and output contracts only; not model accuracy or scoring parity"
+}

@@ -1,0 +1,45 @@
+{
+  "date": "2026-10-11",
+  "scope": "Local source review; not VM execution or model quality evaluation",
+  "source_archive_sha256": "9bb76482ea4b0983df56421df7a6a8b76aeec6f1a4e50a7a7aa4015d1595c920",
+  "frontend_shadow_checks": {
+    "status": "PASS",
+    "count": 20,
+    "fixtures": "synthetic; no runtime mock data"
+  },
+  "frontend_regression": {
+    "status": "PASS",
+    "groups": 7,
+    "supplemental_reports": "Original reports from earlier user archive edrxdr-dashboard-current-20261009-191009.tar.gz; not new evaluation"
+  },
+  "typescript": "PASS",
+  "eslint": "PASS",
+  "python_syntax": "PASS",
+  "isolated_recovery": {
+    "status": "PASS",
+    "tests": 7,
+    "clients": "fake; schema validator stubbed; real pilot index/publish control flow",
+    "real_outage_test": false
+  },
+  "original_worker_suite": {
+    "status": "INCOMPLETE",
+    "attempted": 23,
+    "successful_methods": 16,
+    "methods_with_missing_source_errors": 7,
+    "error_records_including_subtests": 8,
+    "reason": "Archive omits pinned replay/indexer_replay.py and replay/behavioral_indexer.py; no assertions bypassed"
+  },
+  "yaml_parse_and_six_service_cache_gate_inheritance": "PASS; not Docker Compose config validation",
+  "docker_compose_config": "NOT_RUN: Docker executable unavailable locally",
+  "bash_syntax": "BLOCKED: Windows MSYS NtCreateDirectoryObject access denied",
+  "production_build": "BLOCKED: Windows SWC project path canonicalization access denied",
+  "source_lock_changed": false,
+  "scoring_changed": false,
+  "fresh_vm_checks": "NOT_RUN",
+  "same_input_scoring_parity": "NOT_RUN: pinned sources, raw inputs and model weights absent",
+  "new_training": false,
+  "gpu_used": false,
+  "services_started": false,
+  "commit_or_push": false,
+  "test_logs": "training/evidence/review-local-20261011; line endings normalized to LF"
+}

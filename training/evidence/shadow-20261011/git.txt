@@ -1,0 +1,14 @@
+2026-10-11T02:32:23+07:00
+work/shadow-mode-v1
+12d6049741235ba4bb45d65c1e3f59d4e01ce5b3 Refresh project handoff documentation
+?? shadow/LOCAL_TEST_REPORT.json
+?? shadow/PACKAGE_SHA256.json
+?? shadow/README.md
+?? shadow/common.py
+?? shadow/compose.yml
+?? shadow/pilot.py
+?? shadow/runtime.py
+?? shadow/scoring.py
+?? shadow/source-lock.json
+?? shadow/test_shadow.py
+?? shadow/validation.py

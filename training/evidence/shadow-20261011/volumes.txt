@@ -1,0 +1,8 @@
+DRIVER    VOLUME NAME
+local     edrxdr-dataset
+local     edrxdr-hf-cache
+local     edrxdr-model-output
+local     edrxdr-morpheus_opensearch-data
+local     edrxdr-replay_replay-kafka-data
+local     edrxdr-replay_replay-opensearch-data
+local     edrxdr-shadow_shadow-state

@@ -1,0 +1,3 @@
+edrxdr-dataset /docker/volumes/edrxdr-dataset/_data
+edrxdr-model-output /docker/volumes/edrxdr-model-output/_data
+edrxdr-shadow_shadow-state /docker/volumes/edrxdr-shadow_shadow-state/_data

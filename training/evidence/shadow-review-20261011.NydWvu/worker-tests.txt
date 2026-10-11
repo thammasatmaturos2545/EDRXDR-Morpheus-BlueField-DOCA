@@ -1,0 +1,28 @@
+test_bounds (__main__.Contracts.test_bounds) ... ok
+test_commit_only_after_delivery (__main__.Contracts.test_commit_only_after_delivery) ... ok
+test_corrupt_raw_or_key_rejected (__main__.Contracts.test_corrupt_raw_or_key_rejected) ... ok
+test_delivery_failure_does_not_commit (__main__.Contracts.test_delivery_failure_does_not_commit) ... ok
+test_exact_raw_bytes_and_legacy_uid (__main__.Contracts.test_exact_raw_bytes_and_legacy_uid) ... ok
+test_gate_defaults_closed (__main__.Contracts.test_gate_defaults_closed) ... ok
+test_incorrect_deployment_signatures_rejected (__main__.Contracts.test_incorrect_deployment_signatures_rejected) ... ok
+test_index_ack_failure_does_not_commit (__main__.Contracts.test_index_ack_failure_does_not_commit) ... ok
+test_index_ack_success_commits (__main__.Contracts.test_index_ack_success_commits) ... ok
+test_invalid_identity_and_nonfinite_json (__main__.Contracts.test_invalid_identity_and_nonfinite_json) ... ok
+test_no_raw_nested_source (__main__.Contracts.test_no_raw_nested_source) ... ok
+test_nonshadow_destinations_rejected_before_send (__main__.Contracts.test_nonshadow_destinations_rejected_before_send) ... ok
+test_not_scored_preserved (__main__.Contracts.test_not_scored_preserved) ... ok
+test_retention_gap_rejected (__main__.Contracts.test_retention_gap_rejected) ... ok
+test_retry_document_id_stable_but_source_occurrences_distinct (__main__.Contracts.test_retry_document_id_stable_but_source_occurrences_distinct) ... ok
+test_safety_flags_modes_and_raw_fields_rejected (__main__.Contracts.test_safety_flags_modes_and_raw_fields_rejected) ... ok
+test_same_broker_on_both_endpoints_rejected (__main__.Contracts.test_same_broker_on_both_endpoints_rejected) ... ok
+test_scored_state_without_evidence_rejected (__main__.Contracts.test_scored_state_without_evidence_rejected) ... ok
+test_shadow_topics_on_replay_allowed (__main__.Contracts.test_shadow_topics_on_replay_allowed) ... ok
+test_shared_id_with_verified_deployments_allowed (__main__.Contracts.test_shared_id_with_verified_deployments_allowed) ... ok
+test_start_boundary_and_restart_resume (__main__.Contracts.test_start_boundary_and_restart_resume) ... ok
+test_validator_source_hash_required (__main__.Contracts.test_validator_source_hash_required) ... ok
+test_validators_without_kafka_dependency (__main__.Contracts.test_validators_without_kafka_dependency) ... ok
+
+----------------------------------------------------------------------
+Ran 23 tests in 0.012s
+
+OK

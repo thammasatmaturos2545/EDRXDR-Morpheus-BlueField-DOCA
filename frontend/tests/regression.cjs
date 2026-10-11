@@ -84,17 +84,29 @@ async function readQuality(overrides = {}) {
     assert.ok(replay.includes('id="replay"')); assert.ok(!replay.includes('id="live"'));
   });
   await test('live and replay OpenSearch queries remain separate; real zero scores survive', async () => {
-    let query;
-    const fetch = async (_url, options) => {
-      query = JSON.parse(options.body);
-      return { ok: true, json: async () => ({ hits: { total: { value: 1 }, hits: [{ _id: 'document-id', _index: 'index', _source: { id: 'spoof', high_severity_score: 0 } }] } }) };
+    const queries = new Map();
+    const fetch = async (url, options) => {
+      queries.set(url, JSON.parse(options.body));
+      const behavioral = url.endsWith('/replay-behavioral-v1/_search');
+      const source = behavioral
+        ? { event_uid: 'test-uid', schema_version: 'replay-behavioral-1', processing_mode: 'replay', production_ready: false, automated_response_allowed: false, analysis_state: 'limited_history' }
+        : { event_uid: 'test-uid', id: 'spoof', high_severity_score: 0 };
+      return { ok: true, json: async () => ({ hits: { total: { value: 1 }, hits: [{ _id: 'document-id', _index: 'index', _source: source }] } }) };
     };
     const replay = load('src/app/api/replay/events/route.ts', {}, { fetch, process: { env: { REPLAY_OPENSEARCH_URL: 'http://test.invalid' } } });
     const payload = await (await replay.GET()).json();
     assert.equal(payload.events[0].id, 'document-id'); assert.equal(payload.events[0].high_severity_score, 0);
-    assert.deepEqual(query.query.bool.filter, [{ term: { processing_mode: 'replay' } }, { term: { schema_version: 'replay-severity-1' } }, { term: { production_ready: false } }]);
-    await load('src/app/api/events/route.ts', {}, { fetch }).GET();
-    assert.equal(query.query.bool.filter[0].term.processing_mode, 'live');
+    assert.equal(queries.size, 2);
+    const severityQuery = queries.get('http://test.invalid/replay-severity-v1/_search');
+    const behavioralQuery = queries.get('http://test.invalid/replay-behavioral-v1/_search');
+    assert.deepEqual(severityQuery.query.bool.filter, [{ term: { processing_mode: 'replay' } }, { term: { schema_version: 'replay-severity-1' } }, { term: { production_ready: false } }]);
+    // Behavioral uses dynamic mappings and validates schema/mode after reading.
+    assert.ok(behavioralQuery._source.includes('schema_version'));
+    assert.equal(payload.behavioral_joined, 1);
+    assert.equal(payload.events[0].behavioral_analysis.analysis_state, 'limited_history');
+    await load('src/app/api/events/route.ts', {}, { fetch, process: { env: { OPENSEARCH_URL: 'http://live.invalid' } } }).GET();
+    assert.equal(queries.size, 3);
+    assert.equal(queries.get('http://live.invalid/edrxdr-events-*/_search').query.bool.filter[0].term.processing_mode, 'live');
   });
   await test('unknown probes never become offline; DOCA is independent from BlueField', async () => {
     async function status(mode) {

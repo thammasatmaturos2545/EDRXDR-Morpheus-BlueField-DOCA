@@ -1,1128 +1,246 @@
-# EDRXDR — Intelligent Threat Detection Pipeline
+# Source review update — 11 ต.ค. 2026 (ยังไม่ใช่การรันใหม่บน VM)
 
-ระบบต้นแบบ **EDR/XDR Intelligent Threat Detection Pipeline** สำหรับรวบรวม วิเคราะห์ และแสดงผลข้อมูลด้าน Cybersecurity จากทั้งฝั่ง **Endpoint Security** และ **Network Security**
+ตรวจชุด `edrxdr-shadow-review.tar.gz` และเตรียม patch ในเครื่องผู้ช่วยแล้ว:
+- Persist ค่า HOME/XDG/CUPY/CUDA cache ใน Compose; gate ทั้งสองยังเป็น 0, ไม่มี daemon/restart policy ใหม่.
+- เพิ่มการตรวจ acknowledgement ของ indexer ก่อน commit offset และ tests สำหรับ retry แบบ isolated.
+- ตรวจ API/หน้า Shadow ให้ AE state/coverage สอดคล้องกัน, รักษา unknown Wazuh level และไม่ส่ง nested metadata ที่ไม่ผ่านการตรวจไป browser.
+- Frontend Shadow 20 checks, regression 7 groups, TypeScript และ lint ผ่าน locally.
+- Recovery tests 7 ผ่านด้วย fake clients/stub validator; ไม่ใช่ real Kafka/OpenSearch outage test.
+- Worker suite เดิมยังตรวจไม่ครบ locally เพราะ archive ไม่รวม replay validators ที่ source-lock pin ไว้.
+  ไม่แก้ pins และไม่ถือ full suite ว่าผ่าน. ต้องรันบน checkout จริงที่มี source ครบ.
+- Production build รอบนี้ติด Windows SWC access denial; ผล build/VM ของรุ่นใหม่ยังไม่ยืนยัน.
 
-ระบบผสานเทคโนโลยี:
+หลักฐานเดิม: stored batch 32/32, candidates13 (รายงานว่า rule19008 ทั้งหมด), AE-scored0, novelty1.
+ข้อมูลนี้ไม่ใช่ accuracy/FPR หรือหลักฐานบริการสดกำลังทำงาน. การประเมิน text/source distribution
+และ replay-vs-shadow score parity ยังต้องใช้ข้อมูล/โมเดลจริงที่ไม่ได้แนบมา.
 
-- Wazuh
-- NVIDIA BlueField-3
-- NVIDIA DOCA
-- Apache Kafka
-- NVIDIA Morpheus
-- NVIDIA H100
-- OpenSearch
-- Next.js
-
-เป้าหมายคือรวบรวม Security Events จากหลายแหล่งให้อยู่ในรูปแบบเดียวกัน ก่อนส่งเข้าสู่ NVIDIA Morpheus สำหรับ GPU-accelerated Threat Analysis และแสดงผลผ่าน Unified EDR/XDR Dashboard
-
----
-
-# Architecture
-
-```mermaid
-flowchart TD
-
-    A[Endpoint / Host]
-    B[Wazuh Agent]
-    C[Wazuh Manager]
-    D[alerts.json]
-    E[Wazuh Forwarder]
-    F[Kafka: wazuh-alerts]
-
-    G[Network Traffic]
-    H[NVIDIA BlueField-3]
-    I[NVIDIA DOCA]
-    J[bluefield_monitor]
-    K[Kafka: bluefield-events]
-
-    L[Multi-Source Normalizer]
-    M[Kafka: morpheus-input]
-
-    N[NVIDIA Morpheus]
-    O[Kafka: morpheus-output]
-
-    P[Indexer]
-    Q[OpenSearch]
-    R[EDRXDR Next.js Dashboard]
-
-    A --> B
-    B --> C
-    C --> D
-    D --> E
-    E --> F
-
-    G --> H
-    H --> I
-    I --> J
-    J --> K
-
-    F --> L
-    K --> L
-
-    L --> M
-    M --> N
-    N --> O
-
-    O --> P
-    P --> Q
-    Q --> R
-```
+หลังติดตั้ง patch ให้รัน `bash verify_shadow_review.sh` เพื่อเก็บ CPU/source-pin/config checks บน VM.
+สคริปต์ไม่เปิด container, GPU, web server หรือ training. ไม่ต้องเปิด daemon เพื่อเติมข้อมูล Dashboard.
+ดู [รายละเอียด review และข้อจำกัด](shadow/REVIEW.md). source-lock/scoring/model/threshold ไม่เปลี่ยน.
+ยังไม่ได้ commit/push หรือเปลี่ยน runtime บน VM จากการ review ครั้งนี้.
 
 ---
 
-# Current Data Flow
+## บันทึกก่อนรอบ source review (เก็บไว้เป็นประวัติ ไม่ใช่สถานะปัจจุบัน)
 
-```text
-                   ENDPOINT / HOST
-                         │
-                         ▼
-                    Wazuh Agent
-                         │
-                         ▼
-                   Wazuh Manager
-                         │
-                         ▼
-                    alerts.json
-                         │
-                         ▼
-                  Wazuh Forwarder
-                         │
-                         ▼
-                Kafka: wazuh-alerts
-                         │
-                         │
-                         ├──────────────────┐
-                                            │
-                 NETWORK                    │
-                    │                       │
-                    ▼                       │
-            NVIDIA BlueField-3              │
-                    │                       │
-                    ▼                       │
-               NVIDIA DOCA                  │
-                    │                       │
-                    ▼                       │
-            bluefield_monitor               │
-                    │                       │
-                    ▼                       │
-         Kafka: bluefield-events ───────────┤
-                                            │
-                                            ▼
-                                  Multi-Source Normalizer
-                                            │
-                                            ▼
-                                   Kafka: morpheus-input
-                                            │
-                                            ▼
-                                    NVIDIA Morpheus
-                                   GPU Threat Analysis
-                                            │
-                                            ▼
-                                  Kafka: morpheus-output
-                                            │
-                                            ▼
-                                         Indexer
-                                            │
-                                            ▼
-                                        OpenSearch
-                                            │
-                                            ▼
-                                   EDRXDR Dashboard
-```
+# EDRXDR-Morpheus
 
----
+<!-- DASHBOARD_HANDOFF_20261011 -->
+## อัปเดตส่งต่อ 11 ต.ค. 2026 — Dashboard Shadow ใช้งานได้แล้ว
 
-# Project Objectives
+อัปเดตนี้ใช้ผล terminal และภาพหน้าเว็บที่ผู้ใช้ส่งหลังติดตั้ง Dashboard;
+ข้อมูล audit เวลา 02:32 ด้านล่างเป็นประวัติก่อนเพิ่มหน้าเว็บ ไม่ใช่สถานะบริการปัจจุบัน.
 
-ระบบถูกออกแบบเพื่อรองรับ:
+- หน้า `http://172.16.30.147:3000/shadow` เปิดได้และอ่านข้อมูลจริงจาก Replay OpenSearch.
+- API `/api/shadow/events`: severity32, behavioral32, matched32, conflicts0, unmatched0,
+  candidates13, ae_scored0, novelty1. Candidate ทั้ง13รายการเป็น rule19008 (Wazuh level3).
+- ตัวกรอง Severity candidates และรายละเอียด source offset / model / hash แสดงได้ตามภาพ.
+- เป็น stored Shadow batch ไม่ใช่ live inference ต่อเนื่อง; 32/32 เป็นความครบถ้วนของข้อมูล ไม่ใช่ accuracy.
+- Branch ล่าสุดที่ตรวจ `work/shadow-mode-v1`, HEAD `12d6049741235ba4bb45d65c1e3f59d4e01ce5b3`.
+  ยังไม่มีหลักฐาน commit/push ใหม่. ต้องอ่าน `git status` อีกครั้งก่อนรับช่วงต่อ.
+- Frontend รัน foreground บน port3000 ตามผลล่าสุด; อายุ process หลัง logout ไม่รับประกัน.
+  ไม่ได้เปิด GPU เพื่อทำหน้าเว็บ และไม่ได้เปลี่ยน Kafka/OpenSearch/model.
 
-- Endpoint Detection and Response
-- Extended Detection and Response
-- Security Log Collection
-- Authentication Monitoring
-- File Integrity Monitoring
-- Vulnerability Detection
-- Network Telemetry
-- DPU-based Security Monitoring
-- Real-time Event Streaming
-- Multi-source Event Normalization
-- GPU Security Analytics
-- Threat Classification
-- Threat Scoring
-- MITRE ATT&CK Mapping
-- Security Event Storage
-- Unified Security Dashboard
-- Automated Response ในขั้นถัดไป
+### การทดสอบ: แยกผลที่ยืนยันแล้วกับงานค้าง
 
----
-
-# 1. Wazuh Endpoint Security
-
-Wazuh ทำหน้าที่เป็น Endpoint Security / EDR Layer ของระบบ
-
-Wazuh ใช้สำหรับ:
-
-- Security Logs
-- Authentication Events
-- SSH Events
-- sudo / PAM Events
-- File Integrity Monitoring
-- Vulnerability Detection
-- Security Rules
-- Security Alerts
-- MITRE ATT&CK Mapping
-
-Pipeline:
-
-```text
-Wazuh Agent
-    ↓
-Wazuh Manager
-    ↓
-alerts.json
-    ↓
-Wazuh Forwarder
-    ↓
-Kafka: wazuh-alerts
-```
-
-ตัวอย่าง Alert ที่ระบบตรวจพบจริง:
-
-```text
-Rule 5402
-Successful sudo to ROOT executed.
-
-Rule 5501
-PAM: Login session opened.
-
-Rule 5502
-PAM: Login session closed.
-
-Rule 5715
-sshd: authentication success.
-```
-
-ตัวอย่าง Wazuh Alert:
-
-```json
-{
-  "rule": {
-    "level": 3,
-    "description": "Successful sudo to ROOT executed.",
-    "id": "5402",
-    "mitre": {
-      "id": [
-        "T1548.003"
-      ],
-      "tactic": [
-        "Privilege Escalation",
-        "Defense Evasion"
-      ],
-      "technique": [
-        "Sudo and Sudo Caching"
-      ]
-    }
-  },
-  "agent": {
-    "id": "001",
-    "name": "oa-hgx-h100-bu-02"
-  }
-}
-```
-
-Wazuh Manager สร้าง Alert ที่:
-
-```text
-/var/ossec/logs/alerts/alerts.json
-```
-
-จากนั้น Wazuh Forwarder ส่ง Alert เข้า Kafka Topic:
-
-```text
-wazuh-alerts
-```
-
----
-
-# 2. NVIDIA BlueField-3
-
-NVIDIA BlueField-3 ทำหน้าที่เป็น Network / DPU Telemetry Source
-
-Hardware ที่ตรวจพบ:
-
-```text
-NVIDIA BlueField-3
-Integrated ConnectX-7 Network Controller
-```
-
-ตรวจสอบ Hardware:
-
-```bash
-lspci | grep -Ei "BlueField|Mellanox|ConnectX"
-```
-
-Network Interfaces:
-
-```text
-mlx5_0
-→ enp6s17f0np0
-
-mlx5_1
-→ enp6s17f1np1
-```
-
----
-
-# 3. NVIDIA DOCA
-
-NVIDIA DOCA ใช้สำหรับเข้าถึง BlueField Device และประมวลผล Network Telemetry
-
-ตรวจสอบ DOCA Devices:
-
-```bash
-sudo /opt/mellanox/doca/tools/doca_caps --list-devs
-```
-
-ตัวอย่าง:
-
-```text
-PCI: 0000:06:11.0
-ibdev_name: mlx5_0
-iface_name: enp6s17f0np0
-
-PCI: 0000:06:11.1
-ibdev_name: mlx5_1
-iface_name: enp6s17f1np1
-```
-
----
-
-# 4. BlueField Monitor
-
-`bluefield_monitor` พัฒนาด้วยภาษา C
-
-หน้าที่:
-
-- อ่าน RX Packets
-- อ่าน TX Packets
-- อ่าน RX Bytes
-- อ่าน TX Bytes
-- อ่าน RX Errors
-- อ่าน TX Errors
-- สร้าง JSON Telemetry
-- ส่งข้อมูลไปยัง Kafka
-
-ตัวอย่าง:
-
-```json
-{
-  "timestamp": "2026-09-16T17:31:56Z",
-  "source": "bluefield",
-  "ibdev": "mlx5_0",
-  "interface": "enp6s17f0np0",
-  "rx_packets": 0,
-  "tx_packets": 0,
-  "rx_bytes": 0,
-  "tx_bytes": 0,
-  "rx_errors": 0,
-  "tx_errors": 0
-}
-```
-
-ข้อมูลจะถูกส่งเข้าสู่:
-
-```text
-Kafka: bluefield-events
-```
-
----
-
-# 5. Apache Kafka
-
-Apache Kafka เป็น Event Streaming Layer หลักของระบบ
-
-Kafka Topics:
-
-```text
-bluefield-events
-wazuh-alerts
-morpheus-input
-morpheus-output
-```
-
-ตรวจสอบ:
-
-```bash
-docker exec edrxdr-kafka \
-  /opt/kafka/bin/kafka-topics.sh \
-  --bootstrap-server localhost:9092 \
-  --list
-```
-
-## bluefield-events
-
-รับ Raw Network Telemetry จาก:
-
-```text
-BlueField-3
-↓
-DOCA
-↓
-bluefield_monitor
-```
-
-## wazuh-alerts
-
-รับ Endpoint Security Alerts จาก:
-
-```text
-Wazuh Manager
-↓
-alerts.json
-↓
-Wazuh Forwarder
-```
-
-## morpheus-input
-
-รับ Event ที่ผ่าน Multi-Source Normalizer แล้ว
-
-```text
-BlueField Events ──┐
-                   ├──→ Normalizer → morpheus-input
-Wazuh Alerts ──────┘
-```
-
-## morpheus-output
-
-ใช้รับผล Threat Analysis จาก NVIDIA Morpheus
-
-```text
-NVIDIA Morpheus
-↓
-morpheus-output
-```
-
----
-
-# 6. Multi-Source Normalizer
-
-Normalizer รับข้อมูลจากทั้ง:
-
-```text
-bluefield-events
-wazuh-alerts
-```
-
-พร้อมกัน
-
-แล้วแปลงให้อยู่ใน Common EDR/XDR Schema
-
-```text
-bluefield-events ─────┐
-                      │
-                      ├──→ Multi-Source Normalizer
-                      │             ↓
-wazuh-alerts ─────────┘       morpheus-input
-```
-
-ตัวอย่าง Wazuh Normalized Event:
-
-```json
-{
-  "event_type": "endpoint_security_alert",
-  "source_type": "wazuh",
-  "source_product": "wazuh",
-  "rule_id": "5402",
-  "rule_level": 3,
-  "rule_description": "Successful sudo to ROOT executed.",
-  "agent_name": "oa-hgx-h100-bu-02",
-  "mitre_id": [
-    "T1548.003"
-  ],
-  "mitre_tactic": [
-    "Privilege Escalation",
-    "Defense Evasion"
-  ]
-}
-```
-
-ตัวอย่าง BlueField Normalized Event:
-
-```json
-{
-  "event_type": "network_telemetry",
-  "source_type": "bluefield",
-  "source_product": "nvidia-bluefield-3",
-  "ibdev": "mlx5_0",
-  "interface": "enp6s17f0np0",
-  "rx_packets": 0,
-  "tx_packets": 0,
-  "rx_bytes": 0,
-  "tx_bytes": 0
-}
-```
-
----
-
-# 7. NVIDIA Morpheus
-
-NVIDIA Morpheus ทำหน้าที่เป็น GPU Security Analytics Layer
-
-Pipeline ที่เตรียมไว้:
-
-```text
-morpheus-input
-      ↓
-Deserialize
-      ↓
-GPU Processing
-      ↓
-Threat Analysis
-      ↓
-Threat Classification
-      ↓
-Threat Score
-      ↓
-Serialize
-      ↓
-morpheus-output
-```
-
-Morpheus Container:
-
-```text
-nvcr.io/nvidia/morpheus/morpheus:25.06-runtime
-```
-
----
-
-# Current NVIDIA H100 Status
-
-ระบบสามารถตรวจพบ:
-
-```text
-NVIDIA H100 80GB HBM3
-```
-
-แต่ GPU Fabric ยังเป็น:
-
-```text
-Fabric
-    State  : In Progress
-    Status : N/A
-```
-
-ทำให้ NVIDIA Morpheus / cuDF ยังไม่สามารถ Initialize CUDA ได้
-
-Error:
-
-```text
-cudaErrorSystemNotReady:
-system not yet initialized
-```
-
-สถานะที่ต้องการคือ:
-
-```text
-Fabric
-    State  : Completed
-    Status : Success
-```
-
-เมื่อ GPU Fabric พร้อม ระบบจะสามารถเปิด:
-
-```text
-morpheus-input
-      ↓
-NVIDIA Morpheus
-      ↓
-GPU Threat Analysis
-      ↓
-morpheus-output
-```
-
-ได้จริง
-
----
-
-# No Simulator / No Fallback
-
-โปรเจกต์นี้ไม่ใช้ Morpheus Simulator หรือ Fallback
-
-ข้อมูลจำลองเดิม เช่น:
-
-```text
-threat_score: 0.82
-threat_class: suspicious
-analysis_engine: morpheus-simulator
-```
-
-ถูกลบออกจาก OpenSearch แล้ว
-
-ดังนั้นหาก NVIDIA Morpheus ยังไม่พร้อม Dashboard จะแสดง:
-
-```text
-Morpheus: Waiting
-Threat Score: Waiting
-```
-
-แทนการสร้างผลลัพธ์จำลอง
-
----
-
-# 8. Indexer
-
-Indexer จะรับข้อมูลจาก:
-
-```text
-Kafka: morpheus-output
-```
-
-แล้วส่งเข้าสู่ OpenSearch
-
-```text
-morpheus-output
-      ↓
-Indexer
-      ↓
-OpenSearch
-```
-
-Indexer พร้อมทำงานเมื่อ NVIDIA Morpheus เริ่มส่งข้อมูลจริง
-
----
-
-# 9. OpenSearch
-
-OpenSearch ใช้เป็น Security Event Storage
-
-ตรวจสอบ:
-
-```bash
-curl http://localhost:9200
-```
-
-Index Naming:
-
-```text
-edrxdr-events-YYYY.MM.DD
-```
-
-ค้นหา Event:
-
-```bash
-curl \
-  "http://localhost:9200/edrxdr-events-*/_search?pretty"
-```
-
----
-
-# 10. Unified EDRXDR Dashboard
-
-Dashboard หลักพัฒนาด้วย:
-
-```text
-Next.js
-React
-TypeScript
-Tailwind CSS
-```
-
-เปิด Development Server:
-
-```bash
-cd frontend
-
-npm install
-
-npm run dev -- \
-  --hostname 0.0.0.0 \
-  --port 3000
-```
-
-เปิด Dashboard:
-
-```text
-http://HOST_IP:3000
-```
-
-Dashboard รวมข้อมูลจากทั้ง Wazuh และ NVIDIA BlueField ในหน้าเดียว
-
-แสดง:
-
-- Wazuh Agent Status
-- Wazuh Manager Status
-- Wazuh Forwarder Status
-- Wazuh Alerts
-- Wazuh Rule ID
-- Wazuh Rule Level
-- MITRE ATT&CK
-- NVIDIA BlueField-3 Status
-- NVIDIA DOCA Status
-- Kafka Status
-- Normalizer Status
-- NVIDIA Morpheus Status
-- H100 GPU Fabric Status
-- Indexer Status
-- OpenSearch Status
-- Unified EDRXDR Pipeline
-
----
-
-# Wazuh Native Dashboard
-
-Wazuh Native Dashboard ยังถูกใช้สำหรับ Administration / Debugging
-
-เปิด:
-
-```text
-https://HOST_IP:8443
-```
-
-ส่วน Dashboard หลักของโปรเจกต์คือ:
-
-```text
-http://HOST_IP:3000
-```
-
-ดังนั้น:
-
-```text
-Wazuh Dashboard
-→ Administration / Debugging
-
-EDRXDR Dashboard
-→ Unified SOC / Security Monitoring
-```
-
----
-
-# Project Structure
-
-```text
-EDRXDR-Morpheus/
-│
-├── bluefield-agent/
-│   ├── meson.build
-│   │
-│   └── src/
-│       ├── bluefield_monitor.c
-│       └── bluefield_probe.c
-│
-├── frontend/
-│   ├── package.json
-│   ├── package-lock.json
-│   │
-│   └── src/
-│       └── app/
-│           ├── page.tsx
-│           │
-│           └── api/
-│               ├── events/
-│               │   └── route.ts
-│               │
-│               ├── status/
-│               │   └── route.ts
-│               │
-│               └── wazuh/
-│                   └── route.ts
-│
-├── normalizer/
-│   ├── Dockerfile
-│   ├── normalizer.py
-│   └── requirements.txt
-│
-├── indexer/
-│   ├── Dockerfile
-│   ├── indexer.py
-│   └── requirements.txt
-│
-├── morpheus/
-│   └── start.sh
-│
-├── wazuh/
-│   ├── .env.example
-│   ├── docker-compose.yml.example
-│   │
-│   ├── forwarder/
-│   │   ├── Dockerfile
-│   │   ├── forwarder.py
-│   │   └── requirements.txt
-│   │
-│   └── config/
-│       └── wazuh_dashboard/
-│           └── wazuh.yml.example
-│
-├── compose.yml
-├── .env.example
-├── .gitignore
-└── README.md
-```
-
----
-
-# Current Project Status
-
-| Component | Status |
+| รายการ | หลักฐาน / สถานะ |
 |---|---|
-| Wazuh Agent | ✅ Working |
-| Wazuh Manager | ✅ Working |
-| Wazuh Indexer | ✅ Working |
-| Wazuh Dashboard | ✅ Working |
-| Wazuh Forwarder | ✅ Working |
-| Kafka `wazuh-alerts` | ✅ Working |
-| NVIDIA BlueField-3 | ✅ Detected / Working |
-| NVIDIA DOCA | ✅ Working |
-| BlueField Monitor | ✅ Working |
-| Kafka `bluefield-events` | ✅ Working |
-| Apache Kafka | ✅ Working |
-| Multi-Source Normalizer | ✅ Working |
-| Kafka `morpheus-input` | ✅ Wazuh + BlueField |
-| NVIDIA H100 | ✅ Detected |
-| H100 GPU Fabric | ⏳ In Progress |
-| NVIDIA Morpheus | ⏳ Waiting for GPU Fabric |
-| Kafka `morpheus-output` | ⏳ Waiting for Morpheus |
-| Indexer | ✅ Ready |
-| OpenSearch | ✅ Working |
-| Unified EDRXDR Dashboard | ✅ Working |
-| Morpheus Simulator | ❌ Removed |
-| Fallback Threat Analysis | ❌ Not used |
-| Automated Response | ⏳ Planned after Morpheus |
+| Shadow worker CPU contracts | VM 23 PASS จาก audit เดิม |
+| Frontend Shadow tests | VM 14 PASS ก่อน build; ใช้ synthetic fixtures ไม่ใช่ model quality |
+| Frontend typecheck | VM ผ่านใน output ที่ส่งมา |
+| Full regression ครั้งแรก | 5 groups ผ่าน แล้วล้มเพราะ test จับ request สุดท้ายผิด index |
+| Regression fix | แก้ tests/regression.cjs ให้ตรวจ requests แยกตาม URL; targeted test และ lint ผ่านในเครื่องผู้ช่วย |
+| Full regression หลังแก้บน VM | ยังไม่ได้รับ output ยืนยันครบ ห้ามลงว่า PASS |
+| Production build | local PASS; VM เสิร์ฟ /shadow ได้แล้ว แต่ยังไม่ได้รับ build log ยืนยันครบ |
+| Browser / actual API | ผู้ใช้ส่งภาพและผล API ยืนยัน 32/32 พร้อม candidate rule19008 ทั้ง13 |
+
+### ไฟล์งานล่าสุด
+
+แก้ `frontend/src/app/dashboard.tsx` เพิ่มลิงก์ Shadow และ `frontend/tests/regression.cjs`
+แก้ test ที่เก็บ query เดียวแม้ Replay API อ่านสอง index. ไม่แก้ live/replay API เดิม.
+เพิ่ม `frontend/src/lib/shadow.ts`, `frontend/src/app/shadow/page.tsx`,
+`frontend/src/app/api/shadow/events/route.ts`, `frontend/tests/shadow.cjs`,
+`frontend/run_shadow_dashboard.sh`, `frontend/SHADOW_DASHBOARD.md`.
+ยังต้อง review/stage `shadow/`, `training/evidence/` และเอกสารที่แก้; ไม่ใช้ git add . แบบไม่ตรวจ.
+
+### สิ่งที่เพื่อนต้องทำต่อ (เรียงลำดับ)
+
+1. เก็บผล full regression/typecheck หลังแก้ลงไฟล์ เพื่อปิดช่องว่างหลักฐาน; build ซ้ำเฉพาะจำเป็น
+   โดยหยุด frontend ของตัวเองก่อน ไม่หยุดบริการร่วม.
+2. วิเคราะห์ rule19008 จากข้อมูลที่อนุญาต: text ที่โมเดลอ่าน, Wazuh label และ source distribution.
+   13 candidates คือ disagreement ไม่ใช่ confirmed attacks/FP. อย่า tune threshold จาก batch นี้ทันที.
+3. เลือกเคส Replay ที่มีคะแนน AE จริงเพื่อนำเสนอแยกจาก Shadow ซึ่ง AE coverage0;
+   ตรวจข้อมูลก่อนอ้างผล และรักษา old-test/reserve ไว้.
+4. Persist cache env ใน Shadow Compose และปรับ shadow/README.md / PACKAGE_SHA256 ที่ยังเก่า.
+5. ตรวจ Git/เอกสาร บันทึกเวอร์ชันเดโมเมื่อได้รับคำสั่ง commit; ซ้อมและอัดวิดีโอก่อนนำเสนอ 16 ต.ค.
+6. งานหลังเดโม: replay-vs-shadow score parity ของ input เดียวกัน, isolated recovery tests,
+   pagination/retention และการออกแบบบริการต่อเนื่อง. ยังไม่เปิด automated response.
+
+### เปิดเว็บและตรวจผล (CPU เท่านั้น)
+
+```bash
+cd ~/EDRXDR-Morpheus || exit 1
+date -Is
+git branch --show-current
+git log -1 --oneline
+git status --short --untracked-files=all
+git diff --check
+ss -ltn | grep ':3000' || true
+```
+
+หาก port3000 ยังว่าง ให้เปิดใน terminal แยก:
+
+```bash
+cd ~/EDRXDR-Morpheus/frontend || exit 1
+bash run_shadow_dashboard.sh
+```
+
+Runner หา IP ปัจจุบันของ `edrxdr-replay-opensearch-1` บน `edrxdr-replay_replay-net`,
+ตรวจ count ทั้งสอง index แล้วตั้ง `SHADOW_OPENSEARCH_URL` ก่อนเปิด Next.js.
+VM ทดสอบเส้นทางนี้อ่าน count32/32 สำเร็จแล้ว. ไม่ใช้ localhost:9200 แทน เพราะนั่นคือ live OpenSearch.
+Runner ไม่ตั้ง `REPLAY_OPENSEARCH_URL`; หน้า /replay ต้องตรวจ config ของตัวเอง.
+Ctrl+C หยุดเฉพาะเว็บ. ไม่ต้อง retrain, restart agent หรือเปิด GPU เพื่อดูผลที่บันทึกไว้.
+
+ตรวจ API จากอีก terminal และเก็บเฉพาะ summary (ไม่มี raw logs):
+
+```bash
+cd ~/EDRXDR-Morpheus || exit 1
+python3 - <<'PY'
+import json
+from collections import Counter
+from datetime import datetime, timezone
+from pathlib import Path
+from urllib.request import urlopen
+with urlopen('http://127.0.0.1:3000/api/shadow/events', timeout=20) as r:
+    data = json.load(r)
+events = data['events']
+report = {
+    'checked_at': datetime.now(timezone.utc).isoformat(),
+    'counts': data['counts'],
+    'candidates_by_rule': dict(Counter(str(e['severity']['wazuh_rule_id'])
+        for e in events if e.get('severity') and e['severity'].get('false_positive_candidate') is True)),
+    'join_states': dict(Counter(e['status'] for e in events)),
+    'scope': 'Dashboard API observation; not model quality or full regression evidence',
+}
+p = Path('training/evidence/dashboard-20261011')
+p.mkdir(parents=True, exist_ok=True)
+target = p / ('api-' + datetime.now(timezone.utc).strftime('%Y%m%dT%H%M%S%fZ') + '.json')
+with target.open('x') as f:
+    json.dump(report, f, indent=2)
+print(json.dumps(report, indent=2))
+print('Saved:', target)
+PY
+```
+
+เก็บผล tests โดยไม่ใช้ GPU ไม่ต้องหยุดหน้าเว็บ:
+
+```bash
+(
+set -euo pipefail
+cd ~/EDRXDR-Morpheus/frontend
+evidence_dir=../training/evidence/dashboard-20261011
+mkdir -p "$evidence_dir"
+stamp=$(date -u +%Y%m%dT%H%M%SZ)
+node tests/shadow.cjs 2>&1 | tee "$evidence_dir/shadow-tests-$stamp.txt"
+npm run typecheck 2>&1 | tee "$evidence_dir/typecheck-$stamp.txt"
+npm run test:regression 2>&1 | tee "$evidence_dir/regression-$stamp.txt"
+)
+```
+
+### รายงานและไฟล์นอก repo ของรอบ Dashboard
+
+- `training/evidence/dashboard-20261011/reported-result.json`: สรุปผลที่ผู้ใช้ส่ง ไม่ใช่การรันใหม่โดย installer.
+- `training/evidence/shadow-20261011/`: audit เดิมและ join evidence ของ batch32.
+- `edrxdr-shadow_shadow-state:/join-check-20261010T192035112516Z.json`: join report ต้นฉบับ.
+- `/tmp/edrxdr-dashboard-source-SU6Qhaeb.tar.gz`: frontend snapshot ก่อนเพิ่ม Shadow.
+- `/tmp/edrxdr-shadow-dashboard-20261011.tar.gz`: patch หน้า/API Shadow รุ่นแรก;
+  ต้องมี regression fix แยกด้วย ไม่ใช่ชุดล่าสุดครบใน archive เดียว.
+- `/tmp/regression-shadow-fix-20261011.cjs`: test fix ที่ส่งภายหลัง.
+- `/tmp/edrxdr-before-shadow-dashboard-20261011T140228652744Z.tar.gz`: backup ไฟล์ก่อนแก้ Dashboard.
+- `/tmp/regression-before-fix-*.cjs`: backup test ถ้ารันสคริปต์แก้ตามที่ให้.
+- `/tmp/edrxdr-docs-before-20261010T193733563462Z.tar.gz`: backup docs ก่อน update รอบแรก.
+
+หน้า Shadow รับสูงสุด500 documents ต่อ index และปฏิเสธ partial/duplicate results;
+สอง index ไม่ได้อ่านเป็น atomic snapshot ต้อง refresh หลังจบ batch.
+เก็บข้อมูลใน Docker volumes ตาม audit เดิม ไม่เพิ่ม weights/dataset/raw events เข้า Git.
+จองเครื่อง 11 ต.ค. ถึง24:00 ไม่ใช่สิทธิ์ใช้งานวันถัดไป; ตรวจการจองก่อนรัน GPU ใหม่.
 
 ---
 
-# Current Working Pipeline
+## ข้อมูลอ้างอิงจาก audit ก่อนเพิ่ม Dashboard
 
-```text
-Wazuh Agent ✅
-    ↓
-Wazuh Manager ✅
-    ↓
-alerts.json ✅
-    ↓
-Wazuh Forwarder ✅
-    ↓
-wazuh-alerts ✅
-    │
-    │
-    ├────────────────────────┐
-                             │
-BlueField-3 ✅                │
-    ↓                        │
-DOCA ✅                      │
-    ↓                        │
-bluefield_monitor ✅         │
-    ↓                        │
-bluefield-events ✅ ─────────┤
-                             ▼
-                      Normalizer ✅
-                             ↓
-                     morpheus-input ✅
-                             ↓
-                     Morpheus ⏳
-                             ↓
-                    morpheus-output
-                             ↓
-                         Indexer
-                             ↓
-                       OpenSearch
-                             ↓
-                   EDRXDR Dashboard ✅
-```
+ส่วนต่อไปเก็บผลและข้อจำกัด ณ 02:32 ไว้ตามเดิม โดยข้อความที่บอกว่า Dashboard ยังไม่ตรวจ
+ถูกแทนที่ด้วยผลยืนยันด้านบน. ตำแหน่ง model/dataset และข้อจำกัดคุณภาพยังใช้เป็นจุดเริ่มตรวจต่อได้.
 
----
+ต้นแบบรวบรวม security events ผ่าน Wazuh/Kafka และวิเคราะห์ด้วย NVIDIA Morpheus,
+BERT severity baseline และ Behavioral v1.4 พร้อมเก็บผลใน OpenSearch.
 
-# Automated Response
+สถานะอ้างอิง VM ณ `2026-10-11T02:32:23+07:00`; branch `work/shadow-mode-v1`,
+base commit `12d6049741235ba4bb45d65c1e3f59d4e01ce5b3`.
 
-Automated Response ถูกวางไว้เป็นขั้นถัดไป หลังจาก NVIDIA Morpheus สามารถทำ GPU Threat Analysis จริงได้
+**Bounded Shadow pilot ผ่าน 32/32 เหตุการณ์แล้ว และหยุดหลังจบรอบ ไม่ใช่บริการต่อเนื่องหรือ production-ready**
+Severity เป็น weakly supervised Wazuh severity baseline ไม่ใช่ independent threat detector หรือ attack probability.
+Automated response / containment: **OFF**. Behavioral novelty ไม่ได้แปลว่าเป็นการโจมตี;
+not-scored ไม่ได้แปลว่าปลอดภัย.
 
-เป้าหมายคือใช้ข้อมูลจากหลายแหล่งร่วมกัน:
 
-```text
-Wazuh Alert Severity
-        +
-Morpheus Threat Score
-        +
-Morpheus Classification
-        +
-BlueField Network Context
-        ↓
-Automated Response Engine
-```
+## เอกสารหลัก
 
-ตัวอย่าง Response:
+- [สถานะ ผลทดสอบ หลักฐาน และทรัพยากร](training/LATEST_STATUS.md)
+- [ขั้นตอนรับช่วงต่อและคำสั่ง](training/HANDOFF.md)
+- [หลักฐานจาก VM](training/evidence/shadow-20261011/)
 
-```text
-Alert
-Investigate
-Block IP
-Isolate Host
-Create Incident
-Incident Report
-```
+## งานที่เสร็จ
 
-เหตุผลที่ยังไม่เปิด Automated Response จริงในปัจจุบัน คือระบบต้องการใช้ผลจาก NVIDIA Morpheus จริงประกอบการตัดสินใจก่อนดำเนินการ Response ที่มีผลต่อระบบ
-
----
-
-# Security
-
-Repository จะไม่เก็บ Passwords, Tokens, Certificates หรือ Private Keys จริง
-
-ไฟล์ Local Only:
-
-```text
-wazuh/.env
-wazuh/docker-compose.yml
-wazuh/config/wazuh_dashboard/wazuh.yml
-wazuh/config/wazuh_indexer_ssl_certs/
-```
-
-ไฟล์เหล่านี้ถูกเพิ่มใน:
-
-```text
-.gitignore
-```
-
-Repository จะเก็บเฉพาะ Template:
-
-```text
-wazuh/.env.example
-wazuh/docker-compose.yml.example
-wazuh/config/wazuh_dashboard/wazuh.yml.example
-```
-
-ตัวอย่าง Environment Template:
-
-```env
-WAZUH_INDEXER_PASSWORD=CHANGE_ME
-WAZUH_API_PASSWORD=CHANGE_ME
-WAZUH_DASHBOARD_PASSWORD=CHANGE_ME
-```
-
-ห้าม Commit:
-
-```text
-.env
-Private Keys
-Certificates
-API Tokens
-Passwords
-Secrets
-```
-
-ขึ้น GitHub
-
----
-
-# Technology Stack
-
-## Security
-
-```text
-Wazuh
-NVIDIA Morpheus
-MITRE ATT&CK
-```
-
-## NVIDIA
-
-```text
-NVIDIA BlueField-3
-NVIDIA ConnectX-7
-NVIDIA DOCA
-NVIDIA DPDK
-NVIDIA H100
-NVIDIA Morpheus
-```
-
-## Data Pipeline
-
-```text
-Apache Kafka
-Python
-C
-Docker
-Docker Compose
-```
-
-## Storage
-
-```text
-OpenSearch
-```
-
-## Frontend
-
-```text
-Next.js
-React
-TypeScript
-Tailwind CSS
-```
-
----
-
-# Next Steps
-
-## 1. Fix H100 GPU Fabric
-
-สถานะปัจจุบัน:
-
-```text
-State  : In Progress
-Status : N/A
-```
-
-เป้าหมาย:
-
-```text
-State  : Completed
-Status : Success
-```
-
----
-
-## 2. Enable NVIDIA Morpheus
-
-เมื่อ H100 Fabric พร้อม:
-
-```text
-morpheus-input
-      ↓
-NVIDIA Morpheus
-      ↓
-GPU Threat Analysis
-      ↓
-Threat Score
-      ↓
-Threat Classification
-      ↓
-morpheus-output
-```
-
----
-
-## 3. Validate End-to-End AI Pipeline
-
-ทดสอบ:
-
-```text
-Wazuh
-   ┐
-   │
-   ├→ Normalizer
-   │      ↓
-BlueField ┘  morpheus-input
-              ↓
-          Morpheus
-              ↓
-        morpheus-output
-              ↓
-           Indexer
-              ↓
-         OpenSearch
-              ↓
-          Dashboard
-```
-
----
-
-## 4. Automated Response
-
-หลัง Morpheus พร้อม จะพัฒนา Response Playbook:
-
-```text
-Threat Detected
-      ↓
-Risk Evaluation
-      ↓
-Response Decision
-      ↓
-┌───────────────┬────────────────┐
-│               │                │
-▼               ▼                ▼
-Alert        Block IP       Isolate Host
-│
-▼
-Incident Report
-```
-
----
-
-# Project Summary
-
-ปัจจุบัน EDRXDR Pipeline สามารถรับ Security Events จากทั้ง:
-
-```text
-Wazuh Endpoint Security
-```
-
-และ:
-
-```text
-NVIDIA BlueField-3 / DOCA Network Telemetry
-```
-
-ได้พร้อมกัน
-
-ข้อมูลจากทั้งสองแหล่งสามารถไหลผ่าน:
-
-```text
-Wazuh / BlueField
-        ↓
-Apache Kafka
-        ↓
-Multi-Source Normalizer
-        ↓
-morpheus-input
-```
-
-ได้สำเร็จแล้ว
-
-Unified Dashboard สามารถแสดง Wazuh Endpoint Alerts และสถานะ BlueField / DOCA Pipeline ในหน้าเดียวกันได้
-
-ส่วนที่เหลือคือการแก้ไข **NVIDIA H100 GPU Fabric** เพื่อเปิด NVIDIA Morpheus สำหรับ GPU Threat Analysis จริง
-
-หลังจาก Morpheus พร้อม จะพัฒนา **Automated Response / Response Playbook** ต่อ เพื่อให้ระบบ EDR/XDR สามารถตรวจจับ วิเคราะห์ และตอบสนองต่อภัยคุกคามได้แบบ End-to-End
-
----
-
-## License
-
-โปรเจกต์นี้จัดทำขึ้นเพื่อการศึกษา การวิจัย และการพัฒนาต้นแบบด้าน:
-
-- Cybersecurity
-- EDR / XDR
-- NVIDIA BlueField
-- NVIDIA DOCA
-- NVIDIA Morpheus
-- GPU / DPU Security Analytics
-
-<!-- EDRXDR_CURRENT_STATUS_START -->
-## Current Project Status
-
-Last verified: `2026-10-10T02:51:54+07:00`
-
-**Status:** Replay/Development integration is functional; **not production-ready**. Automated response remains disabled.
-
-- Git: branch `work/shadow-mode-v1`, commit `4dae1f7`.
-- Severity and Behavioral v1.4 use separate replay paths joined by `event_uid`.
-- Behavioral runtime uses raw Wazuh fields (`decoder.name`, `location`, `data.*`).
-- OpenSearch: `replay-severity-v1`, `replay-behavioral-v1`.
-- Multi-event verification: **8/8 UID joins verified**.
-- Details: [`training/LATEST_STATUS.md`](training/LATEST_STATUS.md)
-- Handoff: [`training/HANDOFF.md`](training/HANDOFF.md)
-
-| Check | Result |
+| งาน | หลักฐาน / ข้อจำกัด |
 |---|---|
-| Python `py_compile` | **PASS** |
-| `docker compose config` | **PASS** |
-| Next.js production build | **PASS** |
-| `git diff --check` | **PASS** |
-| Secret-pattern scan | **PASS (targeted scan: no matches; broader repo scan reviewed placeholders/comments/test strings only)** |
-| OpenSearch multi-event join | **8/8 UID joins verified** |
+| Dataset และ BERT checkpoint | มีใน Docker volumes; ไม่ต้อง train ใหม่เพื่อเปิด Dashboard |
+| Morpheus tokenizer framing และ inference | เคยตรวจ HF parity ผ่าน; Shadow GPU batch ล่าสุดประมวลผลครบ 32 |
+| Behavioral v1.4 | ประมวลผล 32; รอบนี้ AE-scored = 0, limited_history 31, novel_cohort 1 |
+| Shadow capture → score สองเส้นทาง → index | อย่างละ 32; occurrence join และ raw hash ตรงกัน 32/32 |
+| Tests | VM CPU unit tests 23/23, Compose config PASS, git diff --check ไม่มีข้อผิดพลาด |
+| จบรอบและคืน GPU | ไม่มี Shadow worker ค้าง; nvidia-smi เวลา 02:20:46 แสดง 0 MiB / ไม่มี process |
 
-> Severity score is a Wazuh-severity proxy, not attack probability. Behavioral anomaly/novelty is supporting evidence, not a malicious classifier.
-<!-- EDRXDR_CURRENT_STATUS_END -->
+Severity รอบนี้มี false-positive candidates 13 รายการ ซึ่งเป็นความไม่ตรงกับ Wazuh weak label
+ไม่ใช่ false positives ที่ยืนยันด้วย independent ground truth. รายงาน join ไม่ใช่ scoring parity หรือ accuracy test.
+
+## เส้นทางที่ตรวจแล้ว
+
+```text
+Live wazuh-alerts (172.16.30.147:9092)
+  -> edrxdr-shadow-copy-v1 (bounded capture)
+  -> Replay Kafka: shadow-wazuh-raw-v1 (kafka:29092)
+       -> severity   -> shadow-severity-output-v1   -> shadow-severity-v1
+       -> behavioral -> shadow-behavioral-output-v1 -> shadow-behavioral-v1
+                                                        Replay OpenSearch
+```
+
+เส้นทาง live normalizer/indexer ยังรันอยู่ แต่ container `edrxdr-morpheus` เดิมหยุดด้วย exit 1
+ตั้งแต่ก่อนรอบนี้ จึงห้ามตีความว่า live GPU inference ทำงานต่อเนื่องแล้ว.
+BlueField/DOCA เป็นส่วนของสถาปัตยกรรมเดิม ไม่ได้ตรวจ hardware/telemetry ใหม่ใน audit นี้.
+
+## เปิด Dashboard ของโปรเจกต์
+
+มี `frontend/package.json` (Next.js 15.5.18), Node/dependencies และ BUILD_ID ตามผล terminal ก่อน audit.
+Audit ล่าสุดไม่พบ listener 3000. ยังไม่ได้ยืนยันหน้าเว็บ/API หลังเปิดในรอบนี้.
+
+```bash
+cd ~/EDRXDR-Morpheus/frontend || exit 1
+npm run start -- --hostname 0.0.0.0 --port 3000
+```
+
+เปิด `http://172.16.30.147:3000` ขณะ terminal รันอยู่; Ctrl+C หยุดเฉพาะหน้าเว็บ.
+Wazuh Dashboard เป็นอีกบริการที่ `https://172.16.30.147:8443`.
+Replay UI/API เคยมีตามเอกสารเดิม แต่ยังไม่ยืนยันการเชื่อม Shadow indexes;
+อย่าแสดงผล 32 รายการว่าอยู่บน Dashboard แล้ว. หากเชื่อมไม่ได้ ตรวจ config/API โดยไม่เผยแพร่ `.env`.
+
+## งานถัดไป
+
+1. ตรวจและบันทึกเอกสารกับ `shadow/` เข้า Git หลัง review (ยังไม่ได้ commit/push).
+2. บันทึกค่า cache `/tmp` ใน Compose; ระหว่างนี้ใช้ env override ตาม HANDOFF.
+3. ตรวจ Dashboard/API จริง และเพิ่มการแสดง Shadow พร้อมแยก not-scored/weak-label disagreement.
+4. ประเมินคุณภาพและ AE coverage ด้วยข้อมูลที่เหมาะสม; รักษา old-test/reserve.
+5. ทดสอบ restart/duplicate/outage ในสภาพแวดล้อมทดสอบก่อนออกแบบบริการต่อเนื่อง.
+
+ห้ามเปลี่ยน host drivers/CUDA, BlueField/DOCA, live Kafka หรือ shared infrastructure เพื่อแก้งานนี้.
+GPU ต้องมีรอบจองใหม่; รอบ 11 ต.ค. 01:00–03:00 ไม่ใช่สิทธิ์ใช้งานถาวร.

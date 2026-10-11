@@ -1,0 +1,31 @@
+{
+  "evidence_source": "User-provided VM API output and browser screenshots on 2026-10-11; not rerun by updater",
+  "counts": {
+    "severity": 32,
+    "behavioral": 32,
+    "matched": 32,
+    "conflicts": 0,
+    "unmatched": 0,
+    "ae_scored": 0,
+    "novelty": 1,
+    "candidates": 13
+  },
+  "candidates_by_rule": {
+    "19008": 13
+  },
+  "join_states": {
+    "matched": 32
+  },
+  "full_vm_regression_after_fix": "output not yet provided",
+  "vm_build_log_after_fix": "output not yet provided; /shadow served successfully",
+  "head_at_document_update": "12d6049741235ba4bb45d65c1e3f59d4e01ce5b3",
+  "frontend_sha256": {
+    "frontend/src/lib/shadow.ts": "77d67c7f9481887e7391cc3d6e20379518979d5f400dc1c8a6845663f0ddf6ea",
+    "frontend/src/app/shadow/page.tsx": "9c0032090f146525e588d90e1e01258dd0e347225f1e29d5a3fb4da4ec333b31",
+    "frontend/src/app/api/shadow/events/route.ts": "77fdae5fef07a0c2f47a50fb83772a1bf0b7625091de9a1d482887de40c8d7ff",
+    "frontend/src/app/dashboard.tsx": "0bfe06983681d1a0eed9c43fa0f48d34664a91fa1e24d611e025026523ccdd88",
+    "frontend/tests/shadow.cjs": "9cf4fd7d36b50631777bc87340e26b990fb6096233c79576c82f38f29dd8573e",
+    "frontend/tests/regression.cjs": "7ca6aaa181eab59641470bb1fdfaa49776fa3d56ff5b93015f62284aa479bcbd",
+    "frontend/run_shadow_dashboard.sh": "fb1f735f633b874d84621c2ee22da2dad4ab91a893c34b8bc6ba724b38ae0bd1"
+  }
+}

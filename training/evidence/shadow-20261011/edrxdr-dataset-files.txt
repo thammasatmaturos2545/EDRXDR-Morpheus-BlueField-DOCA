@@ -1,0 +1,5 @@
+/evidence
+/evidence/wazuh-history-20261008T184838Z-1179365
+/evidence/wazuh-history-20261008T184838Z-1179365/2026
+/evidence/wazuh-context-v2-20261008T185539Z-1179365
+/evidence/wazuh-context-v2-20261008T185539Z-1179365/manifest.json

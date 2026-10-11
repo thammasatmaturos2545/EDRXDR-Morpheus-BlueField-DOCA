@@ -1,0 +1,12 @@
+
+> frontend@0.1.0 test:regression
+> node tests/regression.cjs
+
+PASS real report values and file hashes are returned without rounding or replacements
+PASS missing reports return 503 without invented metrics
+PASS invalid JSON, missing fields, incorrect counts, and threshold mismatch fail closed
+PASS quality UI displays actual development metrics, fail state, and N/A denominators
+PASS initial dashboard and /replay remain unknown with no fabricated counts
+PASS live and replay OpenSearch queries remain separate; real zero scores survive
+PASS unknown probes never become offline; DOCA is independent from BlueField
+7 regression groups passed.

@@ -1,0 +1,12 @@
+test_cache_config_and_closed_gates (__main__.Recovery.test_cache_config_and_closed_gates) ... ok
+test_commit_failure_after_index_ack_is_retriable (__main__.Recovery.test_commit_failure_after_index_ack_is_retriable) ... ok
+test_incomplete_ack_never_commits (__main__.Recovery.test_incomplete_ack_never_commits) ... ok
+test_lost_publish_ack_can_duplicate_but_never_skip_input (__main__.Recovery.test_lost_publish_ack_can_duplicate_but_never_skip_input) ... ok
+test_missing_index_never_opens_consumer (__main__.Recovery.test_missing_index_never_opens_consumer) ... ok
+test_scoring_change_requires_parity_not_a_success_flag (__main__.Recovery.test_scoring_change_requires_parity_not_a_success_flag) ... ok
+test_write_succeeds_ack_lost_then_retry_overwrites_one_document (__main__.Recovery.test_write_succeeds_ack_lost_then_retry_overwrites_one_document) ... ok
+
+----------------------------------------------------------------------
+Ran 7 tests in 0.006s
+
+OK

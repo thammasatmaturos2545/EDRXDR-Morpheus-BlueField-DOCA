@@ -1,0 +1,14 @@
+
+Consumer group 'edrxdr-dataset-1791376700' has no active members.
+
+GROUP                     TOPIC           PARTITION  CURRENT-OFFSET  LOG-END-OFFSET  LAG             CONSUMER-ID     HOST            CLIENT-ID
+edrxdr-dataset-1791376700 morpheus-input  0          31653           47205           15552           -               -               -
+GROUP           TOPIC           PARTITION  CURRENT-OFFSET  LOG-END-OFFSET  LAG             CONSUMER-ID                                              HOST            CLIENT-ID
+edrxdr-indexer  morpheus-output 0          43              43              0               kafka-python-2.2.15-91e3223a-a66b-4508-8d36-e54b5bb98712 /172.19.0.4     kafka-python-2.2.15
+GROUP                TOPIC            PARTITION  CURRENT-OFFSET  LOG-END-OFFSET  LAG             CONSUMER-ID                                              HOST            CLIENT-ID
+edrxdr-normalizer-v2 bluefield-events 0          31396           31396           0               kafka-python-2.2.15-90b643b8-d03c-46fc-b0b7-4a6561c4120d /172.19.0.3  
+Consumer group 'edrxdr-shadow-copy-v1' has no active members.
+   kafka-python-2.2.15
+edrxdr-normalizer-v2 wazuh-alerts     0          15854           15854           0               kafka-python-2.2.15-90b643b8-d03c-46fc-b0b7-4a6561c4120d /172.19.0.3     kafka-python-2.2.15
+GROUP                 TOPIC           PARTITION  CURRENT-OFFSET  LOG-END-OFFSET  LAG             CONSUMER-ID     HOST            CLIENT-ID
+edrxdr-shadow-copy-v1 wazuh-alerts    0          15605           15854           249             -               -               -

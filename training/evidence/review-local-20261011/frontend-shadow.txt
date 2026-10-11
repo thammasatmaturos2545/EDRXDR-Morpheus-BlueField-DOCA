@@ -1,0 +1,18 @@
+PASS same occurrence joins and not-scored remains uncovered
+PASS same UID different offset must not join
+PASS hash conflict is visible, never counted matched
+PASS rule metadata conflict is visible
+PASS duplicate occurrences rejected
+PASS unbounded/incomplete search rejected
+PASS partial shard failure rejected
+PASS wrong mode and enabled response rejected
+PASS bad score and false claim rejected
+PASS raw fields removed including nested source
+PASS empty indices are valid empty data
+PASS unknown Wazuh level stays unknown and never becomes a candidate
+PASS contradictory AE coverage and routing states rejected
+PASS actual scored and zero-ratio states accepted without fabricating coverage
+PASS nested model metadata rejected and opposite-kind fields removed
+PASS timeout, lower-bound count, and invalid safety flags fail closed
+PASS UI preserves not-scored and displays both sides of a conflict
+PASS: 20 shadow checks (synthetic fixtures; no VM integration claim)

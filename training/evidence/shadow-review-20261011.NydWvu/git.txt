@@ -1,0 +1,53 @@
+2026-10-11T22:02:29+07:00
+work/shadow-mode-v1
+12d6049 Refresh project handoff documentation
+ M README.md
+ M frontend/src/app/dashboard.tsx
+ M frontend/tests/regression.cjs
+ M training/HANDOFF.md
+ M training/LATEST_STATUS.md
+?? frontend/SHADOW_DASHBOARD.md
+?? frontend/run_shadow_dashboard.sh
+?? frontend/src/app/api/shadow/events/route.ts
+?? frontend/src/app/shadow/page.tsx
+?? frontend/src/lib/shadow.ts
+?? frontend/tests/shadow.cjs
+?? shadow/LOCAL_TEST_REPORT.json
+?? shadow/PACKAGE_SHA256.json
+?? shadow/README.md
+?? shadow/REVIEW.md
+?? shadow/REVIEW_TEST_REPORT.json
+?? shadow/common.py
+?? shadow/compose.yml
+?? shadow/pilot.py
+?? shadow/runtime.py
+?? shadow/scoring.py
+?? shadow/source-lock.json
+?? shadow/test_recovery.py
+?? shadow/test_shadow.py
+?? shadow/validation.py
+?? training/evidence/dashboard-20261011/reported-result.json
+?? training/evidence/review-local-20261011/frontend-regression.txt
+?? training/evidence/review-local-20261011/frontend-shadow.txt
+?? training/evidence/review-local-20261011/lint.txt
+?? training/evidence/review-local-20261011/typecheck.txt
+?? training/evidence/shadow-20261011/compose-check.txt
+?? training/evidence/shadow-20261011/containers.txt
+?? training/evidence/shadow-20261011/edrxdr-dataset-files.txt
+?? training/evidence/shadow-20261011/edrxdr-model-output-files.txt
+?? training/evidence/shadow-20261011/edrxdr-shadow_shadow-state-files.txt
+?? training/evidence/shadow-20261011/git.txt
+?? training/evidence/shadow-20261011/image.txt
+?? training/evidence/shadow-20261011/join-evidence.txt
+?? training/evidence/shadow-20261011/listeners.txt
+?? training/evidence/shadow-20261011/live-groups.txt
+?? training/evidence/shadow-20261011/outside-repo.txt
+?? training/evidence/shadow-20261011/previous-status-20261010.md
+?? training/evidence/shadow-20261011/replay-groups.txt
+?? training/evidence/shadow-20261011/shadow-behavioral-count.json
+?? training/evidence/shadow-20261011/shadow-severity-count.json
+?? training/evidence/shadow-20261011/shadow-tests.txt
+?? training/evidence/shadow-20261011/volume-paths.txt
+?? training/evidence/shadow-20261011/volumes.txt
+?? training/evidence/shadow-review-20261011.NydWvu/git.txt
+?? verify_shadow_review.sh

@@ -1,0 +1,13 @@
+NAMES                        STATUS                  IMAGE                                            PORTS
+edrxdr-replay-opensearch-1   Up 45 hours             opensearchproject/opensearch:2.11.0              9200/tcp, 9300/tcp, 9600/tcp, 9650/tcp
+edrxdr-replay-normalizer-1   Up 45 hours             edrxdr-morpheus-normalizer:latest                
+edrxdr-replay-kafka-1        Up 45 hours             apache/kafka:3.8.1                               9092/tcp
+edrxdr-morpheus              Exited (1) 8 days ago   nvcr.io/nvidia/morpheus/morpheus:25.06-runtime   
+edrxdr-normalizer            Up 3 days               edrxdr-morpheus-normalizer                       
+edrxdr-wazuh-forwarder       Up 3 days               wazuh-wazuh.forwarder                            
+wazuh-wazuh.dashboard-1      Up 3 days               wazuh/wazuh-dashboard:4.14.7                     443/tcp, 0.0.0.0:8443->5601/tcp, [::]:8443->5601/tcp
+wazuh-wazuh.indexer-1        Up 3 days               wazuh/wazuh-indexer:4.14.7                       0.0.0.0:9201->9200/tcp, [::]:9201->9200/tcp
+wazuh-wazuh.manager-1        Up 3 days               wazuh/wazuh-manager:4.14.7                       0.0.0.0:1514-1515->1514-1515/tcp, [::]:1514-1515->1514-1515/tcp, 0.0.0.0:514->514/udp, [::]:514->514/udp, 0.0.0.0:55000->55000/tcp, [::]:55000->55000/tcp, 1516/tcp
+edrxdr-indexer               Up 3 days               edrxdr-morpheus-indexer                          
+edrxdr-kafka                 Up 3 days               apache/kafka:3.8.1                               0.0.0.0:9092->9092/tcp, [::]:9092->9092/tcp
+edrxdr-opensearch            Up 3 days               opensearchproject/opensearch:2.11.0              9300/tcp, 9600/tcp, 0.0.0.0:9200->9200/tcp, [::]:9200->9200/tcp, 9650/tcp

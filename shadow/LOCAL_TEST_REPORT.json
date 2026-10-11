@@ -1,0 +1,34 @@
+{
+  "status": "LOCAL_UNIT_TESTS_PASS",
+  "tests_passed": 23,
+  "base_commit": "12d6049",
+  "date": "2026-10-11",
+  "checks": [
+    "Python syntax",
+    "UID/raw-byte preservation",
+    "publish acknowledgement before commit",
+    "index acknowledgement before commit",
+    "shadow destination allowlist",
+    "source boundary/resume and retention gap",
+    "retry document identity",
+    "not-scored flags",
+    "execution gates",
+    "source archive unchanged",
+    "Pinned advertised listeners and disjoint deployment topic signatures; shared cluster ID allowed only with matching deployment checks",
+    "Actual production validator loader with Kafka imports blocked",
+    "Validator source hash mismatch rejected"
+  ],
+  "not_run": [
+    "Docker Compose validation",
+    "real Kafka/OpenSearch integration",
+    "Morpheus/GPU scoring",
+    "replay-shadow score parity",
+    "VM deployment"
+  ],
+  "vm_observations": [
+    "Preflight PASS",
+    "Shadow live capture completed: 32 events",
+    "Behavioral batch validation failed on legacy Kafka import before output publication",
+    "New validator fix awaits VM rerun"
+  ]
+}

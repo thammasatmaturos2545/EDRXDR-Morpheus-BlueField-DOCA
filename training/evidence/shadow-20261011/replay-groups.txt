@@ -1,0 +1,43 @@
+
+Consumer group 'edrxdr-shadow-behavioral-v1' has no active members.
+
+GROUP                       TOPIC               PARTITION  CURRENT-OFFSET  LOG-END-OFFSET  LAG  
+Consumer group 'edrxdr-shadow-index-behavioral-v1' has no active members.
+
+Consumer group 'edrxdr-shadow-index-severity-v1' has no active members.
+
+Consumer group 'edrxdr-shadow-severity-v1' has no active members.
+
+Consumer group 'replay-behavioral-archive-v1' has no active members.
+           CONSUMER-ID     HOST            CLIENT-ID
+edrxdr-shadow-behavioral-v1 shadow-wazuh-raw-v1 0          32              32              0               -               -               -
+GROUP                             TOPIC                       PARTITION  CURRENT-OFFSET  LOG-END-OFFSET  LAG             CONSUMER-ID     HOST            CLIENT-ID
+edrxdr-shadow-index-behavioral-v1 shadow-behavioral-output-v1 0          32              32              0               -               -               -
+GROUP                           TOPIC                     PARTITION  CURRENT-OFFSET  LOG-END-OFFSET  LAG             CONSUMER-ID     HOST            CLIENT-ID
+edrxdr-shadow-index-severity-v1 shadow-severity-output-v1 0          32              32              0               -               -               -
+GROUP                     TOPIC               PARTITION  CURRENT-OFFSET  LOG-END-OFFSET  LAG             CONSUMER-ID     HOST            CLIENT-ID
+edrxdr-shadow-severity-v1 shadow-wazuh-raw-v1 0          32              32              0               -               -               -
+GROUP                        TOPIC                   PARTITION  CURRENT-OFFSET  LOG-END-OFFSET  LAG             CONSUMER-ID     HOST            CLIENT-ID
+replay-behavioral-archive-v1 replay-behavioral-input 0          1               8               7               -               -               -
+GROUP                        TOPIC                    PARTITION  CURRENT-OFFSET  LOG-END-OFFSET  LAG             CONSUMER-ID     HOST            CLIENT-ID
+replay-behavioral-indexer-v1 replay-behavioral-output 0          10              10              0               -               -               -
+GROUP                    TOPIC                   PARTITION  CURRENT-OFFSET  LOG-END-OFFSET  LAG             CONSUMER-ID     HOST            CLIENT-ID
+replay-behavioral-raw-v1 replay-behavioral-input 0          8               8               0               -               -               -
+GROUP                TOPIC                 PARTITION  CURRENT-OFFSET  LOG-END-OFFSET  LAG             CONSUMER-ID     HOST            CLIENT-ID
+replay-behavioral-v1 replay-morpheus-input 0          1               9               8               -               -               -
+GROUP             TOPIC                  PARTITION  CURRENT-OFFSET  LOG-END-OFFSET  LAG             CONSUMER-ID     HOST            CLIENT-ID
+replay-indexer-v1 replay-morpheus-output 0          10              10              0               -               -               
+Consumer group 'replay-behavioral-indexer-v1' has no active members.
+
+Consumer group 'replay-behavioral-raw-v1' has no active members.
+
+Consumer group 'replay-behavioral-v1' has no active members.
+
+Consumer group 'replay-indexer-v1' has no active members.
+
+Consumer group 'replay-inference-v1' has no active members.
+-
+GROUP               TOPIC                 PARTITION  CURRENT-OFFSET  LOG-END-OFFSET  LAG             CONSUMER-ID     HOST            CLIENT-ID
+replay-inference-v1 replay-morpheus-input 0          9               9               0               -               -               -
+GROUP                TOPIC               PARTITION  CURRENT-OFFSET  LOG-END-OFFSET  LAG             CONSUMER-ID                                              HOST            CLIENT-ID
+replay-normalizer-v1 replay-wazuh-alerts 0          9               9               0               kafka-python-2.2.15-80d2a6db-a5a9-4ad7-95af-9c2edcb82485 /172.18.0.4     kafka-python-2.2.15

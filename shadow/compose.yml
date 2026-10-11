@@ -1,0 +1,89 @@
+name: edrxdr-shadow
+
+x-worker: &worker
+  user: "1001:1002"
+  image: edrxdr-morpheus-train:25.06
+  pull_policy: never
+  restart: "no"
+  read_only: true
+  cpus: 2
+  mem_limit: 4g
+  pids_limit: 256
+  cap_drop: [ALL]
+  group_add: ["1002"]
+  security_opt: [no-new-privileges:true]
+  entrypoint: [timeout, --signal=TERM, --kill-after=10s, 600s, /opt/conda/envs/morpheus/bin/python, -B, -u, /shadow/pilot.py]
+  environment: &environment
+    PYTHONPATH: /shadow:/replay:/scripts
+    HOME: /tmp
+    XDG_CACHE_HOME: /tmp/cache
+    CUPY_CACHE_DIR: /tmp/cupy-cache
+    CUDA_CACHE_PATH: /tmp/cuda-cache
+    HF_HOME: /tmp/hf-cache
+    HF_HUB_OFFLINE: "1"
+    TRANSFORMERS_OFFLINE: "1"
+    TOKENIZERS_PARALLELISM: "false"
+    OMP_NUM_THREADS: "2"
+    SHADOW_RUN_ALLOWED: "0"
+    SHADOW_GPU_ALLOWED: "0"
+  tmpfs:
+    - /tmp:rw,size=1g
+  volumes:
+    - .:/shadow:ro
+    - ../replay:/base/replay:ro
+    - ../training:/base/training:ro
+    - ../replay:/replay:ro
+    - ../training:/scripts:ro
+    - model-output:/models:ro
+    - shadow-state:/shadow-state
+  networks: [replay]
+
+services:
+  inspect:
+    <<: *worker
+    profiles: [manual]
+    command: [preflight]
+    networks: [replay, egress]
+  admin:
+    <<: *worker
+    profiles: [manual]
+    command: [provision]
+  capture:
+    <<: *worker
+    profiles: [manual]
+    command: [capture, --limit, "32", --seconds, "60"]
+    networks: [replay, egress]
+  behavioral:
+    <<: *worker
+    profiles: [manual]
+    command: [score, --kind, behavioral]
+  severity:
+    <<: *worker
+    profiles: [gpu-manual]
+    command: [score, --kind, severity]
+    cpus: 4
+    mem_limit: 16g
+    shm_size: 1g
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              device_ids: ["0"]
+              capabilities: [gpu]
+  indexer:
+    <<: *worker
+    profiles: [manual]
+    command: [index, --kind, behavioral]
+
+networks:
+  replay:
+    external: true
+    name: edrxdr-replay_replay-net
+  egress: {}
+
+volumes:
+  model-output:
+    external: true
+    name: edrxdr-model-output
+  shadow-state: {}
