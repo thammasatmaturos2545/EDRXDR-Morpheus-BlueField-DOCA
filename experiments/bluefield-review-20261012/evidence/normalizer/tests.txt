@@ -1,0 +1,19 @@
+test_bad_numbers_and_inconsistent_errors_rejected (__main__.Tests.test_bad_numbers_and_inconsistent_errors_rejected) ... ok
+test_cli_failure_creates_no_partial_output_and_no_overwrite (__main__.Tests.test_cli_failure_creates_no_partial_output_and_no_overwrite) ... ok
+test_counter_decrease_is_not_clamped_to_zero (__main__.Tests.test_counter_decrease_is_not_clamped_to_zero) ... ok
+test_devices_and_capture_instances_are_separate (__main__.Tests.test_devices_and_capture_instances_are_separate) ... ok
+test_duplicate_or_older_preserves_state (__main__.Tests.test_duplicate_or_older_preserves_state) ... ok
+test_first_sample_has_no_invented_delta (__main__.Tests.test_first_sample_has_no_invented_delta) ... ok
+test_increment (__main__.Tests.test_increment) ... ok
+test_interface_change_rebaselines_even_when_returning (__main__.Tests.test_interface_change_rebaselines_even_when_returning) ... ok
+test_invalid_schema_and_timezone (__main__.Tests.test_invalid_schema_and_timezone) ... ok
+test_long_gap (__main__.Tests.test_long_gap) ... ok
+test_uint64_and_deepcopy (__main__.Tests.test_uint64_and_deepcopy) ... ok
+test_unavailable_does_not_bridge_gap (__main__.Tests.test_unavailable_does_not_bridge_gap) ... ok
+test_unmapped_interface_stays_unknown (__main__.Tests.test_unmapped_interface_stays_unknown) ... ok
+test_zero_down_and_unknown_carrier_preserved (__main__.Tests.test_zero_down_and_unknown_carrier_preserved) ... ok
+
+----------------------------------------------------------------------
+Ran 14 tests in 0.074s
+
+OK

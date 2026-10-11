@@ -1,0 +1,5 @@
+ninja: Entering directory `/home/saiuser/edrxdr-bluefield-nullcheck.Bn44DZ/build'
+[1/2] Compiling C object bluefield_monitor.p/monitor.c.o
+[2/2] Linking target bluefield_monitor
+INFO: autodetecting backend as ninja
+INFO: calculating backend command to run: /usr/bin/ninja -C /home/saiuser/edrxdr-bluefield-nullcheck.Bn44DZ/build -j 2

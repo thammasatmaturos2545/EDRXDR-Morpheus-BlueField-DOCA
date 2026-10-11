@@ -1,0 +1,14 @@
+test_ambiguous_mapping_is_not_arbitrary (__main__.MonitorTests.test_ambiguous_mapping_is_not_arbitrary) ... ok
+test_cli_rejects_unbounded_or_invalid_samples (__main__.MonitorTests.test_cli_rejects_unbounded_or_invalid_samples) ... ok
+test_invalid_negative_overflow_empty_and_embedded_nul (__main__.MonitorTests.test_invalid_negative_overflow_empty_and_embedded_nul) ... ok
+test_missing_counter_is_null_not_zero (__main__.MonitorTests.test_missing_counter_is_null_not_zero) ... ok
+test_missing_mapping_and_operstate (__main__.MonitorTests.test_missing_mapping_and_operstate) ... ok
+test_missing_or_invalid_carrier_is_unknown (__main__.MonitorTests.test_missing_or_invalid_carrier_is_unknown) ... ok
+test_two_samples_exit_without_timeout (__main__.MonitorTests.test_two_samples_exit_without_timeout) ... ok
+test_uint64_max_is_preserved (__main__.MonitorTests.test_uint64_max_is_preserved) ... ok
+test_zero_is_real_zero_and_down_is_visible (__main__.MonitorTests.test_zero_is_real_zero_and_down_is_visible) ... ok
+
+----------------------------------------------------------------------
+Ran 9 tests in 2.057s
+
+OK

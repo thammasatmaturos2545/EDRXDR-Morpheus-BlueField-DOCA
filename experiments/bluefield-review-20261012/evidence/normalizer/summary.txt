@@ -1,0 +1,11 @@
+Rows: 6
+Interfaces: {'enp6s17f0np0': 3, 'enp6s17f1np1': 3}
+operstate: {'down': 6}
+carrier null: 6
+rx_bytes delta status: {'first_sample': 2, 'computed': 4}
+{"timestamp": "2026-10-11T18:45:32Z", "interface": "enp6s17f0np0", "operstate": "down", "carrier": null, "rx_bytes": 0, "delta_rx_bytes": null, "delta_status": {"rx_packets": "first_sample", "tx_packets": "first_sample", "rx_bytes": "first_sample", "tx_bytes": "first_sample", "rx_errors": "first_sample", "tx_errors": "first_sample"}}
+{"timestamp": "2026-10-11T18:45:32Z", "interface": "enp6s17f1np1", "operstate": "down", "carrier": null, "rx_bytes": 0, "delta_rx_bytes": null, "delta_status": {"rx_packets": "first_sample", "tx_packets": "first_sample", "rx_bytes": "first_sample", "tx_bytes": "first_sample", "rx_errors": "first_sample", "tx_errors": "first_sample"}}
+{"timestamp": "2026-10-11T18:45:34Z", "interface": "enp6s17f0np0", "operstate": "down", "carrier": null, "rx_bytes": 0, "delta_rx_bytes": 0, "delta_status": {"rx_packets": "computed", "tx_packets": "computed", "rx_bytes": "computed", "tx_bytes": "computed", "rx_errors": "computed", "tx_errors": "computed"}}
+{"timestamp": "2026-10-11T18:45:34Z", "interface": "enp6s17f1np1", "operstate": "down", "carrier": null, "rx_bytes": 0, "delta_rx_bytes": 0, "delta_status": {"rx_packets": "computed", "tx_packets": "computed", "rx_bytes": "computed", "tx_bytes": "computed", "rx_errors": "computed", "tx_errors": "computed"}}
+{"timestamp": "2026-10-11T18:45:36Z", "interface": "enp6s17f0np0", "operstate": "down", "carrier": null, "rx_bytes": 0, "delta_rx_bytes": 0, "delta_status": {"rx_packets": "computed", "tx_packets": "computed", "rx_bytes": "computed", "tx_bytes": "computed", "rx_errors": "computed", "tx_errors": "computed"}}
+{"timestamp": "2026-10-11T18:45:36Z", "interface": "enp6s17f1np1", "operstate": "down", "carrier": null, "rx_bytes": 0, "delta_rx_bytes": 0, "delta_status": {"rx_packets": "computed", "tx_packets": "computed", "rx_bytes": "computed", "tx_bytes": "computed", "rx_errors": "computed", "tx_errors": "computed"}}
