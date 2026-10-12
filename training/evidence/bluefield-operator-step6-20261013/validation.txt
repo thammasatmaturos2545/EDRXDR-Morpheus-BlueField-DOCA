@@ -1,0 +1,127 @@
+test_audit_order_and_unknown_cannot_retry (__main__.Contracts.test_audit_order_and_unknown_cannot_retry) ... ok
+test_audit_tamper_and_payload_reason_rejected (__main__.Contracts.test_audit_tamper_and_payload_reason_rejected) ... ok
+test_cannot_ack_without_intent (__main__.Contracts.test_cannot_ack_without_intent) ... ok
+test_exact_bytes_preserve_poison (__main__.Contracts.test_exact_bytes_preserve_poison) ... ok
+test_expired_future_or_excessive_ttl (__main__.Contracts.test_expired_future_or_excessive_ttl) ... ok
+test_extra_raw_fields_are_rejected (__main__.Contracts.test_extra_raw_fields_are_rejected) ... ok
+test_live_or_shared_destinations_rejected (__main__.Contracts.test_live_or_shared_destinations_rejected) ... ok
+test_missing_approval (__main__.Contracts.test_missing_approval) ... ok
+test_nonapproval_operator_and_binding (__main__.Contracts.test_nonapproval_operator_and_binding) ... ok
+test_plan_and_evidence_tampering (__main__.Contracts.test_plan_and_evidence_tampering) ... ok
+test_retention_absent_or_hash_mismatch (__main__.Contracts.test_retention_absent_or_hash_mismatch) ... ok
+test_safety_flags_are_strict_booleans (__main__.Contracts.test_safety_flags_are_strict_booleans) ... ok
+test_success_chain_contains_no_raw_or_approval_payload (__main__.Contracts.test_success_chain_contains_no_raw_or_approval_payload) ... ok
+test_valid_approval_is_bound_to_plan (__main__.Contracts.test_valid_approval_is_bound_to_plan) ... ok
+test_wrong_exact_position (__main__.Contracts.test_wrong_exact_position) ... ok
+
+----------------------------------------------------------------------
+Ran 15 tests in 0.002s
+
+OK
+test_ack_persisted_and_terminal (__main__.StoreTests.test_ack_persisted_and_terminal) ... ok
+test_ack_requires_matching_destination_and_offset (__main__.StoreTests.test_ack_requires_matching_destination_and_offset) ... ok
+test_ambiguous_commit_returns_error_but_blocks_retry (__main__.StoreTests.test_ambiguous_commit_returns_error_but_blocks_retry) ... ok
+test_caller_mutation_does_not_change_stored_approval (__main__.StoreTests.test_caller_mutation_does_not_change_stored_approval) ... ok
+test_duplicate_approval_id_also_blocks_new_destination (__main__.StoreTests.test_duplicate_approval_id_also_blocks_new_destination) ... ok
+test_expiry_rechecked_inside_transaction (__main__.StoreTests.test_expiry_rechecked_inside_transaction) ... ok
+test_initialize_refuses_existing_db_without_overwrite (__main__.StoreTests.test_initialize_refuses_existing_db_without_overwrite) ... ok
+test_intent_survives_reopen_without_raw_payload (__main__.StoreTests.test_intent_survives_reopen_without_raw_payload) ... ok
+test_missing_approval_or_bad_source_leaves_no_intent (__main__.StoreTests.test_missing_approval_or_bad_source_leaves_no_intent) ... ok
+test_missing_db_does_not_auto_recreate (__main__.StoreTests.test_missing_db_does_not_auto_recreate) ... ok
+test_new_approval_cannot_resend_same_record_destination (__main__.StoreTests.test_new_approval_cannot_resend_same_record_destination) ... ok
+test_outcome_audit_failure_preserves_pending_intent (__main__.StoreTests.test_outcome_audit_failure_preserves_pending_intent) ... ok
+test_rehashed_but_invalid_audit_chain_fails_closed (__main__.StoreTests.test_rehashed_but_invalid_audit_chain_fails_closed) ... ok
+test_same_approval_cannot_be_used_twice (__main__.StoreTests.test_same_approval_cannot_be_used_twice) ... ok
+test_tampered_record_fails_closed (__main__.StoreTests.test_tampered_record_fails_closed) ... ok
+test_two_concurrent_connections_only_one_reservation (__main__.StoreTests.test_two_concurrent_connections_only_one_reservation) ... ok
+test_two_processes_share_one_reservation (__main__.StoreTests.test_two_processes_share_one_reservation) ... ok
+test_unknown_outcome_cannot_be_retried_or_marked_success (__main__.StoreTests.test_unknown_outcome_cannot_be_retried_or_marked_success) ... ok
+test_write_failure_rolls_back_everything (__main__.StoreTests.test_write_failure_rolls_back_everything) ... ok
+
+----------------------------------------------------------------------
+Ran 19 tests in 0.131s
+
+OK
+test_ambiguous_commit_leaves_decision_no_reissue (__main__.Workflow.test_ambiguous_commit_leaves_decision_no_reissue) ... ok
+test_approval_and_audit_committed_together (__main__.Workflow.test_approval_and_audit_committed_together) ... ok
+test_concurrent_decisions_one_wins (__main__.Workflow.test_concurrent_decisions_one_wins) ... ok
+test_corrupt_audit_blocks_decision (__main__.Workflow.test_corrupt_audit_blocks_decision) ... ok
+test_duplicate_json_keys_rejected (__main__.Workflow.test_duplicate_json_keys_rejected) ... ok
+test_duplicate_review_cannot_extend_approval (__main__.Workflow.test_duplicate_review_cannot_extend_approval) ... ok
+test_exact_interactive_confirmation_issues_approval (__main__.Workflow.test_exact_interactive_confirmation_issues_approval) ... ok
+test_expired_approval_cannot_export (__main__.Workflow.test_expired_approval_cannot_export) ... ok
+test_explicit_confirmation_required (__main__.Workflow.test_explicit_confirmation_required) ... ok
+test_explicit_rejection_terminal_and_audited (__main__.Workflow.test_explicit_rejection_terminal_and_audited) ... ok
+test_export_hash_and_no_overwrite (__main__.Workflow.test_export_hash_and_no_overwrite) ... ok
+test_export_requires_approval_and_owner (__main__.Workflow.test_export_requires_approval_and_owner) ... ok
+test_failed_export_intent_does_not_create_file (__main__.Workflow.test_failed_export_intent_does_not_create_file) ... ok
+test_invalid_input_cli_denial_is_audited (__main__.Workflow.test_invalid_input_cli_denial_is_audited) ... ok
+test_metadata_does_not_store_raw (__main__.Workflow.test_metadata_does_not_store_raw) ... ok
+test_noninteractive_approval_denied_and_audited (__main__.Workflow.test_noninteractive_approval_denied_and_audited) ... ok
+test_review_is_pending_not_an_approval (__main__.Workflow.test_review_is_pending_not_an_approval) ... ok
+test_service_guard_failure_is_audited (__main__.Workflow.test_service_guard_failure_is_audited) ... ok
+test_storage_failure_does_not_issue_approval (__main__.Workflow.test_storage_failure_does_not_issue_approval) ... ok
+test_wrong_confirmation_denied_and_audited (__main__.Workflow.test_wrong_confirmation_denied_and_audited) ... ok
+
+----------------------------------------------------------------------
+Ran 20 tests in 0.120s
+
+OK
+test_close_failure_no_success (__main__.SourceTests.test_close_failure_no_success) ... ok
+test_compacted_or_absent_record (__main__.SourceTests.test_compacted_or_absent_record) ... ok
+test_elapsed_deadline (__main__.SourceTests.test_elapsed_deadline) ... ok
+test_hash_mismatch_no_json_repair (__main__.SourceTests.test_hash_mismatch_no_json_repair) ... ok
+test_invalid_timeout_no_io (__main__.SourceTests.test_invalid_timeout_no_io) ... ok
+test_invalid_watermark_boolean (__main__.SourceTests.test_invalid_watermark_boolean) ... ok
+test_offset_at_end_missing (__main__.SourceTests.test_offset_at_end_missing) ... ok
+test_oversize (__main__.SourceTests.test_oversize) ... ok
+test_partition_missing (__main__.SourceTests.test_partition_missing) ... ok
+test_plan_tamper_no_io (__main__.SourceTests.test_plan_tamper_no_io) ... ok
+test_retained_offset_missing (__main__.SourceTests.test_retained_offset_missing) ... ok
+test_retention_race (__main__.SourceTests.test_retention_race) ... ok
+test_success_metadata_only_exact_bytes (__main__.SourceTests.test_success_metadata_only_exact_bytes) ... ok
+test_tombstone (__main__.SourceTests.test_tombstone) ... ok
+test_topic_missing_no_fetch (__main__.SourceTests.test_topic_missing_no_fetch) ... ok
+test_transport_error_no_payload_disclosure (__main__.SourceTests.test_transport_error_no_payload_disclosure) ... ok
+test_wrong_exact_offset (__main__.SourceTests.test_wrong_exact_offset) ... ok
+
+----------------------------------------------------------------------
+Ran 17 tests in 0.005s
+
+OK
+test_client_version_rejected (__main__.KafkaTests.test_client_version_rejected) ... ok
+test_close_idempotent (__main__.KafkaTests.test_close_idempotent) ... ok
+test_exact_read_integration_with_core (__main__.KafkaTests.test_exact_read_integration_with_core) ... ok
+test_extra_partition_denied (__main__.KafkaTests.test_extra_partition_denied) ... ok
+test_live_signature (__main__.KafkaTests.test_live_signature) ... ok
+test_live_source_rejected_before_io (__main__.KafkaTests.test_live_source_rejected_before_io) ... ok
+test_message_error_fails_closed (__main__.KafkaTests.test_message_error_fails_closed) ... ok
+test_missing_replay_signature (__main__.KafkaTests.test_missing_replay_signature) ... ok
+test_missing_topic_no_named_metadata_request (__main__.KafkaTests.test_missing_topic_no_named_metadata_request) ... ok
+test_read_before_verification_denied (__main__.KafkaTests.test_read_before_verification_denied) ... ok
+test_readonly_settings_and_unique_id (__main__.KafkaTests.test_readonly_settings_and_unique_id) ... ok
+test_wrong_cluster (__main__.KafkaTests.test_wrong_cluster) ... ok
+test_wrong_listener (__main__.KafkaTests.test_wrong_listener) ... ok
+test_wrong_returned_offset (__main__.KafkaTests.test_wrong_returned_offset) ... ok
+
+----------------------------------------------------------------------
+Ran 14 tests in 0.002s
+
+OK
+test_ack_mismatch_blocks_inspection (__main__.FixtureTests.test_ack_mismatch_blocks_inspection) ... ok
+test_bundle_preserves_original_fixture_hash (__main__.FixtureTests.test_bundle_preserves_original_fixture_hash) ... ok
+test_create_failure_no_publish (__main__.FixtureTests.test_create_failure_no_publish) ... ok
+test_extra_record_blocks_inspection (__main__.FixtureTests.test_extra_record_blocks_inspection) ... ok
+test_live_run_rejected (__main__.FixtureTests.test_live_run_rejected) ... ok
+test_mutation_gate_no_calls (__main__.FixtureTests.test_mutation_gate_no_calls) ... ok
+test_negative_acceptance_fails (__main__.FixtureTests.test_negative_acceptance_fails) ... ok
+test_new_run_each_invocation (__main__.FixtureTests.test_new_run_each_invocation) ... ok
+test_nonempty_new_topic_no_publish (__main__.FixtureTests.test_nonempty_new_topic_no_publish) ... ok
+test_one_record_and_three_negatives (__main__.FixtureTests.test_one_record_and_three_negatives) ... ok
+test_publish_failure_no_retry (__main__.FixtureTests.test_publish_failure_no_retry) ... ok
+test_topic_collision_no_create (__main__.FixtureTests.test_topic_collision_no_create) ... ok
+
+----------------------------------------------------------------------
+Ran 12 tests in 0.003s
+
+OK

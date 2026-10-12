@@ -1,0 +1,6 @@
+sha256:66a654987f79ee7a929b8e24ea4e0f5eea8a02245131f0eeb97292beabcedc4e
+edrxdr-replay_replay-net
+{"kind": "fixture_intent", "run_id": "opread-aad27dad597c47c1a3e07810a3f7f2e2", "topic": "shadow-bluefield-quarantine-input-opread-aad27dad597c47c1a3e07810a3f7f2e2", "fixture_only": true, "replay_authorized": false, "input_sha256": "1a1714052750d8825d20c3cfbffe8239f3802dc88e8b85930833fa69e8aa6d4f"}
+{"kind": "fixture_topic_created", "topic": "shadow-bluefield-quarantine-input-opread-aad27dad597c47c1a3e07810a3f7f2e2"}
+{"kind": "fixture_source_ack", "topic": "shadow-bluefield-quarantine-input-opread-aad27dad597c47c1a3e07810a3f7f2e2", "partition": 0, "offset": 0}
+{"kind": "fixture_reader_result", "status": "PASS", "run_id": "opread-aad27dad597c47c1a3e07810a3f7f2e2", "source": {"topic": "shadow-bluefield-quarantine-input-opread-aad27dad597c47c1a3e07810a3f7f2e2", "partition": 0, "offset": 0}, "input_sha256": "1a1714052750d8825d20c3cfbffe8239f3802dc88e8b85930833fa69e8aa6d4f", "source_records": 1, "negative_cases": ["hash_mismatch", "offset_at_end", "topic_missing"], "fixture_only": true, "replay_authorized": false, "approval_issued": false, "controlled_replay_sent": false, "production_ready": false, "automated_response_allowed": false, "source_topic_retained": true}
