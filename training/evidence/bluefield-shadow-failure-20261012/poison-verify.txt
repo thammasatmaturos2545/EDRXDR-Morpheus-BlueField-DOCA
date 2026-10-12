@@ -1,0 +1,1 @@
+{"kind": "bluefield_failure_poison_verify", "time_utc": "2026-10-12T19:20:08.862085+00:00", "status": "PASS", "committed_offset": 1, "log_end_offset": 3, "lag": 2, "docs": 1, "poison_offset": 1, "retry_still_pinned": true, "later_valid_record_not_skipped": true}

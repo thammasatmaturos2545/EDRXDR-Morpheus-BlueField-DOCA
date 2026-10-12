@@ -1,0 +1,37 @@
+BlueField Shadow fail-closed commit-boundary verification: PASS
+
+Run ID: 20261012t191614z
+
+Poison-message scenario:
+- valid source offset 0 indexed successfully
+- Kafka committed offset = 1
+- poison source offset 1 rejected by strict validation
+- committed offset remained = 1
+- log end offset = 3
+- lag = 2
+- docs = 1
+- fresh process retried source offset 1
+- later valid offset 2 was not silently skipped
+
+OpenSearch failure-before-commit scenario:
+- valid source offset 0 passed BlueField validation
+- isolated OpenSearch mapping rejected write
+- Kafka committed offset remained null
+- log end offset = 1
+- lag = 1
+- docs = 0
+- isolated index repaired
+- fresh process retried source offset 0
+- OpenSearch write acknowledged
+- Kafka committed offset = 1
+- lag = 0
+- docs = 1
+
+Safety:
+- historical=true
+- live=false
+- production_ready=false
+- automated_response_allowed=false
+- no live bluefield-events use
+- no GPU
+- no network interface/driver changes

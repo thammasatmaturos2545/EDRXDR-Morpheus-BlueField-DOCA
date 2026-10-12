@@ -1,0 +1,1 @@
+{"kind": "bluefield_failure_osfail_verify", "time_utc": "2026-10-12T19:20:09.195151+00:00", "status": "PASS", "committed_offset": 1, "log_end_offset": 1, "lag": 0, "docs": 1, "carrier_null": 1, "counter_zero": 1, "first_sample_null": 1, "historical": true, "live": false, "production_ready": false, "automated_response_allowed": false}

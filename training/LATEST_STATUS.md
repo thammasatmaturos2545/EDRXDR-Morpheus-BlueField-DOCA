@@ -535,3 +535,73 @@ Remaining work:
 - Long-running consumer supervision, poison-message policy, retention policy, production capacity, production security review and live capture remain pending.
 - Do not enable `edrxdr-bluefield.service` or connect experimental BlueField schema to shared/live topics without separate review.
 <!-- bluefield-shadow-recovery:end -->
+
+<!-- bluefield-shadow-failure-tests:start -->
+## BlueField Shadow fail-closed commit-boundary verification
+
+Last verified: `2026-10-13T02:23:40+07:00`
+
+Git at verification:
+- Branch: `work/bluefield-shadow-failure-tests`
+- Base HEAD before this checkpoint commit: `018834ad0c84`
+
+Status: **PASS for isolated failure-injection testing only.**
+
+Poison-message scenario:
+- valid source offset 0 indexed successfully
+- Kafka committed offset advanced to **1**
+- source offset 1 contained a strict-schema-invalid BlueField record
+- validation rejected the poison record
+- committed offset remained **1**
+- log end offset remained **3**
+- lag remained **2**
+- isolated index remained at **1 document**
+- a fresh process retried the same source offset **1**
+- the later valid record at offset 2 was **not silently skipped**
+
+OpenSearch failure-before-commit scenario:
+- valid source offset 0 passed BlueField validation
+- isolated OpenSearch strict mapping rejected the write
+- Kafka committed offset remained **unset**
+- isolated index remained at **0 documents**
+- the isolated index was repaired without restarting/reconfiguring shared OpenSearch
+- a fresh process retried the same source offset **0**
+- after OpenSearch ACK, Kafka committed offset **1**
+- final lag **0**
+- final isolated docs **1**
+
+Recovered-document semantics:
+- carrier null/Unknown preserved
+- counter zero preserved
+- first-sample delta null preserved
+- `historical=true`
+- `live=false`
+- `production_ready=false`
+- `automated_response_allowed=false`
+
+Main-pipeline safety after cleanup:
+- main `shadow-bluefield-input-v1`: offset **6/6**, lag **0**
+- main `shadow-bluefield-v1`: **6 documents**
+- `edrxdr-bluefield.service`: **inactive / dead / disabled**
+- no live `bluefield-events` use
+- no GPU use
+- no network driver/interface changes
+- no automated response
+
+Evidence:
+- `training/evidence/bluefield-shadow-failure-20261012/run-id.txt`
+- `training/evidence/bluefield-shadow-failure-20261012/context.txt`
+- `training/evidence/bluefield-shadow-failure-20261012/poison-verify.txt`
+- `training/evidence/bluefield-shadow-failure-20261012/osfail-verify.txt`
+- `training/evidence/bluefield-shadow-failure-20261012/poison-group.txt`
+- `training/evidence/bluefield-shadow-failure-20261012/osfail-group.txt`
+- `training/evidence/bluefield-shadow-failure-20261012/indices.txt`
+- `training/evidence/bluefield-shadow-failure-20261012/service-state.txt`
+- `training/evidence/bluefield-shadow-failure-20261012/result.txt`
+- `shadow/BLUEFIELD_FAILURE_TESTS.md`
+
+Remaining work:
+- A production poison-message policy (DLQ/quarantine/operator workflow) is not implemented.
+- Long-running consumer supervision, retry/backoff policy, retention policy, capacity testing, production security review and live capture remain pending.
+- Do not enable `edrxdr-bluefield.service` or connect experimental BlueField schema to shared/live topics without separate review.
+<!-- bluefield-shadow-failure-tests:end -->
