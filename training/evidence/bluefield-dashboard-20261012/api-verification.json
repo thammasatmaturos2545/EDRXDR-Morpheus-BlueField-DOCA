@@ -1,0 +1,21 @@
+{
+  "checked_at_utc": "2026-10-12T17:46:00.572988+00:00",
+  "scope": "BlueField historical dashboard API verification; not live telemetry or production-readiness evidence",
+  "mode": "historical_review",
+  "live": false,
+  "production_ready": false,
+  "source_index": "review-bluefield-20261012t141653z-6396a0d3",
+  "counts": {
+    "records": 6,
+    "interfaces": 2,
+    "carrier_unknown": 6,
+    "first_sample": 2,
+    "computed": 4
+  },
+  "semantic_checks": {
+    "carrier_null_preserved": true,
+    "counter_zero_preserved": true,
+    "first_sample_delta_null": 2,
+    "computed_delta_zero": 4
+  }
+}

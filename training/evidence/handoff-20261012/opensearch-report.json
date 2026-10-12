@@ -1,0 +1,21 @@
+{
+  "status": "PASS",
+  "index": "review-bluefield-20261012t141653z-6396a0d3",
+  "container": "edrxdr-replay-opensearch-1",
+  "kafka_report": "/home/saiuser/EDRXDR-Morpheus/experiments/bluefield-kafka-runs/20261012T141233Z-beaccd98dc/report.json",
+  "input_sha256": "dae332d54ffc04bdccf9dbd0b21deefbda26edf3343e8098da9d820cb6861714",
+  "normalized_sha256": "868fb94d8cbf982084b99a3794622d801af15dd92110dd2109782c158e14d3f1",
+  "scope": "Archived six-record file-to-OpenSearch persistence check after Kafka replay; no continuous consumer, live sampling, GPU, dashboard or production-readiness claim.",
+  "cleanup": "Dedicated index retained for review; no automatic deletion configured.",
+  "records": 6,
+  "source_equal": true,
+  "carrier_null": 6,
+  "first_sample_null": 2,
+  "computed_zero": 4,
+  "query_counts": {
+    "carrier_exists": 0,
+    "delta_exists": 4,
+    "delta_zero": 4,
+    "rx_zero": 6
+  }
+}

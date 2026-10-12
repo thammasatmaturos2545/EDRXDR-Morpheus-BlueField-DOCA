@@ -1,5 +1,21 @@
 # Source review update — 11 ต.ค. 2026 (ยังไม่ใช่การรันใหม่บน VM)
 
+<!-- handoff-20261012-verified:start -->
+## อัปเดตส่งต่อ 12 ต.ค. 2026 — BlueField และจัดเก็บไฟล์
+
+- ตรวจหลักฐานและสถานะบน VM เมื่อ `2026-10-12T14:24:50.161605+00:00`; branch `work/shadow-mode-v1`, commit `6ba5bf95ba00ee1dcf4d47728090ae7eb1b251c8` ก่อนแก้เอกสาร
+- Kafka replay PASS: ข้อมูลย้อนหลัง 6 แถว อ่านกลับ hash ตรง และ normalize ตรงกับหลักฐานเดิม
+- OpenSearch index ทดลอง PASS: 6 แถวตรงทุกฟิลด์; carrier null 6, first-sample delta null 2, computed delta zero 4
+- เป็นการทดสอบข้อมูลที่บันทึกไว้ทีละขั้น ไม่ใช่ continuous pipeline, live traffic, GPU inference หรือ model accuracy
+- BlueField publisher: inactive/dead/disabled; หยุดวงจร restart แล้ว แต่ยังไม่ได้ซ่อม binary หรือคืนการส่ง telemetry
+- ย้ายไฟล์/โฟลเดอร์สำรอง 7 รายการไป `~/EDRXDR-Archive/20261012T135349958660Z/`; ไม่ลบข้อมูล ไม่ย้าย repo หลัก/personal worktree/โฟลเดอร์ BlueField
+- รายละเอียด หลักฐาน คำสั่งกู้คืน และงานถัดไป: `training/HANDOFF-20261012-BLUEFIELD.md` (path จาก root repo)
+- รายการที่ยังไม่เข้า Git และ container ที่กำลังทำงาน ณ เวลาอัปเดต: `training/evidence/handoff-20261012/`
+- BlueField Historical Dashboard integration เสร็จและตรวจแล้ว; งานถัดไปคือรักษา historical/non-live semantics, review หลักฐาน และยังไม่เปิด service หรือเชื่อม schema ทดลองเข้า live normalizer
+
+อัปเดตนี้ใช้แทนข้อความเก่าที่บอกว่า BlueField ยังวน restart หรือยังไม่เคยทดสอบ Kafka/OpenSearch; ข้อความเก่าด้านล่างเก็บไว้เป็นประวัติ
+<!-- handoff-20261012-verified:end -->
+
 ตรวจชุด `edrxdr-shadow-review.tar.gz` และเตรียม patch ในเครื่องผู้ช่วยแล้ว:
 - Persist ค่า HOME/XDG/CUPY/CUDA cache ใน Compose; gate ทั้งสองยังเป็น 0, ไม่มี daemon/restart policy ใหม่.
 - เพิ่มการตรวจ acknowledgement ของ indexer ก่อน commit offset และ tests สำหรับ retry แบบ isolated.
@@ -305,3 +321,53 @@ Backup agent config อยู่ `/var/ossec/etc/ossec.conf.backup-20261011T0208
 agent002 Active หลังแก้ port ตามผลก่อนหน้า ไม่จำเป็นต้อง restart ซ้ำเพื่อสร้าง events.
 อย่า stop live containers, prune Docker, down -v, reset offsets หรือเปลี่ยน host GPU/BlueField/DOCA.
 ไฟล์ชั่วคราว/สำรองและ Docker volumes อธิบายใน LATEST_STATUS; ตรวจสำเนาก่อน cleanup.
+
+<!-- bluefield-dashboard-verified:start -->
+## BlueField Historical Dashboard verification — 2026-10-13T00:52:28+07:00
+
+เพิ่มการแสดงผล BlueField แบบข้อมูลย้อนหลังจาก index
+`review-bluefield-20261012t141653z-6396a0d3` โดยไม่เปิด live publisher หรือเปลี่ยน live pipeline
+
+ผลที่ยืนยัน:
+- Historical API: PASS
+- Dashboard UI: PASS
+- Historical records: 6
+- Interfaces: 2
+- carrier null/Unknown: 6
+- first-sample delta null/N/A: 2
+- computed delta zero: 4
+- BlueField synthetic tests: 7 PASS
+- TypeScript typecheck: PASS
+- Frontend regression: 7 groups PASS
+- Next.js production build: PASS
+- `null` และ `0` รักษาความหมายแยกกัน
+- API ระบุ `mode=historical_review`
+- API ระบุ `live=false`
+- API ระบุ `production_ready=false`
+
+BlueField service หลังทดสอบ:
+- ActiveState=inactive
+- SubState=dead
+- UnitFileState=disabled
+
+Safety:
+- ไม่ start/enable `edrxdr-bluefield.service`
+- ไม่ส่ง schema ทดลองเข้า live Kafka topic
+- ไม่เปลี่ยน driver/interface
+- ไม่ใช้ GPU
+- ไม่เปิด automated response
+- ข้อมูลนี้เป็น historical review ไม่ใช่ live telemetry หรือ production-readiness evidence
+
+หลักฐาน:
+- `training/evidence/bluefield-dashboard-20261012/api-verification.json`
+- `training/evidence/bluefield-dashboard-20261012/service-state.txt`
+- `training/evidence/bluefield-dashboard-20261012/ui-verification.txt`
+- `experiments/bluefield-opensearch-runs/20261012T141653Z-6396a0d3/report.json`
+- `experiments/bluefield-kafka-runs/20261012T141233Z-beaccd98dc/report.json`
+
+งานถัดไป:
+- review/stage หลักฐานและ source แบบ explicit
+- ห้ามใช้ `git add .`
+- ยังไม่เปิด BlueField live service
+- งาน live/continuous consumer และ production validation ยังไม่ทำ
+<!-- bluefield-dashboard-verified:end -->

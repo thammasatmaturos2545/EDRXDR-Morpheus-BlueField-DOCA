@@ -1,0 +1,12 @@
+BlueField Historical Dashboard manual verification: PASS
+
+Verified:
+- Historical records = 6
+- Interfaces = 2
+- Carrier unknown = 6
+- Page clearly marks data as NOT LIVE / historical
+- carrier null displays as Unknown
+- first-sample delta null displays as N/A
+- computed delta zero displays as 0
+- zero counters remain 0
+- no production/live claim

@@ -1,0 +1,120 @@
+{
+  "settings": {
+    "number_of_shards": 1,
+    "number_of_replicas": 0
+  },
+  "mappings": {
+    "dynamic": "strict",
+    "properties": {
+      "schema_version": {
+        "type": "keyword"
+      },
+      "processing_mode": {
+        "type": "keyword"
+      },
+      "capture_scope": {
+        "type": "keyword"
+      },
+      "event_type": {
+        "type": "keyword"
+      },
+      "source_type": {
+        "type": "keyword"
+      },
+      "measurement_scope": {
+        "type": "keyword"
+      },
+      "ibdev": {
+        "type": "keyword"
+      },
+      "interface": {
+        "type": "keyword"
+      },
+      "operstate": {
+        "type": "keyword"
+      },
+      "rx_packets": {
+        "type": "unsigned_long"
+      },
+      "tx_packets": {
+        "type": "unsigned_long"
+      },
+      "rx_bytes": {
+        "type": "unsigned_long"
+      },
+      "tx_bytes": {
+        "type": "unsigned_long"
+      },
+      "rx_errors": {
+        "type": "unsigned_long"
+      },
+      "tx_errors": {
+        "type": "unsigned_long"
+      },
+      "delta_rx_packets": {
+        "type": "unsigned_long"
+      },
+      "delta_tx_packets": {
+        "type": "unsigned_long"
+      },
+      "delta_rx_bytes": {
+        "type": "unsigned_long"
+      },
+      "delta_tx_bytes": {
+        "type": "unsigned_long"
+      },
+      "delta_rx_errors": {
+        "type": "unsigned_long"
+      },
+      "delta_tx_errors": {
+        "type": "unsigned_long"
+      },
+      "timestamp": {
+        "type": "date"
+      },
+      "production_ready": {
+        "type": "boolean"
+      },
+      "carrier": {
+        "type": "byte",
+        "coerce": false
+      },
+      "sample_interval_seconds": {
+        "type": "double",
+        "coerce": false
+      },
+      "read_errors": {
+        "type": "object",
+        "enabled": false
+      },
+      "raw_event": {
+        "type": "object",
+        "enabled": false
+      },
+      "delta_status": {
+        "type": "object",
+        "dynamic": "strict",
+        "properties": {
+          "rx_packets": {
+            "type": "keyword"
+          },
+          "tx_packets": {
+            "type": "keyword"
+          },
+          "rx_bytes": {
+            "type": "keyword"
+          },
+          "tx_bytes": {
+            "type": "keyword"
+          },
+          "rx_errors": {
+            "type": "keyword"
+          },
+          "tx_errors": {
+            "type": "keyword"
+          }
+        }
+      }
+    }
+  }
+}

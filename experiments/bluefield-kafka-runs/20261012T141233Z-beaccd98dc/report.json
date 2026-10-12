@@ -1,0 +1,23 @@
+{
+  "status": "PASS",
+  "topic": "review-bluefield-20261012t141233z-beaccd98dc",
+  "broker": "edrxdr-replay-kafka-1",
+  "runner_version": "20261012-stdin-fix-1",
+  "scope": "Archived six-record Kafka transport and offline normalization only; shared replay broker, isolated topic. No live sampling, GPU, OpenSearch or model-quality claim.",
+  "hashes": {
+    "normalizer/normalize.py": "b771262172115730113c50a75cc01aa21bf252da661f22f03ce20988f0daad2d",
+    "evidence/monitor/monitor.jsonl": "dae332d54ffc04bdccf9dbd0b21deefbda26edf3343e8098da9d820cb6861714",
+    "evidence/normalizer/normalized.jsonl": "868fb94d8cbf982084b99a3794622d801af15dd92110dd2109782c158e14d3f1"
+  },
+  "consumer_mode": "explicit partition 0; no group commits",
+  "topic_cleanup": "New topic retained for review; retention.ms=86400000. Topic itself is not auto-deleted.",
+  "commit": "6ba5bf95ba00ee1dcf4d47728090ae7eb1b251c8",
+  "records": 6,
+  "carrier_null": 6,
+  "first_sample_null": 2,
+  "computed_zero": 4,
+  "record_bytes_equal": true,
+  "normalized_equals_archived": true,
+  "input_sha256": "dae332d54ffc04bdccf9dbd0b21deefbda26edf3343e8098da9d820cb6861714",
+  "received_sha256": "dae332d54ffc04bdccf9dbd0b21deefbda26edf3343e8098da9d820cb6861714"
+}

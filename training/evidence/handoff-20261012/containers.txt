@@ -1,0 +1,11 @@
+edrxdr-replay-opensearch-1	Up 3 days	opensearchproject/opensearch:2.11.0
+edrxdr-replay-normalizer-1	Up 3 days	edrxdr-morpheus-normalizer:latest
+edrxdr-replay-kafka-1	Up 3 days	apache/kafka:3.8.1
+edrxdr-normalizer	Up 5 days	edrxdr-morpheus-normalizer
+edrxdr-wazuh-forwarder	Up 5 days	wazuh-wazuh.forwarder
+wazuh-wazuh.dashboard-1	Up 5 days	wazuh/wazuh-dashboard:4.14.7
+wazuh-wazuh.indexer-1	Up 5 days	wazuh/wazuh-indexer:4.14.7
+wazuh-wazuh.manager-1	Up 5 days	wazuh/wazuh-manager:4.14.7
+edrxdr-indexer	Up 5 days	edrxdr-morpheus-indexer
+edrxdr-kafka	Up 5 days	apache/kafka:3.8.1
+edrxdr-opensearch	Up 5 days	opensearchproject/opensearch:2.11.0

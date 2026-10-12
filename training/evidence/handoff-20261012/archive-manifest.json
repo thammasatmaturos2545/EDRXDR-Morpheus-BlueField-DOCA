@@ -1,0 +1,43 @@
+{
+  "created_utc": "2026-10-12T13:53:49.957588+00:00",
+  "main_head": "6ba5bf95ba00ee1dcf4d47728090ae7eb1b251c8",
+  "policy": "No deletion; main repo, linked worktrees, BlueField experiments, hidden directories, venvs and Docker volumes stay in place. Accessible runtime references checked; historical documentation may retain old archive paths.",
+  "moves": [
+    {
+      "from": "/home/saiuser/edrxdr-before-dashboard-20261009-190859.tar.gz",
+      "to": "/home/saiuser/EDRXDR-Archive/20261012T135349958660Z/backups/edrxdr-before-dashboard-20261009-190859.tar.gz",
+      "state": "moved"
+    },
+    {
+      "from": "/home/saiuser/edrxdr-frontend-backup-20261009-063702.tar.gz",
+      "to": "/home/saiuser/EDRXDR-Archive/20261012T135349958660Z/backups/edrxdr-frontend-backup-20261009-063702.tar.gz",
+      "state": "moved"
+    },
+    {
+      "from": "/home/saiuser/edrxdr-frontend-backup-20261009-063953.tar.gz",
+      "to": "/home/saiuser/EDRXDR-Archive/20261012T135349958660Z/backups/edrxdr-frontend-backup-20261009-063953.tar.gz",
+      "state": "moved"
+    },
+    {
+      "from": "/home/saiuser/edrxdr-dashboard-updated.zip",
+      "to": "/home/saiuser/EDRXDR-Archive/20261012T135349958660Z/packages/edrxdr-dashboard-updated.zip",
+      "state": "moved"
+    },
+    {
+      "from": "/home/saiuser/edrxdr-dashboard-review-20261009-063702",
+      "to": "/home/saiuser/EDRXDR-Archive/20261012T135349958660Z/dashboard-review/edrxdr-dashboard-review-20261009-063702",
+      "state": "moved"
+    },
+    {
+      "from": "/home/saiuser/edrxdr-dashboard-review-20261009-063953",
+      "to": "/home/saiuser/EDRXDR-Archive/20261012T135349958660Z/dashboard-review/edrxdr-dashboard-review-20261009-063953",
+      "state": "moved"
+    },
+    {
+      "from": "/home/saiuser/EDRXDR-HANDOFF",
+      "to": "/home/saiuser/EDRXDR-Archive/20261012T135349958660Z/handoff/EDRXDR-HANDOFF",
+      "state": "moved"
+    }
+  ],
+  "skipped": []
+}
