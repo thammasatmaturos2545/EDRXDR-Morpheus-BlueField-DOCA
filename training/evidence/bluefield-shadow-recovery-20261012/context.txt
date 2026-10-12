@@ -1,0 +1,4 @@
+checked_at=2026-10-13T02:04:21+07:00
+branch=work/bluefield-shadow-recovery
+commit=cc4b43918dcb4dacf0e2f578bae3020aced70ddf
+run_id=recovery-20261012t190048z

@@ -486,3 +486,52 @@ Important limitations / remaining work:
 - Long-term retention, poison-message handling, restart/recovery policy, continuous sampling, production capacity and production security review remain pending.
 - Do not enable `edrxdr-bluefield.service` or connect experimental BlueField schema to shared/live topics without a separate review.
 <!-- bluefield-shadow-v1:end -->
+
+<!-- bluefield-shadow-recovery:start -->
+## BlueField Shadow isolated recovery/resume verification
+
+Last verified: `2026-10-13T02:06:56+07:00`
+
+Git at verification:
+- Branch: `work/bluefield-shadow-recovery`
+- Base HEAD before this checkpoint commit: `cc4b43918dcb`
+
+Status: **PASS for isolated bounded recovery/resume testing only.**
+
+Recovery sequence verified:
+- Phase 1: start offset **0**, processed **3**, committed offset **3**, lag **3**, docs **3**
+- Fresh container Phase 2: start offset **3**, processed **3**, committed offset **6**, lag **0**, docs **6**
+- Rerun: start offset **6**, processed **0**, committed offset **6**, lag **0**, docs **6**
+- Final verification: **6 unique documents**, no duplicates
+
+Semantics preserved:
+- Carrier null/Unknown: **6**
+- RX counter zero: **6**
+- First-sample delta null/N/A: **2**
+- Computed delta zero: **4**
+- `historical=true`
+- `live=false`
+- `production_ready=false`
+- `automated_response_allowed=false`
+
+Isolation/safety:
+- Recovery test used dedicated Kafka topic, consumer group and OpenSearch index.
+- Main `shadow-bluefield-input-v1` remained at offset **6/6**, lag **0**.
+- Main `shadow-bluefield-v1` remained at **6 documents**.
+- `edrxdr-bluefield.service` remained **inactive / dead / disabled**.
+- No `bluefield-events` use, no live sampling, no GPU, no network driver/interface changes, no automated response.
+
+Evidence:
+- `training/evidence/bluefield-shadow-recovery-20261012/run-id.txt`
+- `training/evidence/bluefield-shadow-recovery-20261012/context.txt`
+- `training/evidence/bluefield-shadow-recovery-20261012/recovery-result.txt`
+- `training/evidence/bluefield-shadow-recovery-20261012/consumer-group.txt`
+- `training/evidence/bluefield-shadow-recovery-20261012/index.txt`
+- `training/evidence/bluefield-shadow-recovery-20261012/service-state.txt`
+- `training/evidence/bluefield-shadow-recovery-20261012/final-verify.txt`
+
+Remaining work:
+- This does not prove continuous/live BlueField operation.
+- Long-running consumer supervision, poison-message policy, retention policy, production capacity, production security review and live capture remain pending.
+- Do not enable `edrxdr-bluefield.service` or connect experimental BlueField schema to shared/live topics without separate review.
+<!-- bluefield-shadow-recovery:end -->

@@ -1,0 +1,42 @@
+BlueField Shadow isolated recovery test: PASS
+
+run_id=recovery-20261012t190048z
+
+Phase 1:
+start_offset=0
+processed=3
+committed_offset=3
+log_end_offset=6
+lag=3
+docs=3
+
+Phase 2:
+start_offset=3
+processed=3
+committed_offset=6
+log_end_offset=6
+lag=0
+docs=6
+
+Rerun:
+start_offset=6
+processed=0
+committed_offset=6
+log_end_offset=6
+lag=0
+docs=6
+
+Final verification:
+records=6
+committed_offset=6
+log_end_offset=6
+lag=0
+unique_documents=6
+carrier_null=6
+counter_zero=6
+first_sample_null=2
+computed_zero=4
+historical=true
+live=false
+production_ready=false
+automated_response_allowed=false

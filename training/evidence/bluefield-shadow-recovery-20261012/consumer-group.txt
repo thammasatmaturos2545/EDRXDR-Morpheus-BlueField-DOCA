@@ -1,0 +1,3 @@
+
+GROUP                                                      TOPIC                                               PARTITION  CURRENT-OFFSET  LOG-END-OFFSET  LAG             CONSUMER-ID     HOST            CLIENT-ID
+edrxdr-shadow-bluefield-recovery-recovery-20261012t190048z shadow-bluefield-recovery-recovery-20261012t190048z 0          6               6               0               -               -               -
