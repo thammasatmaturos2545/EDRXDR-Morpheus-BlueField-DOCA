@@ -1,0 +1,44 @@
+test_audit_order_and_unknown_cannot_retry (__main__.Contracts.test_audit_order_and_unknown_cannot_retry) ... ok
+test_audit_tamper_and_payload_reason_rejected (__main__.Contracts.test_audit_tamper_and_payload_reason_rejected) ... ok
+test_cannot_ack_without_intent (__main__.Contracts.test_cannot_ack_without_intent) ... ok
+test_exact_bytes_preserve_poison (__main__.Contracts.test_exact_bytes_preserve_poison) ... ok
+test_expired_future_or_excessive_ttl (__main__.Contracts.test_expired_future_or_excessive_ttl) ... ok
+test_extra_raw_fields_are_rejected (__main__.Contracts.test_extra_raw_fields_are_rejected) ... ok
+test_live_or_shared_destinations_rejected (__main__.Contracts.test_live_or_shared_destinations_rejected) ... ok
+test_missing_approval (__main__.Contracts.test_missing_approval) ... ok
+test_nonapproval_operator_and_binding (__main__.Contracts.test_nonapproval_operator_and_binding) ... ok
+test_plan_and_evidence_tampering (__main__.Contracts.test_plan_and_evidence_tampering) ... ok
+test_retention_absent_or_hash_mismatch (__main__.Contracts.test_retention_absent_or_hash_mismatch) ... ok
+test_safety_flags_are_strict_booleans (__main__.Contracts.test_safety_flags_are_strict_booleans) ... ok
+test_success_chain_contains_no_raw_or_approval_payload (__main__.Contracts.test_success_chain_contains_no_raw_or_approval_payload) ... ok
+test_valid_approval_is_bound_to_plan (__main__.Contracts.test_valid_approval_is_bound_to_plan) ... ok
+test_wrong_exact_position (__main__.Contracts.test_wrong_exact_position) ... ok
+
+----------------------------------------------------------------------
+Ran 15 tests in 0.002s
+
+OK
+test_ack_persisted_and_terminal (__main__.StoreTests.test_ack_persisted_and_terminal) ... ok
+test_ack_requires_matching_destination_and_offset (__main__.StoreTests.test_ack_requires_matching_destination_and_offset) ... ok
+test_ambiguous_commit_returns_error_but_blocks_retry (__main__.StoreTests.test_ambiguous_commit_returns_error_but_blocks_retry) ... ok
+test_caller_mutation_does_not_change_stored_approval (__main__.StoreTests.test_caller_mutation_does_not_change_stored_approval) ... ok
+test_duplicate_approval_id_also_blocks_new_destination (__main__.StoreTests.test_duplicate_approval_id_also_blocks_new_destination) ... ok
+test_expiry_rechecked_inside_transaction (__main__.StoreTests.test_expiry_rechecked_inside_transaction) ... ok
+test_initialize_refuses_existing_db_without_overwrite (__main__.StoreTests.test_initialize_refuses_existing_db_without_overwrite) ... ok
+test_intent_survives_reopen_without_raw_payload (__main__.StoreTests.test_intent_survives_reopen_without_raw_payload) ... ok
+test_missing_approval_or_bad_source_leaves_no_intent (__main__.StoreTests.test_missing_approval_or_bad_source_leaves_no_intent) ... ok
+test_missing_db_does_not_auto_recreate (__main__.StoreTests.test_missing_db_does_not_auto_recreate) ... ok
+test_new_approval_cannot_resend_same_record_destination (__main__.StoreTests.test_new_approval_cannot_resend_same_record_destination) ... ok
+test_outcome_audit_failure_preserves_pending_intent (__main__.StoreTests.test_outcome_audit_failure_preserves_pending_intent) ... ok
+test_rehashed_but_invalid_audit_chain_fails_closed (__main__.StoreTests.test_rehashed_but_invalid_audit_chain_fails_closed) ... ok
+test_same_approval_cannot_be_used_twice (__main__.StoreTests.test_same_approval_cannot_be_used_twice) ... ok
+test_tampered_record_fails_closed (__main__.StoreTests.test_tampered_record_fails_closed) ... ok
+test_two_concurrent_connections_only_one_reservation (__main__.StoreTests.test_two_concurrent_connections_only_one_reservation) ... ok
+test_two_processes_share_one_reservation (__main__.StoreTests.test_two_processes_share_one_reservation) ... ok
+test_unknown_outcome_cannot_be_retried_or_marked_success (__main__.StoreTests.test_unknown_outcome_cannot_be_retried_or_marked_success) ... ok
+test_write_failure_rolls_back_everything (__main__.StoreTests.test_write_failure_rolls_back_everything) ... ok
+
+----------------------------------------------------------------------
+Ran 19 tests in 0.132s
+
+OK
