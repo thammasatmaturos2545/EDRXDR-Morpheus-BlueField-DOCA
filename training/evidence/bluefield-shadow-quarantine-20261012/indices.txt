@@ -1,0 +1,2 @@
+shadow-bluefield-quarantine-dlq-20261012t193307z   1  9.3kb
+shadow-bluefield-quarantine-valid-20261012t193307z 2 19.2kb

@@ -1,0 +1,84 @@
+name: edrxdr-bluefield-quarantine
+
+x-worker: &worker
+  user: "1001:1002"
+  image: edrxdr-morpheus-train:25.06
+  pull_policy: never
+  restart: "no"
+  read_only: true
+  cpus: 1
+  mem_limit: 1g
+  pids_limit: 128
+  cap_drop: [ALL]
+  security_opt: [no-new-privileges:true]
+  entrypoint:
+    - timeout
+    - --signal=TERM
+    - --kill-after=5s
+    - 180s
+    - /opt/conda/envs/morpheus/bin/python
+    - -B
+    - -u
+    - /shadow/bluefield_quarantine_test.py
+  environment:
+    PYTHONPATH: /shadow
+    PYTHONDONTWRITEBYTECODE: "1"
+    BLUEFIELD_QUARANTINE_RUN_ALLOWED: "0"
+    BLUEFIELD_QUARANTINE_RUN_ID: ""
+  tmpfs:
+    - /tmp:rw,size=256m
+  volumes:
+    - .:/shadow:ro
+    - ../experiments/bluefield-kafka-runs/20261012T141233Z-beaccd98dc:/bluefield-evidence:ro
+  networks: [replay]
+
+services:
+  inspect:
+    <<: *worker
+    profiles: [manual]
+    command: [preflight]
+
+  setup:
+    <<: *worker
+    profiles: [manual]
+    command: [setup]
+
+  publish:
+    <<: *worker
+    profiles: [manual]
+    command: [publish]
+
+  valid-first:
+    <<: *worker
+    profiles: [manual]
+    command: [valid-first]
+
+  quarantine-fail:
+    <<: *worker
+    profiles: [manual]
+    command: [quarantine-fail]
+
+  repair:
+    <<: *worker
+    profiles: [manual]
+    command: [repair]
+
+  quarantine-resume:
+    <<: *worker
+    profiles: [manual]
+    command: [quarantine-resume]
+
+  valid-final:
+    <<: *worker
+    profiles: [manual]
+    command: [valid-final]
+
+  verify:
+    <<: *worker
+    profiles: [manual]
+    command: [verify]
+
+networks:
+  replay:
+    external: true
+    name: edrxdr-replay_replay-net

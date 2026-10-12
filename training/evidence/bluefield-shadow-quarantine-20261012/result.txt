@@ -1,0 +1,34 @@
+BlueField Shadow Quarantine v1 verification: PASS
+
+run_id=20261012t193307z
+
+Input:
+- records=3
+- committed_offset=3
+- log_end_offset=3
+- lag=0
+
+Valid path:
+- valid_docs=2
+- valid_source_offsets=0,2
+
+Quarantine path:
+- quarantine_docs=1
+- quarantine_topic_records=1
+- quarantine_source_offset=1
+- raw_payload_stored=false
+
+Failure boundary:
+- quarantine sink failure kept source committed_offset=1
+- no quarantine document/topic record was emitted on failed quarantine
+- after isolated repair, fresh process retried source offset 1
+- source offset advanced only after quarantine index + Kafka ACK
+
+Safety:
+- historical=true
+- live=false
+- production_ready=false
+- automated_response_allowed=false
+- no live bluefield-events use
+- no GPU
+- no network driver/interface changes

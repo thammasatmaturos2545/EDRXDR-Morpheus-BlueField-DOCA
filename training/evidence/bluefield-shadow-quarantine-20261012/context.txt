@@ -1,0 +1,4 @@
+checked_at=2026-10-13T02:37:55+07:00
+branch=work/bluefield-shadow-quarantine
+commit=469147182e3c252a954e977aa017331cf230a28c
+run_id=20261012t193307z

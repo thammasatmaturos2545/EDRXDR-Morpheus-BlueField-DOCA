@@ -336,3 +336,78 @@ Remaining work:
 - Long-running consumer supervision, retry/backoff policy, retention policy, capacity testing, production security review and live capture remain pending.
 - Do not enable `edrxdr-bluefield.service` or connect experimental BlueField schema to shared/live topics without separate review.
 <!-- bluefield-shadow-failure-tests:end -->
+
+<!-- bluefield-shadow-quarantine:start -->
+## BlueField Shadow Quarantine v1 verification
+
+Last verified: `2026-10-13T02:40:37+07:00`
+
+Git at verification:
+- Branch: `work/bluefield-shadow-quarantine`
+- Base HEAD before this checkpoint commit: `469147182e3c`
+
+Status: **PASS for isolated bounded quarantine/DLQ policy testing only.**
+
+Verified source flow:
+- input record 0: valid -> valid index ACK -> source commit to offset **1**
+- input record 1: poison -> strict validation failure
+- first quarantine attempt: quarantine index rejection -> source offset remained **1**
+- after isolated quarantine-index repair, fresh process retried source offset **1**
+- quarantine index ACK + quarantine Kafka ACK completed before source commit
+- source committed to offset **2**
+- input record 2: valid -> indexed -> source committed to offset **3**
+
+Final isolated state before cleanup:
+- input records: **3**
+- committed offset: **3 / 3**
+- lag: **0**
+- valid documents: **2**
+- valid source offsets: **0, 2**
+- quarantine documents: **1**
+- quarantine Kafka records: **1**
+- quarantine source offset: **1**
+- raw poison payload stored: **false**
+
+Quarantine envelope safety:
+- stores source topic / partition / offset
+- stores SHA-256 of source input
+- stores reason code, error class, validation stage and quarantine timestamp
+- does **not** store raw input body
+- does **not** expose `raw_event` or literal `capture_scope`
+- `historical=true`
+- `live=false`
+- `production_ready=false`
+- `automated_response_allowed=false`
+
+Failure boundary verified:
+- if quarantine storage fails, source Kafka offset does **not** advance
+- no quarantine Kafka record is emitted on the failed quarantine attempt
+- a fresh process retries the same poison source offset after repair
+- source offset advances only after both quarantine sinks acknowledge the record
+
+Main-pipeline state after isolated-resource cleanup:
+- main `shadow-bluefield-input-v1`: offset **6 / 6**
+- main lag: **0**
+- main `shadow-bluefield-v1`: **6 documents**
+- `edrxdr-bluefield.service`: **inactive / dead / disabled**
+- no live `bluefield-events` use
+- no GPU use
+- no network driver/interface changes
+- no automated response
+
+Evidence:
+- `training/evidence/bluefield-shadow-quarantine-20261012/run-id.txt`
+- `training/evidence/bluefield-shadow-quarantine-20261012/context.txt`
+- `training/evidence/bluefield-shadow-quarantine-20261012/consumer-group.txt`
+- `training/evidence/bluefield-shadow-quarantine-20261012/indices.txt`
+- `training/evidence/bluefield-shadow-quarantine-20261012/service-state.txt`
+- `training/evidence/bluefield-shadow-quarantine-20261012/final-verify.txt`
+- `training/evidence/bluefield-shadow-quarantine-20261012/result.txt`
+- `shadow/BLUEFIELD_QUARANTINE.md`
+
+Remaining work:
+- Quarantine/DLQ is still an isolated test policy, not a continuous production service.
+- Operator review/replay tooling for quarantined records is not implemented.
+- Retry/backoff policy, retention policy, alerting, long-running supervision, capacity testing, production security review and live capture remain pending.
+- Do not enable `edrxdr-bluefield.service` or connect experimental BlueField schema to shared/live topics without separate review.
+<!-- bluefield-shadow-quarantine:end -->
