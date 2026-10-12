@@ -1,0 +1,14 @@
+BlueField Shadow Dashboard manual verification: PASS
+
+Verified:
+- BOUNDED / HISTORICAL / NOT LIVE visible
+- records = 6
+- interfaces = 2
+- carrier unknown = 6
+- first sample = 2
+- computed = 4
+- carrier null displays as Unknown
+- first-sample delta null displays as N/A
+- computed delta zero displays as 0
+- counter zero displays as 0
+- no live or production-ready claim

@@ -1,0 +1,63 @@
+name: edrxdr-bluefield-shadow
+
+x-worker: &worker
+  user: "1001:1002"
+  image: edrxdr-morpheus-train:25.06
+  pull_policy: never
+  restart: "no"
+  read_only: true
+  cpus: 1
+  mem_limit: 1g
+  pids_limit: 128
+  cap_drop: [ALL]
+  security_opt: [no-new-privileges:true]
+  entrypoint:
+    - timeout
+    - --signal=TERM
+    - --kill-after=5s
+    - 180s
+    - /opt/conda/envs/morpheus/bin/python
+    - -B
+    - -u
+    - /shadow/bluefield_pilot.py
+  environment:
+    PYTHONPATH: /shadow
+    BLUEFIELD_SHADOW_RUN_ALLOWED: "0"
+    PYTHONDONTWRITEBYTECODE: "1"
+  tmpfs:
+    - /tmp:rw,size=256m
+  volumes:
+    - .:/shadow:ro
+    - ../experiments/bluefield-kafka-runs/20261012T141233Z-beaccd98dc:/bluefield-evidence:ro
+  networks: [replay]
+
+services:
+  inspect:
+    <<: *worker
+    profiles: [manual]
+    command: [preflight]
+
+  admin:
+    <<: *worker
+    profiles: [manual]
+    command: [provision]
+
+  publish:
+    <<: *worker
+    profiles: [manual]
+    command: [publish]
+
+  index:
+    <<: *worker
+    profiles: [manual]
+    command: [index]
+
+  verify:
+    <<: *worker
+    profiles: [manual]
+    command: [verify]
+
+networks:
+  replay:
+    external: true
+    name: edrxdr-replay_replay-net

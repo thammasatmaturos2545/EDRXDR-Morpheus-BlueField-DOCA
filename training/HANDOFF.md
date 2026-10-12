@@ -371,3 +371,75 @@ Safety:
 - ยังไม่เปิด BlueField live service
 - งาน live/continuous consumer และ production validation ยังไม่ทำ
 <!-- bluefield-dashboard-verified:end -->
+
+<!-- bluefield-shadow-v1:start -->
+## BlueField Shadow v1 — bounded archived pilot
+
+Last verified: `2026-10-13T01:46:35+07:00`
+
+Git at verification:
+- Branch: `work/bluefield-shadow-v1`
+- Base HEAD before this checkpoint commit: `6940d49ba29c`
+
+Status: **PASS for bounded/manual archived Shadow evaluation only.**
+This is **not** live BlueField telemetry and is **not production-ready**.
+
+Verified data flow:
+
+```text
+committed archived BlueField normalized evidence
+  -> replay Kafka: shadow-bluefield-input-v1
+  -> bounded/manual validator + indexer
+  -> replay OpenSearch: shadow-bluefield-v1
+  -> /api/shadow/bluefield
+  -> /shadow : BlueField Shadow Evidence
+```
+
+Verified runtime state:
+- Kafka input records: **6**
+- Consumer group: `edrxdr-shadow-bluefield-index-v1`
+- Consumer offset: **6 / 6**
+- Consumer lag: **0**
+- OpenSearch index: `shadow-bluefield-v1`
+- Indexed documents: **6**
+- API mode: `shadow_bluefield`
+- `historical=true`
+- `live=false`
+- `production_ready=false`
+- `automated_response_allowed=false`
+- Interfaces: **2**
+- Carrier null/Unknown: **6**
+- RX counter zero preserved: **6**
+- First-sample delta null/N/A: **2**
+- Computed delta zero preserved: **4**
+
+Verification completed in this work session:
+- `python3 -B shadow/test_bluefield_shadow.py`: **8/8 PASS**
+- `frontend/tests/bluefield-shadow.cjs`: **10 checks PASS**
+- existing `frontend/tests/shadow.cjs`: **20 checks PASS**
+- TypeScript `tsc --noEmit`: **PASS**
+- frontend regression: **7 groups PASS**
+- ESLint: **0 errors**; one pre-existing warning in `tests/bluefield-history.cjs`
+- Next.js production build: **PASS**
+- manual `/shadow` UI verification: **PASS**
+
+Safety state after testing:
+- `edrxdr-bluefield.service`: **inactive / dead / disabled**
+- No live `bluefield-events` topic was used by this pilot.
+- No network driver/interface changes.
+- No GPU use.
+- No automated response.
+- `raw_event` and literal `capture_scope` are not exposed through the Shadow browser projection.
+
+Evidence:
+- `training/evidence/bluefield-shadow-20261012/api.json`
+- `training/evidence/bluefield-shadow-20261012/service-state.txt`
+- `training/evidence/bluefield-shadow-20261012/ui-verification.txt`
+- `shadow/BLUEFIELD_SHADOW.md`
+
+Important limitations / remaining work:
+- The pilot uses committed archived normalized evidence, not live sampling.
+- Workers are finite one-shot/manual jobs, not a continuous consumer service.
+- Long-term retention, poison-message handling, restart/recovery policy, continuous sampling, production capacity and production security review remain pending.
+- Do not enable `edrxdr-bluefield.service` or connect experimental BlueField schema to shared/live topics without a separate review.
+<!-- bluefield-shadow-v1:end -->

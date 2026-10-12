@@ -2,6 +2,7 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import type { Doc, Pair, joinShadow } from "@/lib/shadow";
+import BluefieldShadow from "./bluefield-shadow";
 
 type Result = ReturnType<typeof joinShadow> & { fetched_at: string };
 const text = (v: unknown) => v === null || v === undefined ? "—" : String(v);
@@ -49,7 +50,7 @@ export default function ShadowPage() {
       <label>แสดง: <select value={filter} onChange={e => setFilter(e.target.value)} style={{background: "#152236", color: "#e3eaf5", padding: 10, marginBottom: 16}}><option value="all">ทั้งหมด</option><option value="candidate">Severity candidates</option><option value="not_scored">ยังไม่ได้คะแนน AE</option><option value="unmatched">ขาดคู่ / ขัดแย้ง</option></select></label>
       {!loading && !error && rows.length === 0 && <p>ไม่พบรายการในตัวกรองนี้</p>}
       <div className="table-wrap"><table><thead><tr><th>คัดลอกเมื่อ</th><th>Rule / Wazuh level</th><th>Severity</th><th>Behavioral</th><th>การจับคู่ / หลักฐาน</th></tr></thead><tbody>{rows.map(row => <EventRow key={row.key} row={row}/>)}</tbody></table></div>
-    </section><footer>อ่านจาก Shadow indexes เท่านั้น · สูงสุด 500 เอกสารต่อ index; เกินขอบเขตจะแจ้งข้อผิดพลาด · ข้อมูลสอง index อาจเปลี่ยนระหว่างการอ่าน หากกำลังรัน batch ให้ตรวจซ้ำหลังจบ</footer>
+    </section><BluefieldShadow /><footer>อ่านจาก Shadow indexes เท่านั้น · สูงสุด 500 เอกสารต่อ index; เกินขอบเขตจะแจ้งข้อผิดพลาด · ข้อมูลสอง index อาจเปลี่ยนระหว่างการอ่าน หากกำลังรัน batch ให้ตรวจซ้ำหลังจบ</footer>
   </main>;
 }
 

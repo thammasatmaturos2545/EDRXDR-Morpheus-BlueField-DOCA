@@ -1,0 +1,4 @@
+checked_at=2026-10-13T01:43:27+07:00
+ActiveState=inactive
+SubState=dead
+UnitFileState=disabled

@@ -40,7 +40,7 @@ test('UI preserves not-scored and displays both sides of a conflict',()=>{
   const Link=function TestLink({children,...props}) { return React.createElement('a',props,children); };
   const result={fetched_at:'2026-10-11T12:00:00Z',...lib.joinShadow(docs([severity],'severity'),docs([{...behavioral,wazuh_rule_id:'19008'}],'behavioral'))};
   const states=[result,'',false,0,'all'];let next=0;
-  const Page=load('src/app/shadow/page.tsx',{'next/link':Link,react:{...React,useState:()=>[states[next++],()=>{}],useEffect:()=>{}}}).default;
+  const Page=load('src/app/shadow/page.tsx',{'next/link':Link,'./bluefield-shadow':{__esModule:true,default:function TestBluefieldShadow(){return null;}},react:{...React,useState:()=>[states[next++],()=>{}],useEffect:()=>{}}}).default;
   const html=renderToStaticMarkup(React.createElement(Page));
   assert.ok(html.includes('ไม่มีคะแนน AE'));assert.ok(html.includes('ข้อมูลคู่ขัดแย้ง'));assert.ok(html.includes('19008'));assert.ok(!html.includes('AE ratio:'));
 });
