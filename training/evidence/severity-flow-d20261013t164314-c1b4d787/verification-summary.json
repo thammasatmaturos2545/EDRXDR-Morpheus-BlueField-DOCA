@@ -1,0 +1,13 @@
+{
+  "run": "d20261013t164314-c1b4d787",
+  "verified_at_utc": "20261013T165934289566Z",
+  "head": "cb514aa52bd742db9902527caaf64dc62fa14a12",
+  "branch": "work/bluefield-shadow-quarantine",
+  "audit_three_occurrences_verified": true,
+  "windows_origin_verified": true,
+  "launcher_exit_files": {
+    "console-20261013T164314.txt.exit-code": "124"
+  },
+  "ui_evidence": "Operator supplied screenshot and API response in chat; not independently fetched by this updater",
+  "shutdown_evidence": "Audit worker_stopped verified; operator supplied docker ps empty and nvidia-smi 0 MiB at 23:53:02 Thai"
+}

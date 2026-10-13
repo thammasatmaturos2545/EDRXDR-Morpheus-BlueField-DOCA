@@ -1,3 +1,6 @@
+<!-- severity-flow-verified-20261013 -->
+> อัปเดต13ต.ค.: ทดสอบ Windows Agent004 → Kafka → Morpheus Severity GPU → OpenSearch → Dashboard แล้วใน bounded microbatch run `d20261013t164314-c1b4d787`; counts3/3/3 ตรวจต้นทางWindowsหนึ่งรายการด้วยUID/hash ผ่าน และworker_stoppedแล้ว รายงานexitcodeดูเอกสารใหม่ ห้ามอ้างexit0โดยไม่มีหลักฐาน สถานะก่อนหน้านี้ที่ระบุว่ายังไม่ได้เดโมครบสายเป็นประวัติ อ่าน [ส่งต่อรอบล่าสุด](training/HANDOFF-SEVERITY-FLOW-20261013.md) ก่อนทำงานต่อ
+
 # Source review update — 11 ต.ค. 2026 (ยังไม่ใช่การรันใหม่บน VM)
 
 <!-- handoff-20261012-verified:start -->

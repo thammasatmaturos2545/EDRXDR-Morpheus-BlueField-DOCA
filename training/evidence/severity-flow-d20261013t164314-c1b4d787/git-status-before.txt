@@ -1,0 +1,39 @@
+M frontend/src/app/dashboard.tsx
+ M frontend/src/app/globals.css
+ M frontend/src/app/layout.tsx
+ M frontend/src/app/page.tsx
+ M training/HANDOFF.md
+ M training/LATEST_STATUS.md
+?? demo/README.md
+?? demo/compose.yml
+?? demo/run.sh
+?? demo/start-ui.sh
+?? demo/test_worker.py
+?? demo/worker.py
+?? frontend/DEMO-20261016.md
+?? frontend/run_demo_dashboard.sh
+?? frontend/src/app/api/demo/route.ts
+?? frontend/src/app/bluefield/page.tsx
+?? frontend/src/app/demo/page.tsx
+?? frontend/src/app/details/page.tsx
+?? frontend/src/app/overview.tsx
+?? frontend/src/lib/demo.ts
+?? frontend/tests/demo.cjs
+?? frontend/tests/overview.cjs
+?? shadow/BLUEFIELD_OPERATOR_SINK_V1.md
+?? shadow/bluefield_operator_sink.py
+?? shadow/test_bluefield_operator_sink.py
+?? training/HANDOFF-OPERATOR-20261013.md
+?? training/HANDOFF-REALTIME-DEMO-20261013.md
+?? training/evidence/bluefield-operator-step8-20261013T072419032202Z/install_sink.py
+?? training/evidence/bluefield-operator-step8-20261013T072419032202Z/manifest.json
+?? training/evidence/bluefield-operator-step8-20261013T072419032202Z/validation.txt
+?? training/evidence/bluefield-sink-preflight-mRy7AERJ/exit-code.txt
+?? training/evidence/bluefield-sink-preflight-mRy7AERJ/preflight.txt
+?? training/evidence/demo-reservation-20261013T125801Z/reservation.txt
+?? training/evidence/demo-reservation-20261013T125801Z/run.sh.before
+?? training/evidence/demo-reservation-20261013T163343Z/reservation.txt
+?? training/evidence/demo-reservation-20261013T163343Z/run.sh.before
+?? training/evidence/demo-tmpfs-fix-20261013T130109Z/compose.yml.before
+?? training/evidence/operator-review-cb514aa/local-tests.json
+?? training/evidence/severity-demo-install-20261013/validation-20261013T125448032198Z.txt

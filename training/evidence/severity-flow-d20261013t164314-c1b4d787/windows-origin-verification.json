@@ -1,0 +1,16 @@
+{
+  "status": "PASS",
+  "scope": "Windows alert identity and raw hash match the previously audited demo result",
+  "agent_id": "004",
+  "alert_id": "1791909861.2210586",
+  "path": "c:\\programdata\\microsoft\\windows\\start menu\\programs\\startup\\edrxdr-demo-20261013-234421.txt",
+  "event_uid": "036d8161ba1ac286f7ebc96fc6629b2b7aa658e932b3080eec8d10a0b09cea71",
+  "raw_sha256": "949e795c9c161fa6ef10ba1742e558f45fa885c856e98e031bc3ca73b3abddfb",
+  "source": {
+    "cluster_id": "MkU3OEVBNTcwNTJENDM2Qk",
+    "topic": "wazuh-alerts",
+    "partition": 0,
+    "offset": 17193,
+    "timestamp_ms": 1791909862465
+  }
+}

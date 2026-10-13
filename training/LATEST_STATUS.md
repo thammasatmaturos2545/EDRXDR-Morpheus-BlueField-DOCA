@@ -1,4 +1,34 @@
+<!-- severity-flow-verified-20261013 -->
+> อัปเดต13ต.ค.: ทดสอบ Windows Agent004 → Kafka → Morpheus Severity GPU → OpenSearch → Dashboard แล้วใน bounded microbatch run `d20261013t164314-c1b4d787`; counts3/3/3 ตรวจต้นทางWindowsหนึ่งรายการด้วยUID/hash ผ่าน และworker_stoppedแล้ว รายงานexitcodeดูเอกสารใหม่ ห้ามอ้างexit0โดยไม่มีหลักฐาน สถานะก่อนหน้านี้ที่ระบุว่ายังไม่ได้เดโมครบสายเป็นประวัติ อ่าน [ส่งต่อรอบล่าสุด](HANDOFF-SEVERITY-FLOW-20261013.md) ก่อนทำงานต่อ
+
 # Source review update — 11 ต.ค. 2026 (ยังไม่ใช่การรันใหม่บน VM)
+
+<!-- step8-vm-close-20261013 -->
+## Step 8 — VM checkpoint closed for progress presentation
+
+- VM synthetic operator tests: 123/123 PASS.
+- Read-only OpenSearch preflight: deployment_checked, exit code 0.
+- No quarantine indices were present at inspection.
+- Exact quarantine-document retrieval remains UNVERIFIED on the VM.
+- This is not an end-to-end quarantine replay or production-readiness PASS.
+- No additional fixture was created; replay remains unauthorized.
+- Tests: `training/evidence/bluefield-operator-step8-20261013T072419032202Z/validation.txt`
+- Preflight and exit code: `training/evidence/bluefield-sink-preflight-mRy7AERJ/`
+- Scope freeze for the 16 October progress presentation: record this limitation;
+  proceed to Dashboard/demo preparation. Defer new fixtures and replay integration.
+
+
+
+<!-- operator-cb514aa-status:start -->
+## Latest operator checkpoint — 13 ต.ค. 2026 / cb514aa
+
+Operator tooling implemented through step 7: offline canonical review/journal binding for synthetic fixtures. Step 6 real Kafka fixture source-reader PASS; no real quarantine replay or operational approval issued in that fixture. Local source review: 109 synthetic operator tests PASS (Windows; not a new VM integration run).
+
+Read `training/HANDOFF-OPERATOR-20261013.md` (repository-root path) for current scope, evidence and next steps. Earlier sections saying operator tooling is not implemented are historical; transport for real quarantine remains unimplemented. BlueField service was last reported inactive/dead/disabled; recheck before work.
+
+This documentation update does not enable transport, issue approval, run fixtures, move files, or change services. Prior seven-item archive organization is retained and described in the detailed handoff.
+<!-- operator-cb514aa-status:end -->
+
 
 <!-- handoff-20261012-verified:start -->
 ## อัปเดตส่งต่อ 12 ต.ค. 2026 — BlueField และจัดเก็บไฟล์
