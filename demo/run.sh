@@ -4,7 +4,7 @@ cd -- "$(dirname -- "${BASH_SOURCE[0]}")"
 [ "$(id -u):$(id -g)" = '1001:1002' ] || { echo 'STOP: expected operator UID/GID'; exit 1; }
 now=$(date +%s)
 start=$(date -d '2026-10-13T23:00:00+07:00' +%s)
-cutoff=$(date -d '2026-10-14T00:55:00+07:00' +%s)
+cutoff=$(date -d '2026-10-14T02:55:00+07:00' +%s)
 [ "$now" -ge "$start" ] && [ "$now" -lt "$((cutoff-120))" ] || { echo 'STOP: outside GPU window'; exit 1; }
 state=$(systemctl show edrxdr-bluefield.service --no-pager -p ActiveState -p SubState -p UnitFileState | sort)
 expected=$(printf '%s\n' ActiveState=inactive SubState=dead UnitFileState=disabled | sort)
@@ -21,11 +21,11 @@ timeout 10s docker volume inspect edrxdr-model-output --format '{{.Name}}'
 timeout 10s docker network inspect edrxdr-shadow_egress --format '{{.Name}}'
 printf 'Run: %s\nState/evidence: %s\nDashboard: /demo?run=%s\n' "$DEMO_RUN" "$DEMO_STATE" "$DEMO_RUN"
 log="$DEMO_STATE/console-$(date -u +%Y%m%dT%H%M%S).txt"
+python3 -m venv --without-pip "$DEMO_STATE/launcher-venv"
+printf 'Detached run; bounded status polling. Log collected at completion: %s\n' "$log"
 set +e
-timeout --signal=TERM --kill-after=10s "$((DEMO_SECONDS+15))s" \
- docker compose -f compose.yml run --rm --name "edrxdr-demo-$DEMO_RUN" --no-deps --pull never worker 2>&1 | tee "$log"
-result=${PIPESTATUS[0]}
+"$DEMO_STATE/launcher-venv/bin/python" -B supervise.py "$log"
+result=$?
 set -e
-printf '%s\n' "$result" > "$log.exit-code"
 printf 'Exit code: %s\nLog: %s\n' "$result" "$log"
 exit "$result"
