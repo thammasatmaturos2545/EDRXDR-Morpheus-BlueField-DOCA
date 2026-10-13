@@ -1,0 +1,97 @@
+CHECK /tmp/edrxdr-flow-install-StQsBRuy/venv/bin/python -B /tmp/edrxdr-flow-install-StQsBRuy/demo-offline-37z4xn78/demo/test_worker.py
+test_alignment_mismatch_rejected (__main__.Tests.test_alignment_mismatch_rejected) ... ok
+test_delivery_before_commit (__main__.Tests.test_delivery_before_commit) ... ok
+test_failed_delivery_never_commits (__main__.Tests.test_failed_delivery_never_commits) ... ok
+test_index_partial_ack_rejected (__main__.Tests.test_index_partial_ack_rejected) ... ok
+test_index_valid_ack (__main__.Tests.test_index_valid_ack) ... ok
+test_live_output_denied (__main__.Tests.test_live_output_denied) ... ok
+test_new_group_uses_recorded_boundary (__main__.Tests.test_new_group_uses_recorded_boundary) ... ok
+test_resource_names_are_run_scoped (__main__.Tests.test_resource_names_are_run_scoped) ... ok
+test_resume_preserves_committed_offset (__main__.Tests.test_resume_preserves_committed_offset) ... ok
+test_retention_gap_does_not_reset (__main__.Tests.test_retention_gap_does_not_reset) ... ok
+test_source_hash_mismatch_rejected (__main__.Tests.test_source_hash_mismatch_rejected) ... ok
+
+----------------------------------------------------------------------
+Ran 11 tests in 0.002s
+
+OK
+CHECK /tmp/edrxdr-flow-install-StQsBRuy/venv/bin/python -B /tmp/edrxdr-flow-install-StQsBRuy/demo-offline-37z4xn78/shadow/test_shadow.py
+test_bounds (__main__.Contracts.test_bounds) ... ok
+test_commit_only_after_delivery (__main__.Contracts.test_commit_only_after_delivery) ... ok
+test_corrupt_raw_or_key_rejected (__main__.Contracts.test_corrupt_raw_or_key_rejected) ... ok
+test_delivery_failure_does_not_commit (__main__.Contracts.test_delivery_failure_does_not_commit) ... ok
+test_exact_raw_bytes_and_legacy_uid (__main__.Contracts.test_exact_raw_bytes_and_legacy_uid) ... ok
+test_gate_defaults_closed (__main__.Contracts.test_gate_defaults_closed) ... ok
+test_incorrect_deployment_signatures_rejected (__main__.Contracts.test_incorrect_deployment_signatures_rejected) ... ok
+test_index_ack_failure_does_not_commit (__main__.Contracts.test_index_ack_failure_does_not_commit) ... ok
+test_index_ack_success_commits (__main__.Contracts.test_index_ack_success_commits) ... ok
+test_invalid_identity_and_nonfinite_json (__main__.Contracts.test_invalid_identity_and_nonfinite_json) ... ok
+test_no_raw_nested_source (__main__.Contracts.test_no_raw_nested_source) ... ok
+test_nonshadow_destinations_rejected_before_send (__main__.Contracts.test_nonshadow_destinations_rejected_before_send) ... ok
+test_not_scored_preserved (__main__.Contracts.test_not_scored_preserved) ... ok
+test_retention_gap_rejected (__main__.Contracts.test_retention_gap_rejected) ... ok
+test_retry_document_id_stable_but_source_occurrences_distinct (__main__.Contracts.test_retry_document_id_stable_but_source_occurrences_distinct) ... ok
+test_safety_flags_modes_and_raw_fields_rejected (__main__.Contracts.test_safety_flags_modes_and_raw_fields_rejected) ... ok
+test_same_broker_on_both_endpoints_rejected (__main__.Contracts.test_same_broker_on_both_endpoints_rejected) ... ok
+test_scored_state_without_evidence_rejected (__main__.Contracts.test_scored_state_without_evidence_rejected) ... ok
+test_shadow_topics_on_replay_allowed (__main__.Contracts.test_shadow_topics_on_replay_allowed) ... ok
+test_shared_id_with_verified_deployments_allowed (__main__.Contracts.test_shared_id_with_verified_deployments_allowed) ... ok
+test_start_boundary_and_restart_resume (__main__.Contracts.test_start_boundary_and_restart_resume) ... ok
+test_validator_source_hash_required (__main__.Contracts.test_validator_source_hash_required) ... ok
+test_validators_without_kafka_dependency (__main__.Contracts.test_validators_without_kafka_dependency) ... ok
+
+----------------------------------------------------------------------
+Ran 23 tests in 0.012s
+
+OK
+CHECK bash -n /tmp/edrxdr-flow-install-StQsBRuy/demo-offline-37z4xn78/demo/run.sh
+CHECK bash -n /tmp/edrxdr-flow-install-StQsBRuy/demo-offline-37z4xn78/demo/start-ui.sh
+CHECK node /home/saiuser/EDRXDR-Morpheus/frontend/node_modules/typescript/bin/tsc --noEmit --incremental false
+CHECK node /home/saiuser/EDRXDR-Morpheus/frontend/node_modules/eslint/bin/eslint.js src/app/demo/page.tsx src/app/api/demo/route.ts src/lib/demo.ts tests/demo.cjs
+CHECK node tests/demo.cjs
+PASS demo: bounded window, exact totals, real zero, failed/incomplete data rejection, worker state, unknown initial UI
+CHECK node tests/overview.cjs
+PASS overview: unknown initial state, real zero, malformed/scope/count rejection and evidence navigation
+CHECK node tests/shadow.cjs
+PASS same occurrence joins and not-scored remains uncovered
+PASS same UID different offset must not join
+PASS hash conflict is visible, never counted matched
+PASS rule metadata conflict is visible
+PASS duplicate occurrences rejected
+PASS unbounded/incomplete search rejected
+PASS partial shard failure rejected
+PASS wrong mode and enabled response rejected
+PASS bad score and false claim rejected
+PASS raw fields removed including nested source
+PASS empty indices are valid empty data
+PASS unknown Wazuh level stays unknown and never becomes a candidate
+PASS contradictory AE coverage and routing states rejected
+PASS actual scored and zero-ratio states accepted without fabricating coverage
+PASS nested model metadata rejected and opposite-kind fields removed
+PASS timeout, lower-bound count, and invalid safety flags fail closed
+PASS UI preserves not-scored and displays both sides of a conflict
+PASS: 20 shadow checks (synthetic fixtures; no VM integration claim)
+CHECK node tests/bluefield-shadow.cjs
+PASS null carrier and first-sample delta remain null while zero counter remains zero
+PASS computed zero remains numeric zero
+PASS wrong safety flags or evidence mode fail closed
+PASS live BlueField topic is rejected
+PASS delta status cannot rewrite null/zero meaning
+PASS unknown/raw fields are not projected to the browser
+PASS partial/unbounded/duplicate results fail closed
+PASS: 10 BlueField Shadow frontend/API checks (synthetic fixtures; no live/service claim)
+CHECK node tests/bluefield-history.cjs
+PASS null remains null while zero remains zero
+PASS wrong mode/production/schema fail closed
+PASS delta status cannot rewrite null/zero meaning
+PASS raw/capture fields are not projected
+PASS: 7 BlueField historical checks (synthetic fixtures; no live/service claim)
+CHECK node tests/regression.cjs
+PASS real report values and file hashes are returned without rounding or replacements
+PASS missing reports return 503 without invented metrics
+PASS invalid JSON, missing fields, incorrect counts, and threshold mismatch fail closed
+PASS quality UI displays actual development metrics, fail state, and N/A denominators
+PASS initial dashboard and /replay remain unknown with no fabricated counts
+PASS live and replay OpenSearch queries remain separate; real zero scores survive
+PASS unknown probes never become offline; DOCA is independent from BlueField
+7 regression groups passed.

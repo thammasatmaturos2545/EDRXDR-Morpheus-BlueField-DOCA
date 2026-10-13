@@ -1,0 +1,16 @@
+{
+  "source_checkpoint": "cb514aa",
+  "platform": "Windows",
+  "tests": 109,
+  "result": "PASS",
+  "scope": "Synthetic offline operator suites; no VM or broker integration rerun",
+  "suite_counts": {
+    "contract": 15,
+    "store": 19,
+    "review": 20,
+    "source": 17,
+    "kafka": 14,
+    "fixture": 12,
+    "binding": 12
+  }
+}

@@ -1,0 +1,36 @@
+{
+  "expected": {
+    "shadow/bluefield_common.py": "380e50817c621b0e4190a8c246006c5be9c38417ad75fb63a866f696d2be8ebd",
+    "shadow/bluefield_failure_test.py": "7e6ebdd88572d6f38448a6a6ee97eba642e72749f13d9f83e5d11a3c4dbcee92",
+    "shadow/bluefield_operator_binding.py": "26aac69897470d0b80545b3047756db162b14b3197529aa1532ef08420582fad",
+    "shadow/bluefield_operator_contract.py": "c5438bdb80edafec9fea629c4302bdd2746cb2636f0aecaa06594a7c0891b3be",
+    "shadow/bluefield_operator_fixture.py": "40e8b6c369e54c3ce902f919b74a5dc2071543fa1149d5bf6c893830e8815a5c",
+    "shadow/bluefield_operator_kafka.py": "8d4859a9ab5024ef888d16294895e5bb316719973036382446ffa1a66bb734b0",
+    "shadow/bluefield_operator_review.py": "405081937c0280efeb50fd64eec289173503cf5ccb1b8e6fcfa3e121e5cf7032",
+    "shadow/bluefield_operator_source.py": "a8b665c1bcf749fda21c6be7e0c02ae93d1d1bed1f13e4c6314fafe22f0d5faa",
+    "shadow/bluefield_operator_store.py": "a922e31286306ed2062690159275f7217c57ceb900d9f4b42b58a6bdb5a4191a",
+    "shadow/bluefield_pilot.py": "7134ff3a3b33764ecac36ee73d8986a0e6d35822dac989c0162396091e6310ea",
+    "shadow/bluefield_quarantine_test.py": "7da62db49995d3a5967c8ae0ff16cedb78503a37bff17188561df417999ae9fe",
+    "shadow/bluefield_recovery_test.py": "55570142b2679d8ca9990a2ab2ea7500eb88204f1ec849bd32c6577a4943c872",
+    "shadow/common.py": "67597db043688b1492d0ff71f5c51d13984e3f5dba89cd1dc92a7739ae4b17d2",
+    "shadow/pilot.py": "a903c9db008e932e24cd2295b78150f632a57ea21792dc4a9d2d4239300deddb",
+    "shadow/runtime.py": "eaeb0c897d609e03a442bb032a461a4ae1fa7f069b884038b5ca619bea5a6dcc",
+    "shadow/scoring.py": "2004d453a15b83b07e9d0d93c2003929af6cb0ba4972c14e917671978e51b726",
+    "shadow/test_bluefield_operator_binding.py": "494a2b040a2be73a32eeaa5771571f354daee0e5bb67f58b8d7e1852ce66475e",
+    "shadow/test_bluefield_operator_contract.py": "5e8e7234b2cdbf20885d77a1cd39d4f2537fc6a866a6ba0ebc9f642910e13956",
+    "shadow/test_bluefield_operator_fixture.py": "771267561191e875fa6beea8e4b8d3d65422095b9a407869631ec255a38ca58f",
+    "shadow/test_bluefield_operator_kafka.py": "f0809c6dd869414125ed198b4c4d71c7bc743ebe437f294061a97897574f91f0",
+    "shadow/test_bluefield_operator_review.py": "986b17535cbe6e602f56ac33f79cedac9d06199433c913a0ce563089eb14ead5",
+    "shadow/test_bluefield_operator_source.py": "fe88a7a5da81993e1bcf025d9d8842d6eff982823f031e0ea052cc9cac3eabdf",
+    "shadow/test_bluefield_operator_store.py": "1ba8b835ead169661c866fa6fcde94fec06a681da717738681c05dc264c24f58",
+    "shadow/test_bluefield_shadow.py": "20b0184f1c2ef7a0c798cee6069e57e65b7bf0e24b8610bd8a23c3f3cbde6ed1",
+    "shadow/test_recovery.py": "a7a114c38740ed9a6248cf1d423d027b2b063ca1e9086dcc3ba77d70f3386886",
+    "shadow/test_shadow.py": "9b8e2bf0e259f4229892a20e3938705f8e9a08582a4bd99c90ec6bed602c665d",
+    "shadow/validation.py": "bee3270160883eacf2fb319128f66ae7dbe982660a29c0f600e00ac10b112376"
+  },
+  "payload": {
+    "shadow/bluefield_operator_sink.py": "da3f6daacef8a0a2b37377866f8ef1d8ccbda7e265cecbcff4ab95baab4c7825",
+    "shadow/test_bluefield_operator_sink.py": "45e1e9852649424519dcfd96cced1808b6abc94bcce126d1b68727ea369a777d",
+    "shadow/BLUEFIELD_OPERATOR_SINK_V1.md": "670434ccf40f6470803387c74e8cedd975ff0061aa5935fd0d381a2d10c14722"
+  }
+}

@@ -1,0 +1,3 @@
+User-authorized reservation: 2026-10-13 20:00-22:00 Asia/Bangkok
+Launcher cutoff: 21:55; maximum session: 600 seconds
+GPU: GPU-61a1dd9b-a3c2-86dc-15b9-1277b5b949bb

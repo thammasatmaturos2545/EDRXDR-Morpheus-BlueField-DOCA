@@ -1,0 +1,4 @@
+User-authorized: 2026-10-13 23:00 to 2026-10-14 01:00 Asia/Bangkok
+Launcher cutoff: 2026-10-14 00:55 Asia/Bangkok
+Maximum session: 600 seconds
+GPU: GPU-61a1dd9b-a3c2-86dc-15b9-1277b5b949bb
