@@ -1,0 +1,59 @@
+name: edrxdr-severity-demo
+services:
+  worker:
+    image: sha256:66a654987f79ee7a929b8e24ea4e0f5eea8a02245131f0eeb97292beabcedc4e
+    pull_policy: never
+    restart: "no"
+    container_name: edrxdr-demo-${DEMO_RUN:?required}
+    user: "1001:1002"
+    group_add: ["1002"]
+    read_only: true
+    cpus: 4
+    mem_limit: 16g
+    pids_limit: 256
+    shm_size: 1g
+    cap_drop: [ALL]
+    security_opt: [no-new-privileges:true]
+    entrypoint: [timeout, --signal=TERM, --kill-after=5s, "${DEMO_SECONDS:?required}s", /opt/conda/envs/morpheus/bin/python, -B, -u, /demo/worker.py]
+    command: [--run, "${DEMO_RUN}", --stop-epoch, "${DEMO_STOP_EPOCH:?required}"]
+    environment:
+      PYTHONPATH: /shadow:/replay:/scripts
+      DEMO_GPU_ALLOWED: "1"
+      HOME: /tmp
+      XDG_CACHE_HOME: /tmp/cache
+      CUPY_CACHE_DIR: /tmp/cupy-cache
+      CUDA_CACHE_PATH: /tmp/cuda-cache
+      HF_HOME: /tmp/hf-cache
+      HF_HUB_OFFLINE: "1"
+      TRANSFORMERS_OFFLINE: "1"
+      TOKENIZERS_PARALLELISM: "false"
+      OMP_NUM_THREADS: "2"
+    tmpfs: ["/tmp:rw,size=1g"]
+    volumes:
+      - .:/demo:ro
+      - ../shadow:/shadow:ro
+      - ../replay:/replay:ro
+      - ../training:/scripts:ro
+      - ../replay:/base/replay:ro
+      - ../training:/base/training:ro
+      - models:/models:ro
+      - ${DEMO_STATE:?required}:/demo-state
+    networks: [replay, egress]
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              device_ids: [GPU-61a1dd9b-a3c2-86dc-15b9-1277b5b949bb]
+              capabilities: [gpu]
+networks:
+  replay:
+    external: true
+    name: edrxdr-replay_replay-net
+  egress:
+    external: true
+    name: edrxdr-shadow_egress
+volumes:
+  models:
+    external: true
+    name: edrxdr-model-output
