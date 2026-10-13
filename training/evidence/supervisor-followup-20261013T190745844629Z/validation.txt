@@ -1,0 +1,19 @@
+test_container_timeout_preserved (test_supervise.Tests.test_container_timeout_preserved) ... ok
+test_deadline_stops_exact_id (test_supervise.Tests.test_deadline_stops_exact_id) ... ok
+test_inspect_failure_not_success (test_supervise.Tests.test_inspect_failure_not_success) ... ok
+test_launch_failure_no_stop_or_retry (test_supervise.Tests.test_launch_failure_no_stop_or_retry) ... ok
+test_nonzero_preserved (test_supervise.Tests.test_nonzero_preserved) ... ok
+test_oom_not_success (test_supervise.Tests.test_oom_not_success) ... ok
+test_success (test_supervise.Tests.test_success) ... ok
+test_expired_never_calls_docker (test_supervise_reconciliation.ReconciliationTests.test_expired_never_calls_docker) ... ok
+test_failed_stop_but_independently_exited (test_supervise_reconciliation.ReconciliationTests.test_failed_stop_but_independently_exited) ... ok
+test_keyboard_interrupt_stops_exact_container (test_supervise_reconciliation.ReconciliationTests.test_keyboard_interrupt_stops_exact_container) ... ok
+test_launch_timeout_requires_reconciliation_without_guessing_identity (test_supervise_reconciliation.ReconciliationTests.test_launch_timeout_requires_reconciliation_without_guessing_identity) ... ok
+test_stop_return_code_does_not_prove_exit (test_supervise_reconciliation.ReconciliationTests.test_stop_return_code_does_not_prove_exit) ... ok
+test_stop_success_is_verified (test_supervise_reconciliation.ReconciliationTests.test_stop_success_is_verified) ... ok
+test_unavailable_inspection_is_unknown (test_supervise_reconciliation.ReconciliationTests.test_unavailable_inspection_is_unknown) ... ok
+
+----------------------------------------------------------------------
+Ran 14 tests in 0.006s
+
+OK

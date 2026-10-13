@@ -1,0 +1,1 @@
+14 mocked supervisor tests only; no Docker, GPU or live shutdown verification. Reservation unchanged. Launch identity uncertainty remains manual reconciliation; SIGTERM/SIGKILL and evidence-write failure hardening remain pending. No production claim.

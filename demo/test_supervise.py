@@ -16,7 +16,8 @@ class Tests(unittest.TestCase):
             return R(returncode=0,stdout='',stderr='')
         with tempfile.TemporaryDirectory() as tmp, patch.dict(os.environ,DEMO_RUN='test'):
             log=Path(tmp)/'console.txt'
-            result=supervise(log,10,invoke,lambda:11,lambda _:None)
+            ticks=iter([9,11,11])
+            result=supervise(log,10,invoke,lambda:next(ticks,11),lambda _:None)
             saved=int(Path(str(log)+'.exit-code').read_text())
             self.assertEqual(result,saved)
         return result,calls

@@ -16,7 +16,13 @@ def supervise(log, deadline, invoke=subprocess.run, clock=time.time, pause=time.
     result=125
     cid=None
     reason='launcher_failed'
+    stop_confirmed=False
+    launch_attempted=False
     try:
+        if clock() >= deadline:
+            result=124
+            raise RuntimeError('deadline_before_launch')
+        launch_attempted=True
         launched=call(['docker','compose','-f','compose.yml','run','-d','--name',
             'edrxdr-demo-'+os.environ['DEMO_RUN'],'--no-deps','--pull','never','worker'],30)
         save('.launch.stdout',launched.stdout)
@@ -44,12 +50,16 @@ def supervise(log, deadline, invoke=subprocess.run, clock=time.time, pause=time.
                     raise RuntimeError('container_runtime_error')
                 result=code
                 reason='container_exited'
+                stop_confirmed=True
                 break
             if clock()>=deadline:
                 result=124
                 reason='supervisor_deadline'
                 break
             pause(2)
+    except KeyboardInterrupt:
+        result=130
+        reason='keyboard_interrupt'
     except Exception as exc:
         reason=type(exc).__name__+':'+str(exc) if isinstance(exc,RuntimeError) else type(exc).__name__
     finally:
@@ -62,6 +72,14 @@ def supervise(log, deadline, invoke=subprocess.run, clock=time.time, pause=time.
                     save('.stop-result',str(stopped.returncode)+'\n'+stopped.stderr)
                 except Exception as exc:
                     save('.stop-result',type(exc).__name__+'\n')
+                try:
+                    checked=call(['docker','inspect',cid,'--format','{{json .State}}'],5)
+                    save('.post-stop-state.json',checked.stdout)
+                    final_state=json.loads(checked.stdout) if checked.returncode == 0 else {}
+                    stop_confirmed=(final_state.get('Status') == 'exited'
+                                    and final_state.get('Running') is False)
+                except Exception as exc:
+                    save('.post-stop-error',type(exc).__name__+'\n')
             try:
                 logs=call(['docker','logs',cid],15)
                 log.write_text(logs.stdout+logs.stderr,encoding='utf-8')
@@ -72,7 +90,9 @@ def supervise(log, deadline, invoke=subprocess.run, clock=time.time, pause=time.
                 if result==0: result=125; reason='log_collection_failed'
         save('.exit-code',str(result)+'\n')
         save('.supervisor.json',json.dumps({'result':result,'reason':reason,
-            'ended_at_epoch':clock(),'container_retained':cid is not None})+'\n')
+            'ended_at_epoch':clock(),'container_retained':cid is not None,
+            'stop_confirmed':stop_confirmed,
+            'reconciliation_required':launch_attempted and not stop_confirmed})+'\n')
     return result
 
 if __name__=='__main__':
