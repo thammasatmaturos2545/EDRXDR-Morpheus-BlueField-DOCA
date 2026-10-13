@@ -18,3 +18,21 @@ assert.equal(lib.parseWorker(worker,run).phase,'stopped');worker._source.session
 const page=load('src/app/demo/page.tsx',{'next/link':({children,...props})=>React.createElement('a',props,children)}).default;
 const html=renderToStaticMarkup(React.createElement(page));assert.ok(html.includes('—'));assert.ok(!html.includes('low_severity'));assert.ok(html.includes('automated response OFF'));
 console.log('PASS demo: bounded window, exact totals, real zero, failed/incomplete data rejection, worker state, unknown initial UI');
+for (const [phase,active,observed,label] of [
+  ['stopped',true,'2026-10-13T09:00:00Z','ผลย้อนหลัง'],
+  ['waiting',false,'2026-10-13T10:00:00Z','พักการอ่าน'],
+  ['waiting',true,'2026-10-13T09:00:00Z','สถานะยังยืนยันไม่ได้'],
+  ['waiting',true,'2026-10-13T10:00:00Z','พบ heartbeat ล่าสุด'],
+  ['waiting',true,'invalid','สถานะยังยืนยันไม่ได้'],
+]) {
+  const data={...lib.parseDemo(response(1),run),fetched_at:'2026-10-13T10:00:01Z',worker:{name:'demo',phase,observed_at_utc:observed,boundary_recorded_at_utc:observed,session_counts:{captured:1,scored:1,indexed:1},queue_lag:{capture:0,score:0,index:0}}};
+  const states=[run,active,data,'',{'0':'2026-10-14T10:00:00Z'}];let i=0;
+  const mockReact={...React,useState:()=>[states[i++],()=>{}],useEffect:()=>{}};
+  const component=load('src/app/demo/page.tsx',{'react':mockReact,'next/link':({children,...props})=>React.createElement('a',props,children)}).default;
+  const rendered=renderToStaticMarkup(React.createElement(component));
+  assert.ok(rendered.includes(label));
+  assert.ok(!rendered.includes('Capture → browser:'));
+  assert.ok(rendered.includes('6000.0'));
+  assert.ok(rendered.includes('ไม่ใช่ ACK'));
+}
+console.log('PASS demo presentation: historical, paused, stale, fresh and invalid heartbeat; browser latency omitted');

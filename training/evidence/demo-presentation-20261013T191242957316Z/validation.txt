@@ -1,0 +1,2 @@
+PASS demo: bounded window, exact totals, real zero, failed/incomplete data rejection, worker state, unknown initial UI
+PASS demo presentation: historical, paused, stale, fresh and invalid heartbeat; browser latency omitted

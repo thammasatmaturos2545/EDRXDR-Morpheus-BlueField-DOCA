@@ -1,0 +1,1 @@
+Presentation regression only. Build and actual browser validation pending. No API, inference, GPU, service, reservation or model changes. Capture-to-browser duration removed; browser observation timestamp retained. Worker stopped is not container-exit proof.
