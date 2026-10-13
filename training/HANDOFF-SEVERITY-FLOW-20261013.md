@@ -1,3 +1,5 @@
+> Latest checkpoint: see training/HANDOFF-DEMO-CLOSE-20261014.md. Run d20261013t181858-e1bbae7e: 2/2/2, container and launcher exit 0; API and operator UI observation verified. Earlier exit 124 remains historical.
+
 # ส่งต่อ EDR/XDR: Severity flow demo — 13 ตุลาคม 2026
 
 ## อ่านส่วนนี้ก่อน

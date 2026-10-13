@@ -1,0 +1,8 @@
+{
+  "verified_at_utc": "20261013T190227887024Z",
+  "source_commit": "5701979296059bbeff7f0be5a723a5f10dbad825",
+  "run": "d20261013t181858-e1bbae7e",
+  "status": "PASS",
+  "scope": "Retained console/container evidence and current API; no new inference",
+  "console_sha256": "c1714e21023b52406499f7f1e1517bbb721bb6c4cca1d1e3a0b163ccb12c34fa"
+}

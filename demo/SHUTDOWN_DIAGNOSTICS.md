@@ -1,3 +1,5 @@
+> Latest checkpoint: see training/HANDOFF-DEMO-CLOSE-20261014.md. Run d20261013t181858-e1bbae7e: 2/2/2, container and launcher exit 0; API and operator UI observation verified. Earlier exit 124 remains historical.
+
 # Shutdown diagnostics
 
 Updates only demo/worker.py after matching the uploaded source SHA256.

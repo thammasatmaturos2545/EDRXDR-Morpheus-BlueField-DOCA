@@ -1,0 +1,88 @@
+{
+  "mode": "bounded_severity_demo",
+  "fetched_at": "2026-10-13T19:02:27.885Z",
+  "run": "d20261013t181858-e1bbae7e",
+  "production_ready": false,
+  "automated_response_allowed": false,
+  "total": 2,
+  "shown": 2,
+  "window": "latest_20",
+  "events": [
+    {
+      "id": "a63ebdcce4682ea2e131e0010441a996c1538e7e8f7a4c7d8a11cc552647201f",
+      "result": {
+        "schema_version": "shadow-severity-1",
+        "processing_mode": "shadow",
+        "production_ready": false,
+        "automated_response_allowed": false,
+        "event_uid": "c65c36402bf3426d55af34e327010f9b815ef24189bfbdbffdf67b3296c44fde",
+        "raw_sha256": "2d64922659008dbb6f05bea4999504a960adcf2994d30ab90c635afe9244dfd2",
+        "captured_at_utc": "2026-10-13T18:24:56.984189+00:00",
+        "scored_at_utc": "2026-10-13T18:24:59.461502+00:00",
+        "wazuh_rule_id": "60642",
+        "wazuh_rule_level": 3,
+        "high_severity_score": 0.0006878511630930007,
+        "threshold": 0.5,
+        "predicted_label": "low_severity",
+        "model_name": "wazuh-severity-context-v2-balanced-20261008T190719Z-1398863",
+        "false_positive_candidate": false,
+        "weak_label_disagreement": false,
+        "source": {
+          "cluster_id": "MkU3OEVBNTcwNTJENDM2Qk",
+          "topic": "wazuh-alerts",
+          "partition": 0,
+          "offset": 17231,
+          "timestamp_ms": 1791915892895
+        }
+      },
+      "index_request_started_at": "2026-10-13T18:25:00.465949+00:00",
+      "capture_to_score_ms": 2477
+    },
+    {
+      "id": "627b2e4687eb6150ddd268a451f037f269adfbb9e6d519a74c15aeebe0c7cc69",
+      "result": {
+        "schema_version": "shadow-severity-1",
+        "processing_mode": "shadow",
+        "production_ready": false,
+        "automated_response_allowed": false,
+        "event_uid": "6dafc75f172dae38179c93ec309153539cd926a7e0a2a18d1b3a4d63431c141b",
+        "raw_sha256": "1ecc3db9e7cadcb1228eff173932c18e491879ebdf0a7ce64e025583932281b4",
+        "captured_at_utc": "2026-10-13T18:21:11.759609+00:00",
+        "scored_at_utc": "2026-10-13T18:21:21.217705+00:00",
+        "wazuh_rule_id": "61104",
+        "wazuh_rule_level": 3,
+        "high_severity_score": 0.0013670255430042744,
+        "threshold": 0.5,
+        "predicted_label": "low_severity",
+        "model_name": "wazuh-severity-context-v2-balanced-20261008T190719Z-1398863",
+        "false_positive_candidate": false,
+        "weak_label_disagreement": false,
+        "source": {
+          "cluster_id": "MkU3OEVBNTcwNTJENDM2Qk",
+          "topic": "wazuh-alerts",
+          "partition": 0,
+          "offset": 17230,
+          "timestamp_ms": 1791915668845
+        }
+      },
+      "index_request_started_at": "2026-10-13T18:21:22.669970+00:00",
+      "capture_to_score_ms": 9458
+    }
+  ],
+  "worker": {
+    "queue_lag": {
+      "capture": 0,
+      "score": 0,
+      "index": 0
+    },
+    "name": "bounded-morpheus-severity-demo",
+    "phase": "stopped",
+    "observed_at_utc": "2026-10-13T18:28:17.207182+00:00",
+    "boundary_recorded_at_utc": "2026-10-13T18:18:58.535421+00:00",
+    "session_counts": {
+      "captured": 2,
+      "scored": 2,
+      "indexed": 2
+    }
+  }
+}
