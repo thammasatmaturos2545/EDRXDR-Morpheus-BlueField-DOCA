@@ -1,0 +1,18 @@
+{
+  "created_at_utc": "20261013T192249402546Z",
+  "code_checkpoint": "8f737f9d7d47b4a052614c15ad779dd81a95b1cd",
+  "scope": "Documentation and retained offline evidence only; no new live inference or service probe",
+  "supervisor_offline_tests": 14,
+  "presentation_regression": "PASS in retained VM log",
+  "ui_observation": "Operator screenshot: API time 2026-10-14 02:13:51 Asia/Bangkok; historical 2/2/2",
+  "screenshot_archived_in_git": false,
+  "file_sha256": {
+    "demo/supervise.py": "89729f35157f00e8d63f980c9f053a4030e338c4acd44e97d7e1f40c292112d3",
+    "demo/test_supervise.py": "2d75bec11fc4f8bb791d5e2bcefa79db9113a1ec5cfd851670061a79d788cb53",
+    "demo/test_supervise_reconciliation.py": "2c6af5aa392707d8861dd386c2cfc57b99dd04c182d528d7d42f87d4d48b4b25",
+    "frontend/src/app/demo/page.tsx": "b345a206834c95941a17ac4d7f50bef5a8768938887e542645059c39a39a314d",
+    "frontend/tests/demo.cjs": "7ff7a0fac69ff245182de297589d445846f26779e9b43358afe8acab0aa66375",
+    "training/evidence/supervisor-followup-20261013T190745844629Z/validation.txt": "594e51d6fb6dcea114724d64a20b2449a3a7748a4c13a5aaa6ab7b1d82b39f3f",
+    "training/evidence/demo-presentation-20261013T191242957316Z/validation.txt": "29db0b0f6ba9430a09fb3dedc8d89a6c883f3bbf3d8ec903f016a0c45505a95b"
+  }
+}

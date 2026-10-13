@@ -1,3 +1,5 @@
+> Latest handoff: [HANDOFF-NEXT-20261014.md](../training/HANDOFF-NEXT-20261014.md). Code checkpoint 8f737f9; supervisor cfecdcf offline tests and updated demo UI recorded. Sections below retain historical scope and reservation dates; follow the latest handoff before running commands.
+
 # Bounded Severity flow demo
 
 Add-only package preserving the dirty cb514aa snapshot. No existing files are
