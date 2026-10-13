@@ -1,0 +1,24 @@
+/* eslint-disable @typescript-eslint/no-require-imports */
+const fs = require('node:fs');
+const vm = require('node:vm');
+const path = require('node:path');
+const assert = require('node:assert/strict');
+const ts = require('typescript');
+const React = require('react');
+const { renderToStaticMarkup } = require('react-dom/server');
+const code=ts.transpileModule(fs.readFileSync(path.join(__dirname,'../src/app/overview.tsx'),'utf8'),{compilerOptions:{module:ts.ModuleKind.CommonJS,jsx:ts.JsxEmit.ReactJSX,target:ts.ScriptTarget.ES2022,esModuleInterop:true}}).outputText;
+const moduleValue={exports:{}};
+vm.runInNewContext(code,{exports:moduleValue.exports,module:moduleValue,require:(name)=>name==='next/link'?({children,...props})=>React.createElement('a',props,children):require(name),AbortController,AbortSignal,Date});
+const {summary,default:Component}=moduleValue.exports;
+const base={mode:'shadow',fetched_at:'2026-10-13T00:00:00Z',counts:{severity:0,behavioral:0,matched:0,conflicts:0,unmatched:0,candidates:0,ae_scored:0,novelty:0}};
+assert.equal(summary(base,false).values.matched,0);
+for(const bad of [{...base,mode:'live'},{...base,fetched_at:'invalid'},{...base,counts:{}},{...base,counts:{...base.counts,matched:1}},{...base,counts:{...base.counts,severity:null}}]) assert.throws(()=>summary(bad,false));
+const bf={mode:'shadow_bluefield',fetched_at:base.fetched_at,historical:true,live:false,production_ready:false,automated_response_allowed:false,counts:{records:6,interfaces:2,carrier_unknown:6,first_sample:2,computed:4}};
+assert.equal(summary(bf,true).values.carrier_unknown,6);
+assert.throws(()=>summary({...bf,live:true},true));
+assert.throws(()=>summary({...bf,counts:{...bf.counts,carrier_unknown:7}},true));
+const html=renderToStaticMarkup(React.createElement(Component));
+assert.ok(html.includes('—'));assert.ok(!html.includes('<strong>0</strong>'));assert.ok(!html.includes('<strong>32</strong>'));
+for(const href of ['/shadow','/bluefield','/replay','/details#quality','/details#live']) assert.ok(html.includes(href));
+assert.ok(html.includes('ไม่ใช่ accuracy'));assert.ok(html.includes('Unknown ≠ ศูนย์'));
+console.log('PASS overview: unknown initial state, real zero, malformed/scope/count rejection and evidence navigation');

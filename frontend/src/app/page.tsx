@@ -1,2 +1,2 @@
-import Dashboard from "./dashboard";
-export default function Home() { return <Dashboard />; }
+import Overview from "./overview";
+export default function Home() { return <Overview />; }
