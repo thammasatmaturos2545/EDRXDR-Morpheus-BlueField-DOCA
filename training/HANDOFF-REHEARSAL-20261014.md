@@ -1,3 +1,5 @@
+> Latest scope and takeover guide: [Company scope handoff](HANDOFF-COMPANY-SCOPE-20261014.md). Verified rehearsal results remain unchanged; earlier sections retain historical context.
+
 # ผลซ้อม Windows → Morpheus Severity — 14 ต.ค. 2026
 
 ## ผลที่ยืนยัน

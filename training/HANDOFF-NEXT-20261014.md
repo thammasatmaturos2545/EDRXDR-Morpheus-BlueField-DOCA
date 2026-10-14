@@ -1,3 +1,5 @@
+> Latest scope and takeover guide: [Company scope handoff](HANDOFF-COMPANY-SCOPE-20261014.md). Verified rehearsal results remain unchanged; earlier sections retain historical context.
+
 > Latest rehearsal: [14 Oct 5/5/5](HANDOFF-REHEARSAL-20261014.md) — verified Windows origin, API/UI and clean exit after supervisor update. Earlier results remain historical.
 
 # ส่งต่องาน EDR/XDR — checkpoint หลัง Dashboard และ supervisor

@@ -1,0 +1,16 @@
+{
+  "created_at_utc": "20261014T105914683105Z",
+  "parent_commit": "142fc7692ea0068054e184b38e0805555aa83210",
+  "source_document": "SIAM.AI - BU.pdf",
+  "source_document_sha256": "b25f3b88f7a21424d7eed317ebccb1769e4ff9df1d49fee409065d4bc2c4690f",
+  "source_pages": [
+    2,
+    3,
+    5,
+    6
+  ],
+  "source_pdf_included": false,
+  "scope": "Company-scope comparison and handoff only; no new live validation",
+  "preserved_rehearsal_manifest_sha256": "d041473b534cbcfb9f00be465035b25c4da857569889c079b57075b2f0ed9c69",
+  "verified_manifest_files": 13
+}
