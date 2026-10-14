@@ -1,7 +1,7 @@
 run_id=ssh-fail-usecase-20261014t192315z
-checked_at=2026-10-15T02:26:42+07:00
+checked_at=2026-10-15T02:28:50+07:00
 branch=work/nexus-exact-ai-v1
-commit=5b558baf89fdadd111d160fb147bfbba772bd332
+commit=e87c2ba791b3c1d67d18ac584ba4a73396f7709d
 scenario=controlled SSH authentication failure
 test_user=edrxdr_invalid_192315
 morpheus_input_start=57500

@@ -4,11 +4,11 @@
   "event_uid": "4cbb596e182e27c576e171edaffe09db5601f45fea2ac9063d6cff3c94aa9c93",
   "source_offset": 26149,
   "checks": {
-    "wazuh_rule_5710": true,
-    "authentication_failed_group": true,
+    "rule_5710": true,
+    "authentication_failed": true,
     "agent_003": true,
     "valid_event_uid": true,
-    "kafka_key_equals_event_uid": true,
+    "key_equals_event_uid": true,
     "rule_preserved": true,
     "source_is_wazuh": true
   },
