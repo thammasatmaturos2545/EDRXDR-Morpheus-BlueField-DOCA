@@ -7,15 +7,62 @@ No automated response is performed.
 import hashlib
 import json
 import math
+import os
 import re
 from datetime import datetime
 import time
 
-KAFKA_BROKER = "kafka:29092"
-INPUT_TOPIC = "morpheus-output"
-GROUP_ID = "edrxdr-indexer"
+KAFKA_BROKER = os.environ.get(
+    "INDEXER_KAFKA_BROKER",
+    "kafka:29092",
+)
 
-OPENSEARCH_URL = "http://opensearch:9200"
+INPUT_TOPIC = os.environ.get(
+    "INDEXER_INPUT_TOPIC",
+    "morpheus-output",
+)
+
+GROUP_ID = os.environ.get(
+    "INDEXER_GROUP_ID",
+    "edrxdr-indexer",
+)
+
+OPENSEARCH_URL = os.environ.get(
+    "INDEXER_OPENSEARCH_URL",
+    "http://opensearch:9200",
+)
+
+INDEX_PREFIX = os.environ.get(
+    "INDEXER_INDEX_PREFIX",
+    "edrxdr-events",
+)
+
+AUTO_OFFSET_RESET = os.environ.get(
+    "INDEXER_AUTO_OFFSET_RESET",
+    "latest",
+)
+
+MAX_EVENTS_TEXT = os.environ.get(
+    "INDEXER_MAX_EVENTS",
+    "0",
+)
+
+if AUTO_OFFSET_RESET not in ("latest", "earliest"):
+    raise RuntimeError(
+        "INDEXER_AUTO_OFFSET_RESET must be latest or earliest"
+    )
+
+try:
+    MAX_EVENTS = int(MAX_EVENTS_TEXT)
+except ValueError as error:
+    raise RuntimeError(
+        "INDEXER_MAX_EVENTS must be an integer"
+    ) from error
+
+if MAX_EVENTS < 0 or MAX_EVENTS > 1000:
+    raise RuntimeError(
+        "INDEXER_MAX_EVENTS must be 0..1000"
+    )
 
 EXPECTED_SCHEMA = "live-severity-1"
 EXPECTED_ENGINE = "nvidia-morpheus-context-severity-v1"
@@ -340,7 +387,8 @@ def index_name(event):
     )
 
     return (
-        "edrxdr-events-"
+        INDEX_PREFIX
+        + "-"
         + value.strftime("%Y.%m.%d")
     )
 
@@ -487,9 +535,11 @@ def main():
         ],
         group_id=GROUP_ID,
         enable_auto_commit=False,
-        auto_offset_reset="latest",
+        auto_offset_reset=AUTO_OFFSET_RESET,
         max_poll_records=1,
     )
+
+    processed = 0
 
     try:
         for message in consumer:
@@ -519,6 +569,8 @@ def main():
                         -1,
                     )
             })
+
+            processed += 1
 
             print(
                 json.dumps({
@@ -550,6 +602,12 @@ def main():
                 }),
                 flush=True,
             )
+
+            if (
+                MAX_EVENTS
+                and processed >= MAX_EVENTS
+            ):
+                break
 
     finally:
         consumer.close()

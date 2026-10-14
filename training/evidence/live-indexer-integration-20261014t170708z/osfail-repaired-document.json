@@ -1,0 +1,57 @@
+{
+  "took" : 0,
+  "timed_out" : false,
+  "_shards" : {
+    "total" : 1,
+    "successful" : 1,
+    "skipped" : 0,
+    "failed" : 0
+  },
+  "hits" : {
+    "total" : {
+      "value" : 1,
+      "relation" : "eq"
+    },
+    "max_score" : 1.0,
+    "hits" : [
+      {
+        "_index" : "live-indexer-idxosfail-20261014t170345z-2026.10.14",
+        "_id" : "55cb13f54d71003b87d15be14483fad3442e79fa0c99282406059b0f0d86b3db",
+        "_score" : 1.0,
+        "_source" : {
+          "schema_version" : "live-severity-1",
+          "event_uid" : "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+          "source_type" : "wazuh",
+          "processing_mode" : "live",
+          "analysis_engine" : "nvidia-morpheus-context-severity-v1",
+          "model_name" : "wazuh-severity-context-v2-balanced-20261008T190719Z-1398863",
+          "text_contract_version" : "wazuh-context-v2-raw-1",
+          "high_severity_score" : 0.75,
+          "predicted_label" : "high_severity",
+          "threshold" : 0.5,
+          "wazuh_rule_id" : "60137",
+          "wazuh_rule_level" : 5,
+          "source_topic" : "wazuh-alerts",
+          "source_partition" : 0,
+          "source_offset" : 123,
+          "input_topic" : "morpheus-input",
+          "input_partition" : 0,
+          "input_offset" : 456,
+          "scored_at_utc" : "2026-10-14T16:00:00+00:00",
+          "artifact_hashes" : {
+            "checkpoint_weights_sha256" : "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+            "adapter_sha256" : "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+            "preprocessing_adapter_sha256" : "dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd",
+            "raw_adapter_sha256" : "eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
+            "text_builder_sha256" : "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"
+          },
+          "vocab_hash_sha256" : "1111111111111111111111111111111111111111111111111111111111111111",
+          "engine_sha256" : "2222222222222222222222222222222222222222222222222222222222222222",
+          "worker_sha256" : "3333333333333333333333333333333333333333333333333333333333333333",
+          "production_ready" : false,
+          "automated_response_allowed" : false
+        }
+      }
+    ]
+  }
+}

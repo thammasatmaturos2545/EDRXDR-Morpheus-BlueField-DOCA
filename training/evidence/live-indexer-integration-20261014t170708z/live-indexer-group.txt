@@ -1,0 +1,3 @@
+
+GROUP           TOPIC           PARTITION  CURRENT-OFFSET  LOG-END-OFFSET  LAG             CONSUMER-ID                                              HOST            CLIENT-ID
+edrxdr-indexer  morpheus-output 0          43              43              0               kafka-python-2.2.15-91e3223a-a66b-4508-8d36-e54b5bb98712 /172.19.0.4     kafka-python-2.2.15

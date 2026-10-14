@@ -1,0 +1,7 @@
+checked_at=2026-10-15T00:07:08+07:00
+branch=work/nexus-exact-ai-v1
+base_head=5142485ee6879a0d19a143b53436e0c6f7bf4999
+candidate_image=edrxdr-morpheus-indexer:live-v1
+candidate_image_id=sha256:2b0d7bdfcc9653261c7e083de9b5ace58786b2559fcac579bf84c7ef61254059
+live_indexer_sha256=f7d39743573d33de680417c0dda78492c9158b160d7a7336d02436a0073ada81
+dockerfile_sha256=58ccf6f0659da64f165494ec8048531f836f5d23bdabf776d5e90b8677ded7ad

@@ -1,0 +1,45 @@
+Fail-closed Live Indexer isolated integration verification: PASS
+
+Valid path:
+- valid live-severity-1 record accepted
+- Kafka key exactly matched event_uid
+- OpenSearch write acknowledged
+- Kafka committed only after OpenSearch ACK
+
+Idempotent retry:
+- identical event delivered again
+- deterministic document ID remained identical
+- Kafka offset advanced to 2
+- OpenSearch document count remained 1
+
+Poison path:
+- analysis_engine=morpheus-simulator rejected
+- committed offset remained 2
+- log end offset remained 3
+- lag remained 1
+- OpenSearch document count remained 1
+- fresh process retried the same poison record
+- poison record was not silently skipped
+
+OpenSearch failure-before-commit:
+- valid input passed strict validation
+- intentional OpenSearch mapping rejection returned HTTP 400
+- no Kafka offset was committed
+- OpenSearch document count remained 0
+- isolated bad index was repaired
+- no Kafka record was republished
+- fresh process retried the original source record
+- OpenSearch write succeeded
+- Kafka committed offset became 1
+- log end offset = 1
+- lag = 0
+- OpenSearch document count = 1
+
+Safety:
+- tests used replay Kafka/OpenSearch only
+- unique test topic/group/index names were used
+- live edrxdr-indexer was not stopped or restarted
+- live morpheus-output consumer group was not used
+- no GPU was used
+- BlueField remained inactive/dead/disabled
+- automated response remained disabled
