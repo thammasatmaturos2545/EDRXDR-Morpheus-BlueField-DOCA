@@ -1,0 +1,2 @@
+Ubuntu 24.04.4 LTS
+edrxdr_invalid_192315@127.0.0.1: Permission denied (publickey,password).

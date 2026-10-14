@@ -1,0 +1,21 @@
+{
+  "status": "PASS",
+  "scenario": "controlled SSH authentication failure",
+  "event_uid": "4cbb596e182e27c576e171edaffe09db5601f45fea2ac9063d6cff3c94aa9c93",
+  "source_offset": 26149,
+  "checks": {
+    "wazuh_rule_5710": true,
+    "authentication_failed_group": true,
+    "agent_003": true,
+    "valid_event_uid": true,
+    "kafka_key_equals_event_uid": true,
+    "rule_preserved": true,
+    "source_is_wazuh": true
+  },
+  "latency": {
+    "wazuh_event_timestamp_ms": 459.092,
+    "wazuh_observed_ms": 5526.79,
+    "normalized_kafka_observed_ms": 27774.52
+  },
+  "measurement_note": "Observed timings include polling/test-harness overhead."
+}

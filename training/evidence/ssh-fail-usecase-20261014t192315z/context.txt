@@ -1,0 +1,11 @@
+run_id=ssh-fail-usecase-20261014t192315z
+checked_at=2026-10-15T02:26:42+07:00
+branch=work/nexus-exact-ai-v1
+commit=5b558baf89fdadd111d160fb147bfbba772bd332
+scenario=controlled SSH authentication failure
+test_user=edrxdr_invalid_192315
+morpheus_input_start=57500
+trigger_iso=2026-10-15T02:23:28+07:00
+trigger_ns=1792005808233908282
+alert_seen_ns=1792005813760698464
+kafka_seen_ns=1792005836008428685
