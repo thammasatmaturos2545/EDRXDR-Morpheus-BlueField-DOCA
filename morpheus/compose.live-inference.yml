@@ -1,0 +1,98 @@
+name: edrxdr-live-morpheus
+
+x-worker: &worker
+  image: edrxdr-morpheus-train:25.06
+  pull_policy: never
+  restart: "no"
+
+  user: "1001:1002"
+
+  read_only: true
+
+  cpus: 4
+  mem_limit: 16g
+  shm_size: 1g
+  pids_limit: 256
+
+  cap_drop:
+    - ALL
+
+  security_opt:
+    - no-new-privileges:true
+
+  entrypoint:
+    - /opt/conda/envs/morpheus/bin/python
+    - -B
+    - -u
+
+  environment:
+    PYTHONPATH: /workspace/edrxdr-morpheus:/replay:/scripts
+
+    HOME: /tmp
+    XDG_CACHE_HOME: /tmp/cache
+    HF_HOME: /tmp/hf-cache
+    TOKENIZERS_PARALLELISM: "false"
+
+    CUPY_CACHE_DIR: /tmp/cupy-cache
+    CUDA_CACHE_PATH: /tmp/cuda-cache
+
+    GPU_PREFLIGHT_ALLOWED: "0"
+    LIVE_INFERENCE_RUN_ALLOWED: "0"
+
+  tmpfs:
+    - /tmp:rw,size=2g
+
+  volumes:
+    - .:/workspace/edrxdr-morpheus:ro
+    - ../replay:/replay:ro
+    - ../training:/scripts:ro
+    - model-output:/models:ro
+
+  deploy:
+    resources:
+      reservations:
+        devices:
+          - driver: nvidia
+            device_ids:
+              - "${EDRXDR_GPU_DEVICE:-INVALID_UNRESERVED}"
+            capabilities:
+              - gpu
+
+services:
+
+  gpu-preflight:
+    <<: *worker
+
+    profiles:
+      - manual-gpu
+
+    network_mode: none
+
+    command:
+      - /workspace/edrxdr-morpheus/gpu_preflight.py
+
+  inference:
+    <<: *worker
+
+    profiles:
+      - manual-gpu
+
+    networks:
+      - live
+
+    command:
+      - /workspace/edrxdr-morpheus/live_inference.py
+      - --max-events
+      - "1"
+      - --seconds
+      - "120"
+
+networks:
+  live:
+    external: true
+    name: edrxdr-net
+
+volumes:
+  model-output:
+    external: true
+    name: edrxdr-model-output
