@@ -1,0 +1,59 @@
+{
+  "timestamp": "2026-10-14T19:52:21.469+0000",
+  "rule": {
+    "level": 3,
+    "description": "PAM: Login session closed.",
+    "id": "5502",
+    "firedtimes": 27,
+    "mail": false,
+    "groups": [
+      "pam",
+      "syslog"
+    ],
+    "pci_dss": [
+      "10.2.5"
+    ],
+    "gpg13": [
+      "7.8",
+      "7.9"
+    ],
+    "gdpr": [
+      "IV_32.2"
+    ],
+    "hipaa": [
+      "164.312.b"
+    ],
+    "nist_800_53": [
+      "AU.14",
+      "AC.7"
+    ],
+    "tsc": [
+      "CC6.8",
+      "CC7.2",
+      "CC7.3"
+    ]
+  },
+  "agent": {
+    "id": "003",
+    "name": "oa-hgx-h100-bu-02",
+    "ip": "127.0.0.1"
+  },
+  "manager": {
+    "name": "wazuh.manager"
+  },
+  "id": "1792007541.1692877",
+  "full_log": "Oct 14 19:52:21 oa-hgx-h100-bu-02 sudo[840820]: pam_unix(sudo:session): session closed for user root",
+  "predecoder": {
+    "program_name": "sudo",
+    "timestamp": "Oct 14 19:52:21",
+    "hostname": "oa-hgx-h100-bu-02"
+  },
+  "decoder": {
+    "parent": "pam",
+    "name": "pam"
+  },
+  "data": {
+    "dstuser": "root"
+  },
+  "location": "journald"
+}

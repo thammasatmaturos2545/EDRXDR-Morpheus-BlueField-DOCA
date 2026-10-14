@@ -1,0 +1,5 @@
+lab_ar_config_present=false
+lab_script_present=false
+lab_marker_present=false
+ActiveState=active
+SubState=running
