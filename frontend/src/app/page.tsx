@@ -1,2 +1,2 @@
-import Overview from "./overview";
-export default function Home() { return <Overview />; }
+import Soc from "./soc";
+export default function Home() { return <Soc />; }
