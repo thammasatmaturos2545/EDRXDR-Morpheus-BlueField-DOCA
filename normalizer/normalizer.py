@@ -1,3 +1,4 @@
+import hashlib
 import json
 import time
 from datetime import datetime, timezone
@@ -114,6 +115,109 @@ def safe_int(value, default=0):
         return int(value)
     except (TypeError, ValueError):
         return default
+
+
+def wazuh_event_uid(event):
+    """Return an exact deterministic identity for one Wazuh alert."""
+
+    manager = event.get("manager", {})
+    agent = event.get("agent", {})
+
+    values = [
+        manager.get("name"),
+        agent.get("id"),
+        event.get("id"),
+    ]
+
+    parts = []
+
+    for value in values:
+        if (
+            isinstance(value, bool)
+            or not isinstance(value, (str, int))
+        ):
+            raise ValueError("Invalid Wazuh event identity")
+
+        value = str(value).strip()
+
+        if not value:
+            raise ValueError("Missing Wazuh event identity")
+
+        byte_length = len(
+            value.encode("utf-8")
+        )
+
+        parts.append(
+            f"{byte_length}:{value}"
+        )
+
+    canonical = (
+        "wazuh-v1|"
+        + "|".join(parts)
+    )
+
+    return hashlib.sha256(
+        canonical.encode("utf-8")
+    ).hexdigest()
+
+
+def attach_kafka_source(
+    normalized,
+    topic,
+    partition,
+    offset
+):
+    """Attach exact Kafka source coordinates to one normalized event."""
+
+    if not isinstance(normalized, dict):
+        raise ValueError("Normalized event must be an object")
+
+    if (
+        not isinstance(topic, str)
+        or not topic.strip()
+    ):
+        raise ValueError("Invalid Kafka source topic")
+
+    if (
+        isinstance(partition, bool)
+        or not isinstance(partition, int)
+        or partition < 0
+    ):
+        raise ValueError("Invalid Kafka source partition")
+
+    if (
+        isinstance(offset, bool)
+        or not isinstance(offset, int)
+        or offset < 0
+    ):
+        raise ValueError("Invalid Kafka source offset")
+
+    normalized["source_topic"] = topic
+    normalized["source_partition"] = partition
+    normalized["source_offset"] = offset
+
+    return normalized
+
+
+def normalized_kafka_key(normalized):
+    """Use exact event_uid as Kafka key when an identity exists."""
+
+    uid = normalized.get("event_uid")
+
+    if uid is None:
+        return None
+
+    if (
+        not isinstance(uid, str)
+        or len(uid) != 64
+        or any(
+            character not in "0123456789abcdef"
+            for character in uid
+        )
+    ):
+        raise ValueError("Invalid event_uid")
+
+    return uid.encode("ascii")
 
 
 # ============================================================
@@ -324,6 +428,9 @@ def normalize_wazuh(event):
 
         "pipeline_source":
             "wazuh-alerts",
+
+        "event_uid":
+            wazuh_event_uid(event),
 
         # ------------------------
         # Wazuh Rule
@@ -559,8 +666,18 @@ for message in consumer:
             )
             continue
 
+        normalized = attach_kafka_source(
+            normalized,
+            message.topic,
+            message.partition,
+            message.offset,
+        )
+
         producer.send(
             OUTPUT_TOPIC,
+            key=normalized_kafka_key(
+                normalized
+            ),
             value=normalized
         )
 

@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { createHash } from "crypto";
 import { execFile } from "child_process";
 import { promisify } from "util";
 
@@ -6,6 +7,69 @@ export const dynamic = "force-dynamic";
 
 const execFileAsync =
   promisify(execFile);
+
+function identityPart(
+  value: unknown
+): string | null {
+  if (
+    typeof value !== "string" &&
+    typeof value !== "number"
+  ) {
+    return null;
+  }
+
+  if (
+    typeof value === "number" &&
+    !Number.isFinite(value)
+  ) {
+    return null;
+  }
+
+  const text =
+    String(value).trim();
+
+  return text || null;
+}
+
+function wazuhEventUid(event: {
+  manager?: { name?: unknown };
+  agent?: { id?: unknown };
+  id?: unknown;
+}): string | null {
+  const values = [
+    identityPart(event.manager?.name),
+    identityPart(event.agent?.id),
+    identityPart(event.id),
+  ];
+
+  if (
+    values.some(
+      (value) => value === null
+    )
+  ) {
+    return null;
+  }
+
+  const valid =
+    values as string[];
+
+  const canonical =
+    "wazuh-v1|" +
+    valid
+      .map(
+        (value) =>
+          `${Buffer.byteLength(
+            value,
+            "utf8"
+          )}:${value}`
+      )
+      .join("|");
+
+  return createHash("sha256")
+    .update(canonical, "utf8")
+    .digest("hex");
+}
+
 
 async function getManagerContainer() {
   const { stdout } =
@@ -95,10 +159,19 @@ export async function GET() {
         const data =
           event.data || {};
 
+        const eventUid =
+          wazuhEventUid(event);
+
         alerts.push({
           id:
             event.id ||
             crypto.randomUUID(),
+
+          event_id:
+            event.id || null,
+
+          event_uid:
+            eventUid,
 
           timestamp:
             event.timestamp,
