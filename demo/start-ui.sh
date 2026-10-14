@@ -19,5 +19,5 @@ cd "$ui"
 printf 'Isolated frontend build: %s\n' "$ui"
 npm run typecheck
 node "$repo/frontend/node_modules/next/dist/bin/next" build
-printf 'Open http://172.16.30.147:3001/demo?run=RUN_ID_FROM_WORKER\nCtrl+C stops this frontend only.\n'
+printf 'Open http://172.16.30.147:3001/\nOverview: /overview · Experiments: /experiments\nCtrl+C stops this frontend only.\n'
 exec npm run start -- --hostname 0.0.0.0 --port 3001

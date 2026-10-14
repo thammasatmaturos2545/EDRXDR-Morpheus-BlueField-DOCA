@@ -1,2 +1,5 @@
-import Soc from "./soc";
-export default function Home() { return <Soc />; }
+import { redirect } from "next/navigation";
+
+export default function Home() {
+  redirect("/nexus/index.html");
+}
