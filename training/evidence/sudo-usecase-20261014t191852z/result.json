@@ -1,0 +1,19 @@
+{
+  "status": "PASS",
+  "scenario": "controlled sudo privilege-use detection",
+  "event_uid": "02980fb54693a5a50e5f53732ede761917d2465027620a8b5d52e91371485d53",
+  "source_offset": 26143,
+  "checks": {
+    "wazuh_rule_5402": true,
+    "agent_003": true,
+    "valid_event_uid": true,
+    "kafka_key_equals_event_uid": true,
+    "source_is_wazuh": true,
+    "rule_preserved": true
+  },
+  "latency": {
+    "wazuh_event_timestamp_ms": 1619.91,
+    "wazuh_observed_ms": 7579.493,
+    "normalized_kafka_observed_ms": 32355.349
+  }
+}
