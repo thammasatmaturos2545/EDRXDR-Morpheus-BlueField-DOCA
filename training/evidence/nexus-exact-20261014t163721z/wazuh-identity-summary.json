@@ -1,0 +1,21 @@
+{
+  "alerts": 100,
+  "with_event_uid": 100,
+  "sample": [
+    {
+      "timestamp": "2026-10-14T16:34:11.022+0000",
+      "rule_id": "5501",
+      "event_uid": "02e34f1ae5bd74981db124f45512cfe1b0a9aa63de0032baf919aa409df2b901"
+    },
+    {
+      "timestamp": "2026-10-14T16:34:10.981+0000",
+      "rule_id": "5715",
+      "event_uid": "e289fce845b5fa42db7a343553682570ce3e36c6e57c3b28b66b4eb30d6c475d"
+    },
+    {
+      "timestamp": "2026-10-14T16:21:02.967+0000",
+      "rule_id": "5501",
+      "event_uid": "100307248ee5ade587c067100a8ea594dde960003fe7d49ad24ca691565c0f97"
+    }
+  ]
+}

@@ -1,0 +1,13 @@
+{
+  "backend": "EDRXDR-Morpheus",
+  "demo": false,
+  "write_enabled": false,
+  "alerts": 100,
+  "ai_status": {
+    "not_found": 100
+  },
+  "ai_matched": 0,
+  "non_exact_matches": 0,
+  "matched_without_uid": 0,
+  "exact_event_uid_only_pass": true
+}

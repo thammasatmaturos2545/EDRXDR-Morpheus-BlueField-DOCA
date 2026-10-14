@@ -1,0 +1,28 @@
+NEXUS exact live AI runtime verification: PASS
+
+Run ID: nexus-exact-20261014t163721z
+
+Wazuh:
+- alerts=100
+- event_uid present=100/100
+
+Live AI:
+- /api/events HTTP 200
+- AI events=0
+- no live H100 inference has been executed
+
+NEXUS:
+- alerts=100
+- AI status not_found=100
+- AI matched=0
+- non-exact matches=0
+- matched without event_uid=0
+- correlation policy=exact event_uid only
+
+Safety:
+- production_ready=false
+- automated_response_allowed=false
+- BlueField inactive/dead/disabled
+- GPU unused during verification
+- no driver/network changes
+- no inferred AI results
