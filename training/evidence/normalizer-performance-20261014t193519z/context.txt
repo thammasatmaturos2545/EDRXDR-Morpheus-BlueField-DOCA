@@ -1,0 +1,8 @@
+run_id=normalizer-performance-20261014t193519z
+checked_at=2026-10-15T02:35:24+07:00
+branch=work/nexus-exact-ai-v1
+commit=8db2093b78e38aa0c9d2873323391a1f0dc181bb
+scope=isolated replay Kafka -> Normalizer -> Kafka
+gpu_inference=false
+live_wazuh_modified=false
+automated_response=false

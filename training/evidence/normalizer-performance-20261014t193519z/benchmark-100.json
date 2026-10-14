@@ -1,0 +1,27 @@
+{
+  "status": "PASS",
+  "run_id": "normbench100-20261014t193332z",
+  "events_requested": 100,
+  "events_received": 100,
+  "missing": 0,
+  "duplicate_output": 0,
+  "input_offset_before": 9,
+  "input_offset_after": 109,
+  "output_offset_before": 9,
+  "output_offset_after": 109,
+  "input_offset_delta": 100,
+  "output_offset_delta": 100,
+  "publish_duration_s": 0.128003,
+  "end_to_end_duration_s": 0.266286,
+  "throughput_events_per_s": 375.536,
+  "kafka_timestamp_latency_ms": {
+    "min": 12,
+    "mean": 85.37,
+    "p50": 85.5,
+    "p95": 147.05,
+    "p99": 152.01,
+    "max": 153
+  },
+  "measurement_scope": "isolated replay Kafka -> Normalizer -> Kafka; no GPU inference",
+  "started_wall_ns": 1792006412407433898
+}

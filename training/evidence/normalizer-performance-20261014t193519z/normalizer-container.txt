@@ -1,0 +1,5 @@
+Name=/edrxdr-replay-normalizer-1
+Image=edrxdr-morpheus-normalizer:latest
+NanoCpus=1000000000
+Memory=536870912
+State=running

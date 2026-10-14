@@ -1,0 +1,5 @@
+Name=/edrxdr-replay-kafka-1
+Image=apache/kafka:3.8.1
+NanoCpus=2000000000
+Memory=2147483648
+State=running

@@ -1,0 +1,3 @@
+
+GROUP                TOPIC               PARTITION  CURRENT-OFFSET  LOG-END-OFFSET  LAG             CONSUMER-ID                                              HOST            CLIENT-ID
+replay-normalizer-v1 replay-wazuh-alerts 0          1109            1109            0               kafka-python-2.2.15-80d2a6db-a5a9-4ad7-95af-9c2edcb82485 /172.18.0.4     kafka-python-2.2.15

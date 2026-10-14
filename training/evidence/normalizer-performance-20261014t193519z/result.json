@@ -1,0 +1,45 @@
+{
+  "status": "PASS",
+  "scope": "isolated replay Kafka -> Normalizer -> Kafka",
+  "gpu_inference": false,
+  "checks": {
+    "benchmark_100_pass": true,
+    "benchmark_1000_pass": true
+  },
+  "benchmark_100": {
+    "events": 100,
+    "missing": 0,
+    "duplicates": 0,
+    "duration_s": 0.266286,
+    "throughput_events_per_s": 375.536,
+    "latency_ms": {
+      "min": 12,
+      "mean": 85.37,
+      "p50": 85.5,
+      "p95": 147.05,
+      "p99": 152.01,
+      "max": 153
+    }
+  },
+  "benchmark_1000": {
+    "events": 1000,
+    "missing": 0,
+    "duplicates": 0,
+    "duration_s": 1.60151,
+    "throughput_events_per_s": 624.411,
+    "latency_ms": {
+      "min": 11,
+      "mean": 710.934,
+      "p50": 722.0,
+      "p95": 1329.05,
+      "p99": 1383.0,
+      "max": 1396
+    }
+  },
+  "interpretation": {
+    "loss_detected": false,
+    "duplicate_detected": false,
+    "consumer_caught_up": true,
+    "note": "Latency rises under the 1000-event burst due to queueing; throughput is measured for the current single-normalizer replay configuration."
+  }
+}
