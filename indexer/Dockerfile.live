@@ -1,0 +1,7 @@
+FROM edrxdr-morpheus-indexer
+
+WORKDIR /app
+
+COPY live_indexer.py /app/live_indexer.py
+
+CMD ["python", "-u", "/app/live_indexer.py"]
