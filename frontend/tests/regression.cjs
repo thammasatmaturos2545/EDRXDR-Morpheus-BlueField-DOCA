@@ -241,14 +241,14 @@ async function readQuality(overrides = {}) {
     assert.ok(
       liveFilters.some(
         item =>
-          item.term?.processing_mode === 'live'
+          item.term?.['processing_mode.keyword'] === 'live'
       )
     );
 
     assert.ok(
       liveFilters.some(
         item =>
-          item.term?.schema_version ===
+          item.term?.['schema_version.keyword'] ===
           'live-severity-1'
       )
     );
@@ -256,7 +256,7 @@ async function readQuality(overrides = {}) {
     assert.ok(
       liveFilters.some(
         item =>
-          item.term?.analysis_engine ===
+          item.term?.['analysis_engine.keyword'] ===
           'nvidia-morpheus-context-severity-v1'
       )
     );

@@ -49,6 +49,10 @@ export async function GET() {
               "input_partition",
               "input_offset",
               "scored_at_utc",
+              "artifact_hashes",
+              "vocab_hash_sha256",
+              "engine_sha256",
+              "worker_sha256",
               "production_ready",
               "automated_response_allowed",
             ],
@@ -62,7 +66,7 @@ export async function GET() {
                 },
               },
               {
-                event_uid: {
+                "event_uid.keyword": {
                   order: "asc",
                   unmapped_type:
                     "keyword",
@@ -75,31 +79,31 @@ export async function GET() {
                 filter: [
                   {
                     term: {
-                      schema_version:
+                      "schema_version.keyword":
                         "live-severity-1",
                     },
                   },
                   {
                     term: {
-                      source_type:
+                      "source_type.keyword":
                         "wazuh",
                     },
                   },
                   {
                     term: {
-                      processing_mode:
+                      "processing_mode.keyword":
                         "live",
                     },
                   },
                   {
                     term: {
-                      analysis_engine:
+                      "analysis_engine.keyword":
                         "nvidia-morpheus-context-severity-v1",
                     },
                   },
                   {
                     term: {
-                      model_name:
+                      "model_name.keyword":
                         "wazuh-severity-context-v2-balanced-20261008T190719Z-1398863",
                     },
                   },

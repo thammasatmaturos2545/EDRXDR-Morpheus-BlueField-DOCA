@@ -1,0 +1,3 @@
+State=running
+Image=edrxdr-morpheus-normalizer
+ImageID=sha256:59e1ff8840af1771f2b5099a9dafa09e3df59600ec9cd3428b9eeb66ff8f6d9a

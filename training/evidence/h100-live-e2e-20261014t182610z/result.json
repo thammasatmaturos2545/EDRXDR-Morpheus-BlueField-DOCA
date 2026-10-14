@@ -1,0 +1,21 @@
+{
+  "status": "PASS",
+  "event_uid": "ab444373341573048c7967e8a2e2468d4fadc5d16873e70c1cff597c18c16a4c",
+  "pipeline": [
+    "Wazuh",
+    "Normalizer",
+    "Kafka morpheus-input",
+    "NVIDIA H100 Morpheus",
+    "Kafka morpheus-output",
+    "Fail-Closed Indexer",
+    "OpenSearch",
+    "/api/events",
+    "NEXUS"
+  ],
+  "high_severity_score": 0.000552778656128794,
+  "predicted_label": "low_severity",
+  "ai_status": "matched",
+  "ai_match_method": "event_uid",
+  "production_ready": false,
+  "automated_response_allowed": false
+}

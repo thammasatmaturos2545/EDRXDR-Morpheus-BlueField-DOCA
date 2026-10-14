@@ -1,0 +1,3 @@
+State=running
+Image=edrxdr-morpheus-indexer:live-v1
+ImageID=sha256:2b0d7bdfcc9653261c7e083de9b5ace58786b2559fcac579bf84c7ef61254059

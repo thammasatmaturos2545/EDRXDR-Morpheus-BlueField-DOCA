@@ -1,7 +1,9 @@
 export type Obj = Record<string, unknown>;
 
 export type LiveAiEvent = {
+  schema_version: "live-severity-1";
   event_uid: string;
+  source_type: "wazuh";
 
   processing_mode: "live";
 
@@ -250,8 +252,14 @@ export function validateLiveAi(
    * text_input
    */
   return {
+    schema_version:
+      "live-severity-1",
+
     event_uid:
       d.event_uid,
+
+    source_type:
+      "wazuh",
 
     processing_mode:
       "live",
