@@ -87,11 +87,91 @@ async function readQuality(overrides = {}) {
     const queries = new Map();
     const fetch = async (url, options) => {
       queries.set(url, JSON.parse(options.body));
-      const behavioral = url.endsWith('/replay-behavioral-v1/_search');
+
+      if (url === 'http://live.invalid/edrxdr-events-*/_search') {
+        const source = {
+          schema_version: 'live-severity-1',
+          event_uid: 'a'.repeat(64),
+          source_type: 'wazuh',
+          processing_mode: 'live',
+          analysis_engine: 'nvidia-morpheus-context-severity-v1',
+          model_name: 'wazuh-severity-context-v2-balanced-20261008T190719Z-1398863',
+          text_contract_version: 'wazuh-context-v2-raw-1',
+          high_severity_score: 0,
+          predicted_label: 'low_severity',
+          threshold: 0.5,
+          wazuh_rule_id: '60137',
+          wazuh_rule_level: 5,
+          source_topic: 'wazuh-alerts',
+          source_partition: 0,
+          source_offset: 123,
+          input_topic: 'morpheus-input',
+          input_partition: 0,
+          input_offset: 456,
+          scored_at_utc: '2026-10-14T15:30:00+00:00',
+          production_ready: false,
+          automated_response_allowed: false,
+        };
+
+        return {
+          ok: true,
+          json: async () => ({
+            timed_out: false,
+            _shards: {
+              failed: 0,
+            },
+            hits: {
+              total: {
+                value: 1,
+                relation: 'eq',
+              },
+              hits: [
+                {
+                  _id: 'live-document-id',
+                  _index: 'edrxdr-events-2026.10.14',
+                  _source: source,
+                },
+              ],
+            },
+          }),
+        };
+      }
+
+      const behavioral =
+        url.endsWith('/replay-behavioral-v1/_search');
+
       const source = behavioral
-        ? { event_uid: 'test-uid', schema_version: 'replay-behavioral-1', processing_mode: 'replay', production_ready: false, automated_response_allowed: false, analysis_state: 'limited_history' }
-        : { event_uid: 'test-uid', id: 'spoof', high_severity_score: 0 };
-      return { ok: true, json: async () => ({ hits: { total: { value: 1 }, hits: [{ _id: 'document-id', _index: 'index', _source: source }] } }) };
+        ? {
+            event_uid: 'test-uid',
+            schema_version: 'replay-behavioral-1',
+            processing_mode: 'replay',
+            production_ready: false,
+            automated_response_allowed: false,
+            analysis_state: 'limited_history',
+          }
+        : {
+            event_uid: 'test-uid',
+            id: 'spoof',
+            high_severity_score: 0,
+          };
+
+      return {
+        ok: true,
+        json: async () => ({
+          hits: {
+            total: {
+              value: 1,
+            },
+            hits: [
+              {
+                _id: 'document-id',
+                _index: 'index',
+                _source: source,
+              },
+            ],
+          },
+        }),
+      };
     };
     const replay = load('src/app/api/replay/events/route.ts', {}, { fetch, process: { env: { REPLAY_OPENSEARCH_URL: 'http://test.invalid' } } });
     const payload = await (await replay.GET()).json();
@@ -104,9 +184,96 @@ async function readQuality(overrides = {}) {
     assert.ok(behavioralQuery._source.includes('schema_version'));
     assert.equal(payload.behavioral_joined, 1);
     assert.equal(payload.events[0].behavioral_analysis.analysis_state, 'limited_history');
-    await load('src/app/api/events/route.ts', {}, { fetch, process: { env: { OPENSEARCH_URL: 'http://live.invalid' } } }).GET();
-    assert.equal(queries.size, 3);
-    assert.equal(queries.get('http://live.invalid/edrxdr-events-*/_search').query.bool.filter[0].term.processing_mode, 'live');
+    const liveResponse =
+      await load(
+        'src/app/api/events/route.ts',
+        {},
+        {
+          fetch,
+          process: {
+            env: {
+              OPENSEARCH_URL: 'http://live.invalid',
+            },
+          },
+        }
+      ).GET();
+
+    const livePayload =
+      await liveResponse.json();
+
+    assert.equal(
+      liveResponse.status,
+      200
+    );
+
+    assert.equal(
+      livePayload.events.length,
+      1
+    );
+
+    assert.equal(
+      livePayload.events[0].high_severity_score,
+      0
+    );
+
+    assert.equal(
+      livePayload.events[0].predicted_label,
+      'low_severity'
+    );
+
+    assert.ok(
+      !('artifact_hashes' in livePayload.events[0])
+    );
+
+    assert.equal(
+      queries.size,
+      3
+    );
+
+    const liveQuery =
+      queries.get(
+        'http://live.invalid/edrxdr-events-*/_search'
+      );
+
+    const liveFilters =
+      liveQuery.query.bool.filter;
+
+    assert.ok(
+      liveFilters.some(
+        item =>
+          item.term?.processing_mode === 'live'
+      )
+    );
+
+    assert.ok(
+      liveFilters.some(
+        item =>
+          item.term?.schema_version ===
+          'live-severity-1'
+      )
+    );
+
+    assert.ok(
+      liveFilters.some(
+        item =>
+          item.term?.analysis_engine ===
+          'nvidia-morpheus-context-severity-v1'
+      )
+    );
+
+    assert.ok(
+      liveFilters.some(
+        item =>
+          item.term?.production_ready === false
+      )
+    );
+
+    assert.ok(
+      liveFilters.some(
+        item =>
+          item.term?.automated_response_allowed === false
+      )
+    );
   });
   await test('unknown probes never become offline; DOCA is independent from BlueField', async () => {
     async function status(mode) {
