@@ -1,0 +1,6 @@
+run_id=fim-live-20261014t190819z
+checked_at=2026-10-15T02:08:19+07:00
+agent=003
+agent_name=oa-hgx-h100-bu-02
+test_path=/tmp/edrxdr-fim-lab/probe.txt
+mode=realtime temporary lab configuration

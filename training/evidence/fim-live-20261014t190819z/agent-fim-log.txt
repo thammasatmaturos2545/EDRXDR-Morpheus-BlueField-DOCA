@@ -1,0 +1,2 @@
+2026/10/15 02:05:39 wazuh-syscheckd: INFO: (6003): Monitoring path: '/tmp/edrxdr-fim-lab', with options 'size | permissions | owner | group | mtime | inode | hash_md5 | hash_sha1 | hash_sha256 | realtime'.
+2026/10/15 02:05:39 wazuh-syscheckd: INFO: (6016): Directory set for real time monitoring: '/tmp/edrxdr-fim-lab'.

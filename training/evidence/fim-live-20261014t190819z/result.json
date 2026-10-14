@@ -1,0 +1,41 @@
+{
+  "status": "PASS",
+  "events": [
+    {
+      "timestamp": "2026-10-14T19:05:53.916+0000",
+      "event_id": "1792004753.1618420",
+      "rule_id": "554",
+      "description": "File added to the system.",
+      "event": "added",
+      "path": "/tmp/edrxdr-fim-lab/probe.txt",
+      "agent_id": "003",
+      "agent_name": "oa-hgx-h100-bu-02",
+      "sha256_before": null,
+      "sha256_after": "0f7078808ff7e87f93199e4c8786837d558c4f975ec7943b3c5e8fd7155c9b42"
+    },
+    {
+      "timestamp": "2026-10-14T19:07:30.569+0000",
+      "event_id": "1792004850.1622042",
+      "rule_id": "550",
+      "description": "Integrity checksum changed.",
+      "event": "modified",
+      "path": "/tmp/edrxdr-fim-lab/probe.txt",
+      "agent_id": "003",
+      "agent_name": "oa-hgx-h100-bu-02",
+      "sha256_before": "0f7078808ff7e87f93199e4c8786837d558c4f975ec7943b3c5e8fd7155c9b42",
+      "sha256_after": "2dae2517a54e360d8012331c55b081cd90711195100163e173a5f34a2137aed0"
+    },
+    {
+      "timestamp": "2026-10-14T19:07:51.182+0000",
+      "event_id": "1792004871.1626182",
+      "rule_id": "553",
+      "description": "File deleted.",
+      "event": "deleted",
+      "path": "/tmp/edrxdr-fim-lab/probe.txt",
+      "agent_id": "003",
+      "agent_name": "oa-hgx-h100-bu-02",
+      "sha256_before": null,
+      "sha256_after": "2dae2517a54e360d8012331c55b081cd90711195100163e173a5f34a2137aed0"
+    }
+  ]
+}
