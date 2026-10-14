@@ -1,0 +1,15 @@
+{
+  "console-20261014T055117.txt.container-state.json": "6e804a5e3d66c7d120587491d2321cda7df9db0d9620f1ba0b72e426d0262c44",
+  "audit.jsonl": "3cd079f49dfd3876028536fc854bce7a9fabd7f546cc3fae8b5ef27a99908a99",
+  "api.json": "65129817378ee4d2456c9d190ab2d8ff8c18b1bbff89d29ef30a458cfdbd7bed",
+  "gpu-snapshot.txt": "070c6492f8fb877e581bb46a651de817fe70a4a742ea93dcfcd3b3343f495ea8",
+  "console-20261014T055117.txt.supervisor.json": "cfc5c7acaed549f95fbd8f4448505ddc9379827e0930c4b3030fa9671103e179",
+  "run.json": "239183d50fa5659c4e30d403990cce3160fcc92b9c1ff1d8eb5d67d5aeb8130c",
+  "windows-origin.json": "364423cb23a4de1ecd13cd58e0453547527780ac82e14f461aab1e291d77103e",
+  "console-20261014T055117.txt.container-id": "dcdee784c1b60bc393cac20668405d257e30f5cad734f0c94ee52b7b390671cb",
+  "verification.json": "b155d5bc0a08f2672f7fbb15983f8eb5ab0d9012be54f9bface86c3604714333",
+  "console-20261014T055117.txt": "04a10e48cffc64beec384c894c7728873b6feffccf4ffca6601b34dd33695061",
+  "console-20261014T055117.txt.exit-code": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+  "container-state-observed.json": "87aafe2e26ccfe88a63b661b8062de1d3259aa1dd7ee1dc4b054b4fb76c554d2",
+  "bluefield-state.txt": "6bc772f5893394df42eff7407779329e967fb24eeadbfda2b3a288ba4bdc0cfc"
+}

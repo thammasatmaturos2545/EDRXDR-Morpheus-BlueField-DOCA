@@ -1,0 +1,9 @@
+{
+  "authorization": "User confirmed reservation extension until 14:00 Thai",
+  "effective_from": "2026-10-14T12:49:39.042152+07:00",
+  "reservation_end": "2026-10-14T14:00:00+07:00",
+  "launcher_cutoff": "2026-10-14T13:55:00+07:00",
+  "max_session_seconds": 600,
+  "gpu_uuid": "GPU-61a1dd9b-a3c2-86dc-15b9-1277b5b949bb",
+  "worker_started": false
+}

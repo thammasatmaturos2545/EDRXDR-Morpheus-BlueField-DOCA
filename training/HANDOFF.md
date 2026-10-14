@@ -1,3 +1,5 @@
+> Latest rehearsal: [14 Oct 5/5/5](HANDOFF-REHEARSAL-20261014.md) — verified Windows origin, API/UI and clean exit after supervisor update. Earlier results remain historical.
+
 > Latest handoff: [HANDOFF-NEXT-20261014.md](HANDOFF-NEXT-20261014.md). Code checkpoint 8f737f9; supervisor cfecdcf offline tests and updated demo UI recorded. Sections below retain historical scope and reservation dates; follow the latest handoff before running commands.
 
 > Latest checkpoint: see training/HANDOFF-DEMO-CLOSE-20261014.md. Run d20261013t181858-e1bbae7e: 2/2/2, container and launcher exit 0; API and operator UI observation verified. Earlier exit 124 remains historical.

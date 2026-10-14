@@ -1,0 +1,14 @@
+{
+  "raw_sha256": "6bc8749336414c6c3500da2f3f46f99dc7346e0e32e3d40802758d5fc72cacd8",
+  "event_uid": "333018ff5d1a010d8c6489f8112b90b00b96046b616ba572557641e0a3ef29e6",
+  "alert_id": "1791957206.906202",
+  "agent": {
+    "id": "004",
+    "name": "windows-agent",
+    "ip": "100.66.12.8"
+  },
+  "rule_id": "554",
+  "path": "c:\\programdata\\microsoft\\windows\\start menu\\programs\\startup\\edrxdr-demo-20261014-125326-f559452b.txt",
+  "event": "added",
+  "timestamp": "2026-10-14T05:53:26.761+0000"
+}

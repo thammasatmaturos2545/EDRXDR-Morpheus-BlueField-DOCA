@@ -1,3 +1,5 @@
+> Latest rehearsal: [14 Oct 5/5/5](HANDOFF-REHEARSAL-20261014.md) — verified Windows origin, API/UI and clean exit after supervisor update. Earlier results remain historical.
+
 # ส่งต่องาน EDR/XDR — checkpoint หลัง Dashboard และ supervisor
 
 เอกสารนี้สรุปผลที่ผู้ปฏิบัติงานส่งจาก VM และภาพหน้าจอในวันที่ 14 ตุลาคม 2026 เวลาไทย ไม่ใช่การตรวจสถานะบริการแบบต่อเนื่อง เมื่อรับงานต้องตรวจ Git เวลา และสถานะจริงอีกครั้ง

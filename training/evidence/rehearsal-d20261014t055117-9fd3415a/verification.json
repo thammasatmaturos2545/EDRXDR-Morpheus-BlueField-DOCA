@@ -1,0 +1,22 @@
+{
+  "status": "PASS",
+  "verified_at_utc": "20261014T060650278109Z",
+  "parent_commit": "506fbea432e7a208b7de5997e75b067dc929312f",
+  "run": "d20261014t055117-9fd3415a",
+  "counts": {
+    "captured": 5,
+    "scored": 5,
+    "indexed": 5
+  },
+  "scope": "Live normal-completion path after cfecdcf; failure injection not performed",
+  "ui_evidence": "Operator screenshots show 2/2/2 then 3/3/3 then 5/5/5, later stopped at API time 13:02:06 Thai",
+  "gpu_exit_observation": "Operator output 2026-10-14 13:02:49 Thai: 0 MiB and no compute processes",
+  "screenshots_in_git": false,
+  "raw_payload_in_git": false,
+  "source_sha256": {
+    "demo/run.sh": "222c83f38699539e80d41c2208fc03376ccec3c767c7b148138e8050fbbe0221",
+    "demo/supervise.py": "89729f35157f00e8d63f980c9f053a4030e338c4acd44e97d7e1f40c292112d3",
+    "demo/worker.py": "a667f76c81bea1e5c17dc8964c87eeb56a34ff5bf734c854c87dc1b1563a4bb6",
+    "demo/compose.yml": "07fcacef479ae112b959dcd83bb5455c715183109e474adc1f2bc0a18ac635ba"
+  }
+}
