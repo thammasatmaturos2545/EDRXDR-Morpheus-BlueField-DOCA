@@ -1,0 +1,10 @@
+{
+  "parent_commit": "8cc05cc0999168dee960f451533c64b7d22fb1c8",
+  "branch": "work/nexus-exact-ai-v1",
+  "source": "Operator Git snapshot 2026-10-17 09:03:42 +07; supplied NEXUS handoff, diffs and result.json reports",
+  "runtime_fix_applied": false,
+  "live_vm_validated_by_installer": false,
+  "wip_files_preserved": 32,
+  "old_evidence_hashes_verified": 13,
+  "scope": "Add-only documentation; no WIP code committed"
+}
