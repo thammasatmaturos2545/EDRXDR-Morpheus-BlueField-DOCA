@@ -206,7 +206,7 @@ function validateLiveAiRow(
   return value;
 }
 
-function liveAi(
+export function validateNexusAi(
   payload: unknown
 ): Obj[] {
   if (
@@ -348,6 +348,7 @@ export function buildNexusSnapshot(
     hours?: number;
     generatedAt?: string;
     aiAvailable?: boolean;
+    lookupStatuses?: Record<string, "matched" | "not_found" | "conflict" | "unavailable" | "source_unavailable">;
   } = {}
 ) {
   if (
@@ -380,7 +381,7 @@ export function buildNexusSnapshot(
 
   const ais =
     aiAvailable
-      ? liveAi(aiPayload)
+      ? validateNexusAi(aiPayload)
       : [];
 
   const rows =
@@ -389,7 +390,7 @@ export function buildNexusSnapshot(
         (x): x is Obj =>
           obj(x)
       )
-      .slice(0, 100);
+      .slice(0, options.lookupStatuses ? 200 : 100);
 
   const alerts =
     rows.map(
@@ -397,8 +398,10 @@ export function buildNexusSnapshot(
         const l =
           level(r);
 
-        const c =
-          correlateWazuhAi(
+        const lookupStatus = options.lookupStatuses?.[eventUid(r) ?? ""];
+        const c = lookupStatus && lookupStatus !== "matched"
+          ? { status: lookupStatus === "source_unavailable" ? "unavailable" : lookupStatus, method: null, event: null }
+          : correlateWazuhAi(
             r,
             ais,
             aiAvailable
@@ -413,8 +416,7 @@ export function buildNexusSnapshot(
           date(
             r.timestamp ??
               r["@timestamp"]
-          ) ??
-          generatedAt;
+          );
 
         const uid =
           eventUid(r);
@@ -563,6 +565,7 @@ export function buildNexusSnapshot(
             "",
 
           evidence: {
+            uid_lookup_status: lookupStatus ?? null,
             wazuh_level:
               l,
 
@@ -727,18 +730,20 @@ export function buildNexusSnapshot(
               id: "wazuh",
               name: "Wazuh",
               kind: "endpoint",
-              status: "healthy",
+              status: options.lookupStatuses ? "unknown" : "healthy",
               events:
                 alerts.length,
               last_seen:
                 latest,
               description:
-                "Current Wazuh API snapshot. Counts are loaded rows, not total historical ingestion.",
+                "Loaded Wazuh rows, including source-verified UID references when enabled. Counts are not total historical ingestion or service-health evidence.",
             },
           ]
         : [],
 
     meta: {
+      production_ready: false,
+      automated_response_allowed: false,
       demo: false,
 
       events_sampled:
