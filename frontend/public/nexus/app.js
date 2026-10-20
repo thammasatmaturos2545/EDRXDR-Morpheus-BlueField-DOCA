@@ -37,7 +37,7 @@
     code:'<path d="m8 6-6 6 6 6m8-12 6 6-6 6m-3-15-2 18"/>'
   };
   const icon=(name,extra='')=>`<svg class="icon ${extra}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${paths[name]||paths.shield}</svg>`;
-  const pages={overview:'Security overview',alerts:'Threat detection',endpoints:'Endpoint inventory',cases:'Investigations',logs:'Log explorer',coverage:'ATT&CK activity',integrations:'Data sources',settings:'Settings'};
+  const pages={copilot:'SOC Copilot',overview:'Security overview',alerts:'Threat detection',endpoints:'Endpoint inventory',cases:'Investigations',logs:'Log explorer',coverage:'ATT&CK activity',integrations:'Data sources',settings:'Settings'};
   function readLocal(key,fallback){try{return JSON.parse(localStorage.getItem(key))||fallback;}catch{return fallback;}}
   const prefs=readLocal('nexus.preferences.v1',{});
   const state={page:pages[location.hash.slice(1)]?location.hash.slice(1):'overview',range:prefs.range||'24h',mode:'demo',data:C.seed(),apiBase:prefs.apiBase||'/api/v1',token:'',refreshSeconds:prefs.refreshSeconds||0,connected:false,connectionError:'',lastFetch:null,busy:false,alertFilter:{query:'',severity:'all',status:'active',sort:'newest',source:'',host:'',technique:''},logFilter:{query:'',severity:'all',source:''},endpointFilter:{query:'',status:'all'},alertPage:1,eventPage:1,endpointPage:1,selected:new Set(),detail:null,tab:'summary',focused:null};
@@ -56,7 +56,7 @@
     $('sidebar-state').previousElementSibling.className='status-dot '+(stale?'red':real?'green':'amber');
     $('footer-data').textContent=stale?'Showing the last successful snapshot':real?'Connected API · '+C.date(state.data.generated_at):state.mode==='import'?'Imported snapshot · '+C.date(state.data.generated_at):'Demo telemetry · for evaluation';
   }
-  function nav(){const stats=C.stats(state.data,state.range,referenceTime());const items=[['overview','Overview','overview'],['alerts','Threat detection','alerts'],['endpoints','Endpoints','endpoints'],['cases','Investigations','cases'],['logs','Log explorer','logs'],['coverage','ATT&CK activity','coverage']];const navItem=([id,name,i])=>`<a class="nav-link ${state.page===id?'active':''}" href="#${id}" ${state.page===id?'aria-current="page"':''}>${icon(i)}<span>${name}</span>${id==='alerts'&&stats.critical?`<span class="nav-count">${stats.critical}</span>`:''}</a>`;$('main-nav').innerHTML=items.map(navItem).join('');$('settings-nav').innerHTML=[['integrations','Data sources','integrations'],['settings','Settings','settings']].map(navItem).join('');$('breadcrumb-current').textContent=pages[state.page];setModeInfo();}
+  function nav(){const stats=C.stats(state.data,state.range,referenceTime());const items=[['overview','Overview','overview'],['alerts','Threat detection','alerts'],['copilot','SOC Copilot','code'],['endpoints','Endpoints','endpoints'],['cases','Investigations','cases'],['logs','Log explorer','logs'],['coverage','ATT&CK activity','coverage']];const navItem=([id,name,i])=>`<a class="nav-link ${state.page===id?'active':''}" href="#${id}" ${state.page===id?'aria-current="page"':''}>${icon(i)}<span>${name}</span>${id==='alerts'&&stats.critical?`<span class="nav-count">${stats.critical}</span>`:''}</a>`;$('main-nav').innerHTML=items.map(navItem).join('');$('settings-nav').innerHTML=[['integrations','Data sources','integrations'],['settings','Settings','settings']].map(navItem).join('');$('breadcrumb-current').textContent=pages[state.page];setModeInfo();}
   function modeBadge(){const stale=state.mode==='api'&&state.connectionError,real=state.mode==='api'&&!state.data.meta?.demo;return `<span class="mode-pill ${stale?'error':real?'live':''}"><span class="status-dot ${stale?'red':real?'green':'amber'}"></span>${stale?'CONNECTION LOST':real?'API CONNECTED':state.mode==='import'?'IMPORTED SNAPSHOT':state.mode==='api'?'API DEMO':'DEMO MODE'}</span>`;}
   function pageHeading(title,subtitle,actions=''){return `<div class="page-heading"><div><div class="eyebrow">SECURITY OPERATIONS <span>/</span> ${state.page==='overview'?'MONITORING':E(state.page.toUpperCase())}</div><h1>${title}</h1><p class="page-subtitle">${subtitle}</p></div><div class="page-actions">${modeBadge()}${['overview','alerts','logs','coverage'].includes(state.page)?`<select class="select" id="time-range" aria-label="Time range">${[['1h','Last 1 hour'],['24h','Last 24 hours'],['7d','Last 7 days']].map(([k,n])=>`<option value="${k}" ${state.range===k?'selected':''}>${n}</option>`).join('')}</select>`:''}${actions||`<button class="button" data-action="refresh" ${state.busy?'disabled':''}>${icon('refresh',state.busy?'spinning':'')}Refresh</button>`}</div></div>${state.connectionError?`<div class="notice warn section-gap">${icon('alerts')}<div>API connection interrupted. Displaying the last successful snapshot.<br><span class="form-help">${E(state.connectionError)}</span></div><button class="link-button" data-action="refresh">Retry</button></div>`:''}${state.mode==='demo'||state.data.meta?.demo?`<div class="demo-banner">${icon('info')}<span>Demo workspace · All telemetry is synthetic. Explore the investigation workflow.</span><button data-action="navigate" data-page="integrations">Connect your data ${icon('arrow')}</button></div>`:state.mode==='import'?`<div class="demo-banner">${icon('info')}<span>Imported snapshot · Captured ${E(C.date(state.data.generated_at))}. Changes stay in this browser session.</span><button data-action="navigate" data-page="integrations">Connect an API ${icon('arrow')}</button></div>`:''}`;}
   function referenceTime(){return state.mode==='import'?C.timestamp(state.data.generated_at):Date.now();}
@@ -98,7 +98,95 @@
   "summary": {"events_total": 0, "series": []}
 }</pre></div><div class="form-actions" style="margin-top:15px"><button class="button quiet" data-action="download-snapshot">${icon('export')}Export snapshot</button><button class="button quiet" data-action="guide">${icon('help')}Setup guide</button></div></div></section></div>`;}
   function settingsPage(){return pageHeading('Workspace settings','Configure the data connection and dashboard preferences.',`<button class="button quiet" data-action="guide">${icon('help')}Setup guide</button>`)+`<div class="grid-two"><section class="panel"><div class="panel-header"><h2>Data connection</h2>${icon('integrations')}</div><div class="panel-body">${integrationForm()}</div></section><section class="panel"><div class="panel-header"><h2>Preferences</h2>${icon('settings')}</div><div class="panel-body settings-section"><div class="form-field"><label for="auto-refresh">API refresh interval</label><select id="auto-refresh">${[[0,'Manual refresh'],[30,'Every 30 seconds'],[60,'Every 60 seconds'],[120,'Every 2 minutes']].map(([v,t])=>`<option value="${v}" ${state.refreshSeconds===v?'selected':''}>${t}</option>`).join('')}</select><div class="form-help">Auto refresh runs while this tab is visible and connected to an API.</div></div><div class="key-value"><span>Display timezone</span><strong>Asia/Bangkok · UTC+7</strong></div><div class="key-value"><span>Dashboard mode</span><strong>${state.mode==='api'?'API connection':state.mode==='import'?'Imported snapshot':'Synthetic demo'}</strong></div><div class="key-value"><span>Snapshot window</span><strong>${state.data.window_hours} hours</strong></div><div class="key-value"><span>Workflow changes</span><strong>${state.mode==='api'?'Stored by the API':state.mode==='demo'?'Stored in this browser':'This session only'}</strong></div><div class="danger-zone"><h3>Demo workspace</h3><p>Reset sample alerts and cases to their initial state.</p><button class="button quiet" data-action="reset-demo">${icon('refresh')}Reset demo</button></div></div></section><section class="panel"><div class="panel-header"><h2>Export & import</h2>${icon('export')}</div><div class="panel-body settings-section"><p>Move a normalized telemetry snapshot between environments. Exports include the current alerts, endpoints, events, and case notes.</p><div class="form-actions"><button class="button" data-action="download-snapshot">${icon('export')}Export JSON snapshot</button><button class="button" data-action="import">${icon('upload')}Import snapshot</button></div></div></section><section class="panel"><div class="panel-header"><h2>Keyboard shortcuts</h2>${icon('code')}</div><div class="panel-body"><div class="key-value"><span>Global alert search</span><strong><kbd>Ctrl / ⌘ K</kbd></strong></div><div class="key-value"><span>Close details</span><strong><kbd>Esc</kbd></strong></div><div class="key-value"><span>Setup guide</span><strong><kbd>?</kbd></strong></div></div></section></div>`;}
-  function render(preserve=false){const active=document.activeElement,id=active?.id,selection=active?.selectionStart;nav();$('main').innerHTML=({overview,alerts:alertsPage,endpoints:endpointsPage,cases:casesPage,logs:logsPage,coverage:coveragePage,integrations:integrationsPage,settings:settingsPage}[state.page]||overview)();document.title=`${pages[state.page]} · NEXUS SIEM`;if(preserve&&id&&$(id)){const el=$(id);el.focus({preventScroll:true});if(typeof selection==='number'&&typeof el.setSelectionRange==='function')try{el.setSelectionRange(selection,selection);}catch{}}}
+  /* COPILOT_INTEGRATED_PANEL_V1 */
+  let copilotSelectedUid='';
+  function copilotPage(){
+    queueMicrotask(()=>{if(state.page==='copilot')mountCopilotPage();});
+    return `<style>
+      .copilot-page .copilot-layout{display:grid;grid-template-columns:minmax(240px,.8fr) minmax(0,2fr);gap:20px;align-items:start}
+      .copilot-page .copilot-queue{display:grid;gap:8px;padding:12px}
+      .copilot-page .copilot-pick{display:block;width:100%;text-align:left;white-space:normal;padding:14px;border-radius:8px}
+      .copilot-page .copilot-pick[aria-pressed="true"]{outline:1px solid var(--blue,#4b8bff);background:rgba(64,132,255,.10)}
+      .copilot-page .copilot-pick strong,.copilot-page .copilot-pick small{display:block}
+      .copilot-page .copilot-body{padding:22px}.copilot-page .copilot-summary{font-size:17px;line-height:1.9;margin:18px 0}
+      .copilot-page .copilot-uid{overflow-wrap:anywhere;font-size:12px;line-height:1.7}
+      .copilot-page .copilot-scores{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:20px 0}
+      .copilot-page .copilot-scores .metric-card{padding:16px}.copilot-page .copilot-score{font-size:26px;font-weight:650;margin:6px 0}
+      .copilot-page .copilot-findings{display:grid;grid-template-columns:1fr 1fr;gap:20px}
+      .copilot-page .copilot-findings h3{font-size:13px;margin:0 0 10px}.copilot-page .copilot-findings ul{padding-left:18px;line-height:1.9}
+      .copilot-page .copilot-findings li{margin:0 0 12px}.copilot-page .copilot-citation{display:inline-block;font-size:11px;margin-top:5px;padding:2px 7px;border:1px solid var(--border,#2b3950);border-radius:5px}
+      .copilot-page details{margin-top:20px}.copilot-page summary{cursor:pointer;font-size:13px}.copilot-page pre{white-space:pre-wrap;overflow-wrap:anywhere}
+      @media(max-width:1000px){.copilot-page .copilot-layout{grid-template-columns:1fr}.copilot-page .copilot-queue{grid-template-columns:repeat(2,minmax(0,1fr))}}
+      @media(max-width:600px){.copilot-page .copilot-findings,.copilot-page .copilot-queue{grid-template-columns:1fr}.copilot-page .copilot-body{padding:16px}}
+    </style><div class="copilot-page" id="copilot-root">
+      <div class="page-heading"><div><div class="eyebrow">SECURITY OPERATIONS <span>/</span> ANALYST ASSISTANCE</div>
+        <h1>SOC Copilot</h1><p class="page-subtitle">สรุปเหตุการณ์จากหลักฐาน Exact UID · Local gpt-oss-20b</p></div>
+        <div class="page-actions"><span class="mode-pill">SAVED REVIEW</span><button type="button" class="button" id="copilot-reload">โหลดผลสรุป</button></div></div>
+      <div class="notice warn section-gap"><div><strong>ต้องให้ Analyst ตรวจ · Automated response OFF</strong>
+        <p class="form-help">ผลสรุปที่บันทึกไว้ ไม่ใช่ข้อมูล realtime หน้านี้ไม่เรียก LLM/GPU และคะแนน AI ไม่ใช่เปอร์เซ็นต์โอกาสถูกโจมตี</p></div></div>
+      <p id="copilot-status" class="form-help" role="status" aria-live="polite">กำลังตรวจสิทธิ์และโหลดผลสรุป…</p>
+      <div class="copilot-layout"><aside class="panel"><div class="panel-header"><h2>เหตุการณ์ที่สรุปแล้ว</h2><span class="count-badge">8</span></div>
+        <div id="copilot-queue" class="copilot-queue"></div></aside>
+        <section class="panel" id="copilot-detail" aria-label="รายละเอียด Copilot"></section></div>
+    </div>`;
+  }
+  function mountCopilotPage(){
+    const root=document.getElementById('copilot-root');
+    if(!root||root.dataset.bound)return;
+    root.dataset.bound='1';
+    const status=root.querySelector('#copilot-status'),queue=root.querySelector('#copilot-queue'),detail=root.querySelector('#copilot-detail'),reload=root.querySelector('#copilot-reload');
+    let report=null,busy=false;
+    const live=()=>state.page==='copilot'&&document.getElementById('copilot-root')===root;
+    function node(tag,text,className){const n=document.createElement(tag);if(text!==undefined)n.textContent=String(text);if(className)n.className=className;return n;}
+    function readable(text,uid){return String(text).replace(new RegExp('\\(\\s*event_uid\\s*:\\s*'+uid+'\\s*\\)','gi'),'').replaceAll(uid,'[หลักฐาน 1]').replace(/ +/g,' ').trim();}
+    function show(){
+      if(!live()||!report)return;
+      queue.replaceChildren();detail.replaceChildren();
+      const rows=report.results;
+      if(!rows.some(r=>r.event_uid===copilotSelectedUid))copilotSelectedUid=rows[0].event_uid;
+      rows.forEach((row,index)=>{
+        const pick=node('button',undefined,'button quiet copilot-pick');pick.type='button';
+        pick.setAttribute('aria-pressed',String(row.event_uid===copilotSelectedUid));
+        pick.append(node('strong','เหตุการณ์ '+(index+1)+' · Rule '+row.evidence.rule_id),node('small',row.event_uid.slice(0,16)+'…','mono'),node('small','รอ Analyst ตรวจ','form-help'));
+        pick.addEventListener('click',event=>{event.stopPropagation();copilotSelectedUid=row.event_uid;show();});queue.append(pick);
+      });
+      const row=rows.find(r=>r.event_uid===copilotSelectedUid),uid=row.event_uid,ev=row.evidence;
+      const header=node('div',undefined,'panel-header');header.append(node('h2','เหตุการณ์ '+(rows.indexOf(row)+1)),node('span','รอตรวจ','tag'));detail.append(header);
+      const body=node('div',undefined,'copilot-body');
+      body.append(node('div',uid,'mono copilot-uid'),node('p',readable(row.draft.summary_th.text,uid),'copilot-summary'));
+      const scores=node('div',undefined,'copilot-scores');
+      for(const [label,value,foot] of [['Wazuh level',ev.wazuh_level+' / 15','ค่าจากเหตุการณ์ต้นทาง'],['Morpheus AI · '+ev.ai_status,typeof ev.ai_score==='number'?(ev.ai_score*100).toFixed(1)+' / 100':'—','ค่าดิบเดิม ไม่ใช่ความน่าจะเป็น']]){
+        const card=node('div',undefined,'metric-card');card.append(node('div',label,'metric-label'),node('div',value,'copilot-score'),node('small',foot,'form-help'));scores.append(card);
+      }body.append(scores);
+      const findings=node('div',undefined,'copilot-findings');
+      for(const [key,title] of [['facts','ข้อเท็จจริง'],['hypotheses','ข้อสันนิษฐาน'],['unknowns','สิ่งที่ยังไม่ทราบ'],['suggested_checks','ตรวจเพิ่มเติมโดย Analyst']]){
+        const section=node('section');section.append(node('h3',title));
+        if(!row.draft[key].length)section.append(node('p','โมเดลไม่ได้ระบุ — ต้องตรวจความครบถ้วนของหลักฐาน','form-help'));
+        else{const ul=node('ul');row.draft[key].forEach(claim=>{const li=node('li');li.append(node('div',readable(claim.text,uid)));const cite=node('span','หลักฐาน 1 · '+uid.slice(0,12)+'…','mono copilot-citation');cite.title=uid;li.append(cite);ul.append(li);});section.append(ul);}
+        findings.append(section);
+      }body.append(findings);
+      for(const [title,value] of [['หลักฐานต้นทางและ Exact UID',ev],['ข้อความต้นฉบับของโมเดล',row.draft]]){
+        const disclosure=node('details');disclosure.append(node('summary',title),node('pre',JSON.stringify(value,null,2),'code-block'));body.append(disclosure);
+      }detail.append(body);
+    }
+    async function load(){
+      if(busy||!live())return;busy=true;reload.disabled=true;report=null;
+      queue.replaceChildren();detail.replaceChildren();status.textContent='กำลังตรวจสิทธิ์และโหลดผลสรุป…';
+      try{
+        const response=await fetch('/api/nexus/v1/copilot/review',{credentials:'same-origin',cache:'no-store',redirect:'error',signal:AbortSignal.timeout(15000)});
+        if(!live())return;
+        if(response.status===401){status.textContent='ต้องยืนยันตัวตนก่อนดูหลักฐาน ';const link=node('a','ยืนยันตัวตนในหน้าต่างใหม่','link-button');link.href='/api/nexus/v1/copilot/review';link.target='_blank';link.rel='noopener';status.append(link);return;}
+        if(!response.ok)throw Error();
+        const data=await response.json();if(!live())return;
+        if(data.saved_review_only!==true||data.human_review_required!==true||data.automated_response_allowed!==false||!Array.isArray(data.results)||data.results.length!==8)throw Error();
+        report=data;status.textContent='8 สรุปที่รอตรวจ · สร้างเมื่อ '+data.generated_at+' · evidence hash '+data.input_evidence_hash.slice(0,16)+'…';show();
+      }catch{if(live())status.textContent='ผลสรุปไม่พร้อมใช้งานหรือไม่ผ่านการตรวจ กรุณาลองโหลดใหม่';}
+      finally{busy=false;if(live())reload.disabled=false;}
+    }
+    reload.addEventListener('click',event=>{event.stopPropagation();load();});load();
+  }
+
+  function render(preserve=false){const active=document.activeElement,id=active?.id,selection=active?.selectionStart;nav();$('main').innerHTML=({overview,alerts:alertsPage,copilot:copilotPage,endpoints:endpointsPage,cases:casesPage,logs:logsPage,coverage:coveragePage,integrations:integrationsPage,settings:settingsPage}[state.page]||overview)();document.title=`${pages[state.page]} · NEXUS SIEM`;if(preserve&&id&&$(id)){const el=$(id);el.focus({preventScroll:true});if(typeof selection==='number'&&typeof el.setSelectionRange==='function')try{el.setSelectionRange(selection,selection);}catch{}}}
   function navigate(page){if(!pages[page])return;state.page=page;state.selected.clear();location.hash=page;closeDrawer();$('sidebar').classList.remove('open');render();window.scrollTo({top:0,behavior:'instant'});}
   function canWrite(){return state.mode!=='api'||state.data.meta.write_enabled!==false;}
   function detailField(label,value){return `<div class="detail-field"><span>${E(label)}</span><strong>${E(value||'Unavailable')}</strong></div>`;}
