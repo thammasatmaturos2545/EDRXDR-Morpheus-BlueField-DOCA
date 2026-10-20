@@ -1,3 +1,4 @@
+import { resolveWazuhSource } from "@/lib/wazuh-source";
 import { NextResponse } from "next/server";
 import { execFile } from "node:child_process";
 import { promisify } from "node:util";
@@ -12,11 +13,9 @@ async function docker(name: string): Promise<State> {
 }
 async function compose(service: string): Promise<State> {
  try {
-  const { stdout } = await run("docker", ["ps", "-a", "--filter", `label=com.docker.compose.service=${service}`, "--format", "{{.State}}"], options);
-  const states = stdout.trim().split(/\r?\n/).filter(Boolean);
-  if (!states.length) return "unknown";
-  if (states.every(s => s === "running")) return "online";
-  if (states.some(s => ["exited", "dead", "created", "paused"].includes(s))) return "offline";
+  const source = await resolveWazuhSource(service);
+  if (source.running && source.status === "running") return "online";
+  if (!source.running && ["exited", "dead", "created", "paused"].includes(source.status)) return "offline";
   return "unknown";
  } catch { return "unknown"; }
 }

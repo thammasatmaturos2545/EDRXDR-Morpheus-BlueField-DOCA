@@ -1,3 +1,4 @@
+import { resolveWazuhSource } from "@/lib/wazuh-source";
 import { NextResponse } from "next/server";
 import { createHash } from "crypto";
 import { execFile } from "child_process";
@@ -71,38 +72,15 @@ function wazuhEventUid(event: {
 }
 
 
-async function getManagerContainer() {
-  const { stdout } =
-    await execFileAsync(
-      "docker",
-      [
-        "ps",
-        "--filter",
-        "label=com.docker.compose.service=wazuh.manager",
-        "--filter",
-        "status=running",
-        "--format",
-        "{{.Names}}",
-      ], { timeout: 5000 }
-    );
-
-  return (
-    stdout
-      .trim()
-      .split("\n")
-      .filter(Boolean)[0] || ""
-  );
-}
-
 export async function GET() {
   try {
-    const container =
-      await getManagerContainer();
+    const source = await resolveWazuhSource("wazuh.manager");
+    const container = source.id;
 
-    if (!container) {
+    if (!source.running || source.status !== "running") {
       return NextResponse.json(
         {
-          total: 0,
+          total: null,
           alerts: [],
           error:
             "Wazuh Manager is not running",
@@ -250,6 +228,7 @@ export async function GET() {
     );
 
     return NextResponse.json({
+      source: { ...source, checked_at: new Date().toISOString() },
       total: alerts.length,
       alerts,
     });
@@ -261,13 +240,13 @@ export async function GET() {
 
     return NextResponse.json(
       {
-        total: 0,
+        total: null,
         alerts: [],
         error:
-          "Cannot read Wazuh alerts",
+          "Wazuh source unavailable or unverified; check configured project and container identity",
       },
       {
-        status: 500,
+        status: 503,
       }
     );
   }
