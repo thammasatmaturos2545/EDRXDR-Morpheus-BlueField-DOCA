@@ -1,5 +1,6 @@
 import { resolveWazuhSource } from "@/lib/wazuh-source";
 import { NextResponse } from "next/server";
+import { selectBalancedWazuhAlerts } from "@/lib/wazuh-sampling";
 import { createHash } from "crypto";
 import { execFile } from "child_process";
 import { promisify } from "util";
@@ -98,8 +99,8 @@ export async function GET() {
           "exec",
           container,
           "tail",
-          "-n",
-          "100",
+          "-c",
+          "4194304",
           "/var/ossec/logs/alerts/alerts.json",
         ],
         {
@@ -217,7 +218,9 @@ export async function GET() {
       }
     }
 
-    alerts.sort(
+    const sampledAlerts = selectBalancedWazuhAlerts(alerts);
+
+    sampledAlerts.sort(
       (a, b) =>
         new Date(
           b.timestamp || 0
@@ -229,8 +232,8 @@ export async function GET() {
 
     return NextResponse.json({
       source: { ...source, checked_at: new Date().toISOString() },
-      total: alerts.length,
-      alerts,
+      total: sampledAlerts.length,
+      alerts: sampledAlerts,
     });
   } catch (error) {
     console.error(
