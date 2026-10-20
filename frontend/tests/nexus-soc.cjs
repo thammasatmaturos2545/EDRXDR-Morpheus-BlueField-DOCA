@@ -546,7 +546,7 @@ assert(
 
 assert(
   app.includes(
-    "AI severity score"
+    "คะแนนความรุนแรงจาก AI"
   )
 );
 

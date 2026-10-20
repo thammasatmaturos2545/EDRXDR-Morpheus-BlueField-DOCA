@@ -9,6 +9,7 @@
     cases:'<path d="M3 7a2 2 0 0 1 2-2h5l2 2h7a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2Z"/><path d="M8 12h8m-8 4h5"/>',
     logs:'<path d="m4 6 4 4-4 4m8 1h8M3 21h18V3H3Z"/>',
     coverage:'<circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><path d="M12 1v4m0 14v4M1 12h4m14 0h4"/>',
+    flask:'<path d="M9 3h6m-5 0v7l-5.5 8a2 2 0 0 0 1.7 3h11.6a2 2 0 0 0 1.7-3L14 10V3"/><path d="M8 15h8"/>',
     integrations:'<rect x="9" y="2" width="6" height="6" rx="1"/><rect x="2" y="16" width="6" height="6" rx="1"/><rect x="16" y="16" width="6" height="6" rx="1"/><path d="M12 8v4H5v4m7-4h7v4"/>',
     settings:'<path d="m9 3-1 3-3 1-1 4 2 2v3l3 2 1 3h4l1-3 3-2v-3l2-2-1-4-3-1-1-3Z"/><circle cx="12" cy="12" r="3"/>',
     search:'<circle cx="10.5" cy="10.5" r="6.5"/><path d="m16 16 5 5"/>',
@@ -37,7 +38,7 @@
     code:'<path d="m8 6-6 6 6 6m8-12 6 6-6 6m-3-15-2 18"/>'
   };
   const icon=(name,extra='')=>`<svg class="icon ${extra}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${paths[name]||paths.shield}</svg>`;
-  const pages={copilot:'SOC Copilot',overview:'Security overview',alerts:'Threat detection',endpoints:'Endpoint inventory',cases:'Investigations',logs:'Log explorer',coverage:'ATT&CK activity',integrations:'Data sources',settings:'Settings'};
+  const pages={copilot:'SOC Copilot',allevents:'All Events',overview:'Security overview',alerts:'Threat detection',endpoints:'Endpoint inventory',cases:'Investigations',logs:'Log explorer',coverage:'ATT&CK activity',research:'Research & Experiments',modeldetails:'Model Quality Details',researchevidence:'Research Evidence',shadowdetails:'Shadow Details',bluefielddetails:'BlueField Details',integrations:'Data sources',settings:'Settings'};
   function readLocal(key,fallback){try{return JSON.parse(localStorage.getItem(key))||fallback;}catch{return fallback;}}
   const prefs=readLocal('nexus.preferences.v1',{});
   const state={page:pages[location.hash.slice(1)]?location.hash.slice(1):'overview',range:prefs.range||'24h',mode:'demo',data:C.seed(),apiBase:prefs.apiBase||'/api/v1',token:'',refreshSeconds:prefs.refreshSeconds||0,connected:false,connectionError:'',lastFetch:null,busy:false,alertFilter:{query:'',severity:'all',status:'active',sort:'newest',source:'',host:'',technique:''},logFilter:{query:'',severity:'all',source:''},endpointFilter:{query:'',status:'all'},alertPage:1,eventPage:1,endpointPage:1,selected:new Set(),detail:null,tab:'summary',focused:null};
@@ -56,7 +57,7 @@
     $('sidebar-state').previousElementSibling.className='status-dot '+(stale?'red':real?'green':'amber');
     $('footer-data').textContent=stale?'Showing the last successful snapshot':real?'Connected API · '+C.date(state.data.generated_at):state.mode==='import'?'Imported snapshot · '+C.date(state.data.generated_at):'Demo telemetry · for evaluation';
   }
-  function nav(){const stats=C.stats(state.data,state.range,referenceTime());const items=[['overview','Overview','overview'],['alerts','Threat detection','alerts'],['copilot','SOC Copilot','code'],['endpoints','Endpoints','endpoints'],['cases','Investigations','cases'],['logs','Log explorer','logs'],['coverage','ATT&CK activity','coverage']];const navItem=([id,name,i])=>`<a class="nav-link ${state.page===id?'active':''}" href="#${id}" ${state.page===id?'aria-current="page"':''}>${icon(i)}<span>${name}</span>${id==='alerts'&&stats.critical?`<span class="nav-count">${stats.critical}</span>`:''}</a>`;$('main-nav').innerHTML=items.map(navItem).join('');$('settings-nav').innerHTML=[['integrations','Data sources','integrations'],['settings','Settings','settings']].map(navItem).join('');$('breadcrumb-current').textContent=pages[state.page];setModeInfo();}
+  function nav(){const stats=C.stats(state.data,state.range,referenceTime());const items=[['overview','Overview','overview'],['alerts','Threat detection','alerts'],['allevents','All Events','logs'],['copilot','SOC Copilot','code'],['endpoints','Endpoints','endpoints'],['cases','Investigations','cases'],['logs','Log explorer','logs'],['coverage','ATT&CK activity','coverage']];const navItem=([id,name,i])=>`<a class="nav-link ${state.page===id?'active':''}" href="#${id}" ${state.page===id?'aria-current="page"':''}>${icon(i)}<span>${name}</span>${id==='alerts'&&stats.critical?`<span class="nav-count">${stats.critical}</span>`:''}</a>`;$('main-nav').innerHTML=items.map(navItem).join('');$('settings-nav').innerHTML=[['research','Research & Experiments','flask'],['integrations','Data sources','integrations'],['settings','Settings','settings']].map(navItem).join('');$('breadcrumb-current').textContent=pages[state.page];setModeInfo();}
   function modeBadge(){const stale=state.mode==='api'&&state.connectionError,real=state.mode==='api'&&!state.data.meta?.demo;return `<span class="mode-pill ${stale?'error':real?'live':''}"><span class="status-dot ${stale?'red':real?'green':'amber'}"></span>${stale?'CONNECTION LOST':real?'API CONNECTED':state.mode==='import'?'IMPORTED SNAPSHOT':state.mode==='api'?'API DEMO':'DEMO MODE'}</span>`;}
   function pageHeading(title,subtitle,actions=''){return `<div class="page-heading"><div><div class="eyebrow">SECURITY OPERATIONS <span>/</span> ${state.page==='overview'?'MONITORING':E(state.page.toUpperCase())}</div><h1>${title}</h1><p class="page-subtitle">${subtitle}</p></div><div class="page-actions">${modeBadge()}${['overview','alerts','logs','coverage'].includes(state.page)?`<select class="select" id="time-range" aria-label="Time range">${[['1h','Last 1 hour'],['24h','Last 24 hours'],['7d','Last 7 days']].map(([k,n])=>`<option value="${k}" ${state.range===k?'selected':''}>${n}</option>`).join('')}</select>`:''}${actions||`<button class="button" data-action="refresh" ${state.busy?'disabled':''}>${icon('refresh',state.busy?'spinning':'')}Refresh</button>`}</div></div>${state.connectionError?`<div class="notice warn section-gap">${icon('alerts')}<div>API connection interrupted. Displaying the last successful snapshot.<br><span class="form-help">${E(state.connectionError)}</span></div><button class="link-button" data-action="refresh">Retry</button></div>`:''}${state.mode==='demo'||state.data.meta?.demo?`<div class="demo-banner">${icon('info')}<span>Demo workspace · All telemetry is synthetic. Explore the investigation workflow.</span><button data-action="navigate" data-page="integrations">Connect your data ${icon('arrow')}</button></div>`:state.mode==='import'?`<div class="demo-banner">${icon('info')}<span>Imported snapshot · Captured ${E(C.date(state.data.generated_at))}. Changes stay in this browser session.</span><button data-action="navigate" data-page="integrations">Connect an API ${icon('arrow')}</button></div>`:''}`;}
   function referenceTime(){return state.mode==='import'?C.timestamp(state.data.generated_at):Date.now();}
@@ -83,7 +84,7 @@
   function overview(){return pageHeading('Security overview',`A unified view of your environment.<span class="update-divider">|</span>Updated ${E(C.relative(state.data.generated_at))}`)+metrics()+`<div class="chart-grid">${trend()}${donut()}</div><div class="alert-grid"><div class="panel"><div class="panel-header"><div class="panel-title-line"><h2>Detection queue</h2><span class="count-badge">${alertRows().length}</span></div><button class="link-button" data-action="navigate" data-page="alerts">View all ${icon('arrow')}</button></div><div id="alert-table">${alertTable(true)}</div></div>${coveragePanel()}</div>`+sourceStrip();}
   function alertsPage(){return pageHeading('Threat detection','Prioritize, investigate, and track every detection.',`<button class="button" data-action="export-alerts">${icon('export')}Export CSV</button><button class="button" data-action="refresh" ${state.busy?'disabled':''}>${icon('refresh')}Refresh</button>`)+`<div class="panel"><div class="panel-header"><div><h2>Detection queue</h2><p class="panel-subtitle">Select an alert to review evidence and start an investigation.</p></div><span class="result-count">${N(alertRows().length)} RESULTS</span></div><div id="alert-table">${alertTable()}</div></div>`;}
   function endpointRows(){return state.data.endpoints.filter(e=>(state.endpointFilter.status==='all'||e.status===state.endpointFilter.status)&&C.matchesQuery(e,state.endpointFilter.query)).sort((a,b)=>b.risk-a.risk);}
-  function endpointsPage(){const all=endpointRows(),size=12,page=Math.min(state.endpointPage,Math.max(1,Math.ceil(all.length/size)));state.endpointPage=page;const rows=all.slice((page-1)*size,page*size),online=state.data.endpoints.filter(e=>e.status==='online').length;return pageHeading('Endpoint inventory','Host visibility, agent health, and risk across your environment.',`<button class="button" data-action="export-endpoints">${icon('export')}Export CSV</button>`)+`<div class="panel"><div class="panel-header"><div><h2>Enrolled endpoints</h2><p class="panel-subtitle">${online} online · ${state.data.endpoints.length-online} offline · current inventory</p></div><span class="result-count">${all.length} HOSTS</span></div><div class="table-toolbar"><div class="table-search">${icon('search')}<input id="endpoint-search" value="${E(state.endpointFilter.query)}" placeholder="Search hostname, IP, or user…" aria-label="Search endpoints"></div><select class="select" id="endpoint-status" aria-label="Endpoint status">${['all','online','offline'].map(s=>`<option value="${s}" ${state.endpointFilter.status===s?'selected':''}>${s==='all'?'All statuses':s[0].toUpperCase()+s.slice(1)}</option>`).join('')}</select></div><div class="table-wrapper"><table><thead><tr><th>ENDPOINT</th><th>IP ADDRESS</th><th>OPERATING SYSTEM</th><th>STATUS</th><th>RISK SCORE</th><th>LAST SEEN</th><th></th></tr></thead><tbody>${rows.map(e=>`<tr class="clickable" data-action="endpoint-detail" data-id="${E(e.id)}"><td><div class="endpoint-summary"><span class="os-icon">${icon(e.os.includes('Windows')?'windows':'logs')}</span><div><strong class="mono">${E(e.host)}</strong><span class="cell-secondary">${E(e.department)} · ${E(e.user)}</span></div></div></td><td class="mono">${E(e.ip)}</td><td>${E(e.os)}</td><td>${tag(e.status)}</td><td><div class="risk-score"><strong style="color:${e.risk>=70?'var(--red)':e.risk>=40?'var(--orange)':'var(--green)'}">${e.risk}</strong><div class="bar-track"><div class="bar-fill" style="width:${e.risk}%;background:${e.risk>=70?'var(--red)':e.risk>=40?'var(--orange)':'var(--green)'}"></div></div></div></td><td class="small-label">${E(C.relative(e.last_seen))}</td><td>${icon('right','row-arrow')}</td></tr>`).join('')||`<tr><td colspan="7">${empty('No endpoints found','Adjust your search or status filter.')}</td></tr>`}</tbody></table></div><div class="table-footer"><span>Showing ${all.length?(page-1)*size+1:0}–${Math.min(page*size,all.length)} of ${all.length} endpoints</span>${pagination(page,all.length,size,'endpoint')}</div></div>`;}
+  function endpointsPage(){const all=endpointRows(),size=12,page=Math.min(state.endpointPage,Math.max(1,Math.ceil(all.length/size)));state.endpointPage=page;const rows=all.slice((page-1)*size,page*size),online=state.data.endpoints.filter(e=>e.status==='online').length;return pageHeading('Endpoint inventory','Host visibility, agent health, and risk across your environment.',`<button class="button" data-action="export-endpoints">${icon('export')}Export CSV</button>`)+`<div class="panel"><div class="panel-header"><div><h2>Observed endpoints</h2><p class="panel-subtitle">${online} online · ${state.data.endpoints.filter(e=>e.status==='offline').length} offline · ${state.data.endpoints.filter(e=>e.status==='unknown').length} unknown · sampled Wazuh alerts</p></div><span class="result-count">${all.length} HOSTS</span></div><div class="table-toolbar"><div class="table-search">${icon('search')}<input id="endpoint-search" value="${E(state.endpointFilter.query)}" placeholder="Search hostname, IP, or user…" aria-label="Search endpoints"></div><select class="select" id="endpoint-status" aria-label="Endpoint status">${['all','online','offline','unknown'].map(s=>`<option value="${s}" ${state.endpointFilter.status===s?'selected':''}>${s==='all'?'All statuses':s[0].toUpperCase()+s.slice(1)}</option>`).join('')}</select></div><div class="table-wrapper"><table><thead><tr><th>ENDPOINT</th><th>IP ADDRESS</th><th>OPERATING SYSTEM</th><th>STATUS</th><th>RISK SCORE</th><th>LAST SEEN</th><th></th></tr></thead><tbody>${rows.map(e=>`<tr class="clickable" data-action="endpoint-detail" data-id="${E(e.id)}"><td><div class="endpoint-summary"><span class="os-icon">${icon((e.os||'').includes('Windows')?'windows':'logs')}</span><div><strong class="mono">${E(e.host)}</strong><span class="cell-secondary">${E(e.department)} · ${E(e.user)}</span></div></div></td><td class="mono">${E(e.ip)}</td><td>${E(e.os)}</td><td>${tag(e.status)}</td><td>${Number.isFinite(e.risk)?`<div class="risk-score"><strong style="color:${e.risk>=70?'var(--red)':e.risk>=40?'var(--orange)':'var(--green)'}">${e.risk}</strong><div class="bar-track"><div class="bar-fill" style="width:${e.risk}%;background:${e.risk>=70?'var(--red)':e.risk>=40?'var(--orange)':'var(--green)'}"></div></div></div>`:'N/A'}</td><td class="small-label">${e.last_seen?E(C.relative(e.last_seen)):'Unknown'}</td><td>${icon('right','row-arrow')}</td></tr>`).join('')||`<tr><td colspan="7">${empty('No endpoints found','Adjust your search or status filter.')}</td></tr>`}</tbody></table></div><div class="table-footer"><span>Showing ${all.length?(page-1)*size+1:0}–${Math.min(page*size,all.length)} of ${all.length} endpoints</span>${pagination(page,all.length,size,'endpoint')}</div></div>`;}
   function casesPage(){return pageHeading('Investigations','Organize evidence and follow each case through to resolution.',`<button class="button primary" data-action="new-case">${icon('plus')}New case</button>`)+`<div class="grid-three case-board">${[['open','Open'],['investigating','In progress'],['closed','Closed']].map(([status,name])=>{const rows=state.data.cases.filter(c=>c.status===status).sort((a,b)=>C.timestamp(b.created_at)-C.timestamp(a.created_at));return `<section class="case-column"><div class="case-column-heading"><span>${name}</span><span class="count-badge">${rows.length}</span></div><div class="case-list">${rows.map(c=>`<article class="panel case-card" data-action="case-detail" data-id="${E(c.id)}" tabindex="0" role="button" aria-label="Open ${E(c.title)}"><div class="case-meta"><span class="case-id">${E(c.id)}</span>${tag(c.severity)}</div><h3>${E(c.title)}</h3><p>${c.alert_ids.length} linked detection${c.alert_ids.length===1?'':'s'} · ${E(C.relative(c.created_at))}</p><div class="case-card-footer"><span class="assignee"><span class="avatar mini">${E(c.owner.split(' ').map(w=>w[0]).join('').slice(0,2))}</span>${E(c.owner)}</span><span>${c.comments.length} notes</span></div></article>`).join('')||`<div class="panel">${empty('No '+name.toLowerCase()+' cases','Cases will appear here as you investigate alerts.')}</div>`}</div></section>`;}).join('')}</div>`;}
   function logRows(){return C.filterEvents(state.data,{...state.logFilter,range:state.range},referenceTime());}
   function logsPage(){const all=logRows(),size=15,page=Math.min(state.eventPage,Math.max(1,Math.ceil(all.length/size)));state.eventPage=page;const rows=all.slice((page-1)*size,page*size);return pageHeading('Log explorer','Search recent telemetry and inspect the original event payload.',`<button class="button" data-action="export-events">${icon('export')}Export CSV</button>`)+`<div class="panel"><div class="panel-header"><div><h2>Event search</h2><p class="panel-subtitle">${N(state.data.events.length)} events loaded${state.data.meta?.events_sampled?' · recent sample of the indexed event stream':''}</p></div><span class="result-count">${N(all.length)} MATCHES</span></div><div class="table-toolbar"><div class="log-query">${icon('logs')}<input id="log-query" value="${E(state.logFilter.query)}" placeholder="host:WIN-FIN severity:high" aria-label="Event search query"></div><select id="log-source" class="select" aria-label="Filter events by source"><option value="">All sources</option>${[...new Set(state.data.events.map(e=>e.source))].sort().map(s=>`<option value="${E(s)}" ${state.logFilter.source===s?'selected':''}>${E(s)}</option>`).join('')}</select><button class="button primary" data-action="run-query">${icon('search')}Search</button></div><p class="log-hint">Try <code>host:WIN-FIN</code> <code>source:Sysmon</code> <code>event:process_start</code> or <code>-severity:info</code>. Terms are combined with AND.</p><div class="table-wrapper"><table><thead><tr><th>TIME (ICT)</th><th>SOURCE</th><th>HOST</th><th>EVENT TYPE</th><th>MESSAGE</th><th></th></tr></thead><tbody>${rows.map(e=>`<tr class="clickable" data-action="event-detail" data-id="${E(e.id)}"><td class="mono" style="white-space:nowrap">${E(new Date(e.timestamp).toLocaleTimeString('en-GB',{timeZone:'Asia/Bangkok'}))}<span class="cell-secondary">${E(C.relative(e.timestamp))}</span></td><td>${tag(e.source,'source')}</td><td class="mono">${E(e.host)}</td><td><span class="mono">${E(e.event_type)}</span><span class="cell-secondary">${E(e.severity)}</span></td><td><span class="alert-title">${E(e.message.slice(0,100))}</span></td><td>${icon('right','row-arrow')}</td></tr>`).join('')||`<tr><td colspan="6">${empty('No events match this query','Adjust the query, source, or time window.','clear-log-query','Clear query')}</td></tr>`}</tbody></table></div><div class="table-footer"><span>Showing ${all.length?(page-1)*size+1:0}–${Math.min(page*size,all.length)} of ${N(all.length)} matching events</span>${pagination(page,all.length,size,'event')}</div></div>`;}
@@ -98,6 +99,926 @@
   "summary": {"events_total": 0, "series": []}
 }</pre></div><div class="form-actions" style="margin-top:15px"><button class="button quiet" data-action="download-snapshot">${icon('export')}Export snapshot</button><button class="button quiet" data-action="guide">${icon('help')}Setup guide</button></div></div></section></div>`;}
   function settingsPage(){return pageHeading('Workspace settings','Configure the data connection and dashboard preferences.',`<button class="button quiet" data-action="guide">${icon('help')}Setup guide</button>`)+`<div class="grid-two"><section class="panel"><div class="panel-header"><h2>Data connection</h2>${icon('integrations')}</div><div class="panel-body">${integrationForm()}</div></section><section class="panel"><div class="panel-header"><h2>Preferences</h2>${icon('settings')}</div><div class="panel-body settings-section"><div class="form-field"><label for="auto-refresh">API refresh interval</label><select id="auto-refresh">${[[0,'Manual refresh'],[30,'Every 30 seconds'],[60,'Every 60 seconds'],[120,'Every 2 minutes']].map(([v,t])=>`<option value="${v}" ${state.refreshSeconds===v?'selected':''}>${t}</option>`).join('')}</select><div class="form-help">Auto refresh runs while this tab is visible and connected to an API.</div></div><div class="key-value"><span>Display timezone</span><strong>Asia/Bangkok · UTC+7</strong></div><div class="key-value"><span>Dashboard mode</span><strong>${state.mode==='api'?'API connection':state.mode==='import'?'Imported snapshot':'Synthetic demo'}</strong></div><div class="key-value"><span>Snapshot window</span><strong>${state.data.window_hours} hours</strong></div><div class="key-value"><span>Workflow changes</span><strong>${state.mode==='api'?'Stored by the API':state.mode==='demo'?'Stored in this browser':'This session only'}</strong></div><div class="danger-zone"><h3>Demo workspace</h3><p>Reset sample alerts and cases to their initial state.</p><button class="button quiet" data-action="reset-demo">${icon('refresh')}Reset demo</button></div></div></section><section class="panel"><div class="panel-header"><h2>Export & import</h2>${icon('export')}</div><div class="panel-body settings-section"><p>Move a normalized telemetry snapshot between environments. Exports include the current alerts, endpoints, events, and case notes.</p><div class="form-actions"><button class="button" data-action="download-snapshot">${icon('export')}Export JSON snapshot</button><button class="button" data-action="import">${icon('upload')}Import snapshot</button></div></div></section><section class="panel"><div class="panel-header"><h2>Keyboard shortcuts</h2>${icon('code')}</div><div class="panel-body"><div class="key-value"><span>Global alert search</span><strong><kbd>Ctrl / ⌘ K</kbd></strong></div><div class="key-value"><span>Close details</span><strong><kbd>Esc</kbd></strong></div><div class="key-value"><span>Setup guide</span><strong><kbd>?</kbd></strong></div></div></section></div>`;}
+
+
+  async function loadResearchQuality(){
+    const status=$('research-quality-status');
+    const body=$('research-quality-data');
+    if(!status||!body)return;
+
+    const pct=v=>typeof v==='number'&&Number.isFinite(v)&&v>=0&&v<=1
+      ?(v*100).toFixed(2)+'%':'—';
+    const num=v=>Number.isSafeInteger(v)&&v>=0?String(v):'—';
+    const flag=v=>v===true?'YES':v===false?'NO':'UNKNOWN';
+    const row=(name,value)=>`<div class="key-value">
+      <span>${E(name)}</span><strong>${E(String(value))}</strong>
+    </div>`;
+
+    try{
+      const response=await fetch('/api/model-quality',{
+        cache:'no-store',
+        signal:AbortSignal.timeout(15000)
+      });
+      if(!response.ok)throw new Error('HTTP '+response.status);
+
+      const data=await response.json();
+      const q=data?.quality;
+      const p=data?.parity;
+      const m=q?.overall;
+
+      if(!m||!p||typeof q.production_ready!=='boolean')
+        throw new Error('Invalid report');
+
+      if(!status.isConnected)return;
+
+      status.textContent='Historical offline report · Run: '+
+        String(data.run_id||'Unknown');
+
+      body.innerHTML=[
+        row('Evaluated samples',num(m.n)),
+        row('Precision',pct(m.precision)),
+        row('Recall',pct(m.recall)),
+        row('F1 Score',pct(m.f1)),
+        row('False Positive Rate',pct(m.false_positive_rate)),
+        row('Development numeric gate',flag(q.development_numeric_gate_pass)),
+        row('Shadow authorized',flag(q.shadow_authorized)),
+        row('Parity status',p.status||'Unknown'),
+        row('Raw-event verification',p.raw_event_check?.status||'Unknown'),
+        row('Production ready',flag(q.production_ready))
+      ].join('');
+
+    }catch(e){
+      if(!status.isConnected)return;
+      status.textContent='Model Quality unavailable';
+      body.textContent='Cannot load or validate offline report.';
+    }
+  }
+
+
+  async function loadResearchSources(){
+    const shadow=$('research-shadow-status');
+    const blue=$('research-bluefield-status');
+    if(!shadow||!blue)return;
+
+    async function read(path){
+      try{
+        const response=await fetch(path,{
+          cache:'no-store',
+          signal:AbortSignal.timeout(12000)
+        });
+
+        return {
+          http:response.status,
+          data:response.ok ? await response.json() : null
+        };
+      }catch{
+        return {http:0,data:null};
+      }
+    }
+
+    const [s,b,h]=await Promise.all([
+      read('/api/shadow/events'),
+      read('/api/shadow/bluefield'),
+      read('/api/bluefield/history')
+    ]);
+
+    if(!shadow.isConnected||!blue.isConnected)return;
+
+    const http=r=>r.http?`HTTP ${r.http}`:'Request unavailable';
+    const validCount=v=>Number.isSafeInteger(v)&&v>=0;
+
+    const c=s.data?.counts;
+
+    if(s.http===200 && s.data?.mode==='shadow'
+        && c && validCount(c.severity)
+        && validCount(c.behavioral)
+        && validCount(c.matched)){
+      shadow.textContent=
+        `Historical Severity: ${c.severity} | `+
+        `Behavioral: ${c.behavioral} | `+
+        `Shadow matched: ${c.matched}`;
+    }else{
+      shadow.textContent=
+        s.http===200
+          ? 'Shadow schema needs verification'
+          : `Shadow unavailable (${http(s)})`;
+    }
+
+    const bc=b.data?.counts;
+
+    const blueShadow=
+      b.http===200 &&
+      b.data?.mode==='shadow_bluefield' &&
+      b.data?.historical===true &&
+      b.data?.live===false &&
+      b.data?.production_ready===false &&
+      b.data?.automated_response_allowed===false &&
+      validCount(bc?.records)
+        ? `Historical records: ${bc.records}`
+        : b.http===200
+          ? 'Schema needs verification'
+          : `Unavailable (${http(b)})`;
+
+    const hc=h.data?.counts;
+
+    const historicalValid=
+      h.http===200 &&
+      h.data?.mode==='historical_review' &&
+      h.data?.live===false &&
+      h.data?.production_ready===false &&
+      h.data?.source_index==='review-bluefield-20261012t141653z-6396a0d3' &&
+      hc &&
+      validCount(hc.records) &&
+      validCount(hc.interfaces) &&
+      validCount(hc.carrier_unknown) &&
+      validCount(hc.first_sample) &&
+      validCount(hc.computed) &&
+      Array.isArray(h.data.records) &&
+      h.data.records.length===hc.records &&
+      hc.first_sample+hc.computed===hc.records;
+
+    const blueArchive=historicalValid
+      ? `Historical records: ${hc.records} | Interfaces: ${hc.interfaces} | `+
+        `Carrier unknown: ${hc.carrier_unknown} | `+
+        `First sample: ${hc.first_sample} | Computed: ${hc.computed}`
+      : h.http===200
+        ? 'Schema or consistency verification failed'
+        : `Unavailable (${http(h)})`;
+
+    blue.textContent=
+      `BlueField Shadow: ${blueShadow} | `+
+      `Historical Archive: ${blueArchive}`;
+  }
+
+  function researchPage(){setTimeout(loadResearchQuality,0);setTimeout(loadResearchSources,0);
+    return pageHeading(
+      'Research & Experiments',
+      'Historical research evidence, kept separate from live SOC monitoring.'
+    ) + `
+      <div class="notice warn section-gap">
+        ${icon('info')}
+        <div>
+          Research and archived evidence only.
+          Not live detection. Production automation remains disabled.
+        </div>
+      </div>
+      <div class="grid-two">
+        <section class="panel">
+          <div class="panel-header"><h2>AI Model Experiments</h2></div>
+          <div class="panel-body">
+            <p>Review recorded model experiments and bounded demo runs.</p>
+            <div class="notice warn section-gap">
+              Offline evaluation only. Not live inference.
+              No automated response is enabled here.
+            </div>
+            <p id="research-quality-status" aria-live="polite">
+              Loading verified report...
+            </p>
+            <div id="research-quality-data" class="settings-section"></div>
+
+            <a class="link-button" href="#modeldetails">View Model Quality details →</a>
+          </div>
+        </section>
+        <section class="panel">
+          <div class="panel-header"><h2>Shadow Analysis</h2></div>
+          <div class="panel-body">
+            <p>Review historical severity and behavioral evidence.</p><p id="research-shadow-status" class="form-help" aria-live="polite">Checking Shadow API...</p>
+            <a class="link-button" href="#shadowdetails">View Shadow details →</a>
+          </div>
+        </section>
+        <section class="panel">
+          <div class="panel-header"><h2>BlueField Historical Review</h2></div>
+          <div class="panel-body">
+            <p>Archived telemetry only. BlueField live service remains disabled.</p><p id="research-bluefield-status" class="form-help" aria-live="polite">Checking historical APIs...</p>
+            <a class="link-button" href="#bluefielddetails">View BlueField details →</a>
+          </div>
+        </section>
+        <section class="panel">
+          <div class="panel-header"><h2>Research Evidence</h2></div>
+          <div class="panel-body">
+            <p>Review previously recorded and verified research results.</p>
+            <a class="link-button" href="#researchevidence">View Research evidence →</a>
+          </div>
+        </section>
+      </div>
+    `;
+  }
+
+
+  function shadowDetailsPage(){
+    setTimeout(loadShadowDetails,0);
+
+    return pageHeading(
+      'Shadow Details',
+      'Historical severity and behavioral analysis. Not live monitoring.',
+      '<a class="button quiet" href="#research">Back to Research</a>'
+    ) + `
+      <div class="notice warn section-gap">
+        ${icon('info')}
+        <div>
+          Offline research evidence only.
+          False-positive candidates are not confirmed false positives.
+          Automated response remains disabled.
+        </div>
+      </div>
+
+      <section class="panel">
+        <div class="panel-header">
+          <h2>Historical Shadow Events</h2>
+        </div>
+        <div class="panel-body">
+          <p id="shadow-detail-status" aria-live="polite">
+            Loading historical data...
+          </p>
+          <div id="shadow-detail-table"></div>
+        </div>
+      </section>
+    `;
+  }
+
+  async function loadShadowDetails(){
+    const status=$('shadow-detail-status');
+    const target=$('shadow-detail-table');
+
+    if(!status||!target)return;
+
+    const safe=v=>E(
+      v===null||v===undefined?'—':String(v)
+    );
+
+    try{
+      const response=await fetch('/api/shadow/events',{
+        cache:'no-store',
+        signal:AbortSignal.timeout(15000)
+      });
+
+      if(!response.ok)
+        throw new Error('Shadow API unavailable');
+
+      const data=await response.json();
+
+      if(
+        data?.mode!=='shadow' ||
+        !Array.isArray(data.events) ||
+        data.events.length>200 ||
+        !data.counts ||
+        !Number.isSafeInteger(data.counts.matched)
+      ){
+        throw new Error('Invalid Shadow schema');
+      }
+
+      const flagsValid=data.events.every(r=>
+        r && typeof r==='object' &&
+        (!r.severity || (
+          r.severity.production_ready===false &&
+          r.severity.automated_response_allowed===false
+        )) &&
+        (!r.behavioral || (
+          r.behavioral.production_ready===false &&
+          r.behavioral.automated_response_allowed===false
+        ))
+      );
+
+      if(!flagsValid)
+        throw new Error('Historical safety validation failed');
+
+      if(!status.isConnected||!target.isConnected)return;
+      if(state.page!=='shadowdetails')return;
+
+      const c=data.counts;
+
+      status.textContent=
+        `${data.events.length} historical rows | `+
+        `Matched: ${c.matched} | `+
+        `Conflicts: ${c.conflicts} | `+
+        `Unmatched: ${c.unmatched}`;
+
+      const cellStyle=
+        'padding:10px 12px;'+
+        'border-bottom:1px solid #29364a;'+
+        'text-align:left;white-space:nowrap';
+
+      const headers=[
+        'UID prefix',
+        'Rule ID',
+        'Wazuh Level',
+        'Severity Score',
+        'Status',
+        'FP Candidate',
+        'AE Scored',
+        'Novelty'
+      ];
+
+      const headerHtml=headers.map(h=>
+        `<th style="${cellStyle}">${safe(h)}</th>`
+      ).join('');
+
+      const rows=data.events.map((r,i)=>{
+        const sev=r.severity||{};
+        const beh=r.behavioral||{};
+
+        const uid=typeof sev.event_uid==='string' &&
+          /^[a-f0-9]{64}$/i.test(sev.event_uid)
+          ? sev.event_uid : '';
+
+        const uidPrefix=uid?uid.slice(0,12)+'…':'—';
+
+        const score=
+          typeof sev.high_severity_score==='number' &&
+          Number.isFinite(sev.high_severity_score)
+            ? sev.high_severity_score.toFixed(4)
+            : '—';
+
+        const candidate=
+          sev.false_positive_candidate===true
+          ? 'Candidate (unverified)'
+          : sev.false_positive_candidate===false
+            ? 'No'
+            : '—';
+
+        const ae=
+          beh.ae_scored===true?'Yes':
+          beh.ae_scored===false?'No':'—';
+
+        const novelty=
+          beh.semantic_novelty===true?'Yes':
+          beh.semantic_novelty===false?'No':'—';
+
+        const values=[
+          uidPrefix,
+          sev.wazuh_rule_id,
+          sev.wazuh_rule_level,
+          score,
+          r.status,
+          candidate,
+          ae,
+          novelty
+        ];
+
+        return `<tr>${values.map(v=>
+          `<td style="${cellStyle}">${safe(v)}</td>`
+        ).join('')}</tr>`;
+      }).join('');
+
+      target.innerHTML=`
+        <div style="overflow:auto;max-height:600px">
+          <table style="width:100%;border-collapse:collapse;font-size:12px">
+            <thead><tr>${headerHtml}</tr></thead>
+            <tbody>${rows}</tbody>
+          </table>
+        </div>
+      `;
+
+    }catch{
+      if(!status.isConnected||!target.isConnected)return;
+      if(state.page!=='shadowdetails')return;
+
+      status.textContent=
+        'Shadow data unavailable or failed validation.';
+      target.textContent=
+        'No unverified historical data has been displayed.';
+    }
+  }
+
+
+  function bluefieldDetailsPage(){
+    setTimeout(loadBluefieldDetails,0);
+
+    return pageHeading(
+      'BlueField Details',
+      'Archived network telemetry. Not live monitoring.',
+      '<a class="button quiet" href="#research">Back to Research</a>'
+    ) + `
+      <div class="notice warn section-gap">
+        ${icon('info')}
+        <div>
+          Historical evidence only. BlueField Live and
+          automated response remain disabled.
+          Different indexes must not be summed as new events.
+        </div>
+      </div>
+
+      <div class="grid-two">
+        <section class="panel">
+          <div class="panel-header"><h2>BlueField Shadow</h2></div>
+          <div class="panel-body">
+            <p id="bf-shadow-status" aria-live="polite">Loading...</p>
+            <div id="bf-shadow-table"></div>
+          </div>
+        </section>
+        <section class="panel">
+          <div class="panel-header"><h2>BlueField Historical Archive</h2></div>
+          <div class="panel-body">
+            <p id="bf-history-status" aria-live="polite">Loading...</p>
+            <div id="bf-history-table"></div>
+          </div>
+        </section>
+      </div>
+    `;
+  }
+
+  async function loadBluefieldDetails(){
+    if(state.page!=='bluefielddetails')return;
+
+    const validCount=v=>
+      Number.isSafeInteger(v)&&v>=0&&v<=200;
+
+    const safe=v=>{
+      if(v===null||v===undefined)return '—';
+      if(!['string','number','boolean'].includes(typeof v))
+        return '—';
+      return E(String(v));
+    };
+
+    const columns=[
+      ['Interface','interface'],
+      ['Timestamp','timestamp'],
+      ['Operating State','operstate'],
+      ['Carrier','carrier'],
+      ['RX Bytes','rx_bytes'],
+      ['TX Bytes','tx_bytes'],
+      ['Delta RX','delta_rx_bytes'],
+      ['Delta TX','delta_tx_bytes']
+    ];
+
+    async function read(path){
+      const r=await fetch(path,{
+        cache:'no-store',
+        signal:AbortSignal.timeout(15000)
+      });
+      if(!r.ok)throw new Error('HTTP '+r.status);
+      return r.json();
+    }
+
+    function display(result,statusId,tableId,kind){
+      const status=$(statusId);
+      const table=$(tableId);
+
+      if(!status||!table||state.page!=='bluefielddetails')
+        return;
+
+      if(result.status!=='fulfilled'){
+        status.textContent='Historical API unavailable';
+        table.textContent='';
+        return;
+      }
+
+      const d=result.value;
+      const c=d?.counts;
+
+      const common=
+        d &&
+        d.live===false &&
+        d.production_ready===false &&
+        c &&
+        validCount(c.records) &&
+        validCount(c.interfaces) &&
+        Array.isArray(d.records) &&
+        d.records.length===c.records &&
+        d.records.every(r=>r&&typeof r==='object');
+
+      const valid=kind==='shadow'
+        ? common &&
+          d.mode==='shadow_bluefield' &&
+          d.historical===true &&
+          d.automated_response_allowed===false &&
+          d.source_index==='shadow-bluefield-v1' &&
+          d.records.every(r=>
+            r.historical===true &&
+            r.production_ready===false &&
+            r.automated_response_allowed===false
+          )
+        : common &&
+          d.mode==='historical_review' &&
+          d.source_index===
+            'review-bluefield-20261012t141653z-6396a0d3' &&
+          validCount(c.first_sample) &&
+          validCount(c.computed) &&
+          c.first_sample+c.computed===c.records;
+
+      if(!valid){
+        status.textContent='Historical schema validation failed';
+        table.textContent='';
+        return;
+      }
+
+      status.textContent=
+        `${c.records} historical records | `+
+        `${c.interfaces} interfaces | `+
+        `Live: OFF | Production: NO`;
+
+      const th=columns.map(([label])=>
+        `<th style="padding:10px;text-align:left;white-space:nowrap">`+
+        `${safe(label)}</th>`
+      ).join('');
+
+      const rows=d.records.map(r=>
+        '<tr>'+columns.map(([,key])=>
+          `<td style="padding:10px;border-top:1px solid #29364a;`+
+          `white-space:nowrap">${safe(r[key])}</td>`
+        ).join('')+'</tr>'
+      ).join('');
+
+      table.innerHTML=`
+        <div style="overflow:auto;max-height:520px">
+          <table style="width:100%;border-collapse:collapse;font-size:12px">
+            <thead><tr>${th}</tr></thead>
+            <tbody>${rows}</tbody>
+          </table>
+        </div>
+      `;
+    }
+
+    const [shadow,history]=await Promise.allSettled([
+      read('/api/shadow/bluefield'),
+      read('/api/bluefield/history')
+    ]);
+
+    display(shadow,'bf-shadow-status','bf-shadow-table','shadow');
+    display(history,'bf-history-status','bf-history-table','history');
+  }
+
+
+  function researchExtrasPage(){
+    const model=state.page==='modeldetails';
+    const page=model?'modeldetails':'researchevidence';
+
+    setTimeout(()=>loadResearchExtras(page),0);
+
+    return pageHeading(
+      model?'Model Quality Details':'Research Evidence',
+      model
+        ?'Historical offline evaluation and per-rule results.'
+        :'Traceable historical evidence from independent research sources.',
+      '<a class="button quiet" href="#research">Back to Research</a>'
+    )+`
+      <div class="notice warn section-gap">
+        ${icon('info')}
+        <div>
+          Historical research only. Not live inference.
+          Production readiness is not established.
+          Automated response remains disabled.
+        </div>
+      </div>
+      <section class="panel">
+        <div class="panel-header">
+          <h2>${model?'Model Evaluation':'Evidence Sources'}</h2>
+        </div>
+        <div class="panel-body">
+          <p id="research-extra-status" aria-live="polite">Loading...</p>
+          <div id="research-extra-body" class="settings-section"></div>
+        </div>
+      </section>
+    `;
+  }
+
+  async function loadResearchExtras(page){
+    const status=$('research-extra-status');
+    const body=$('research-extra-body');
+    if(!status||!body)return;
+
+    const current=()=>
+      state.page===page&&status.isConnected&&body.isConnected;
+
+    const esc=v=>E(
+      String(v===null||v===undefined?'—':v).slice(0,240)
+    );
+
+    const count=v=>
+      Number.isSafeInteger(v)&&v>=0?v:'—';
+
+    const percent=v=>
+      typeof v==='number'&&Number.isFinite(v)&&v>=0&&v<=1
+      ?(v*100).toFixed(2)+'%':'—';
+
+    const flag=v=>v===true?'PASS':v===false?'FAIL':'UNKNOWN';
+
+    const row=(label,value)=>
+      `<div class="key-value">
+        <span>${esc(label)}</span>
+        <strong>${esc(value)}</strong>
+      </div>`;
+
+    const panel=(title,content)=>
+      `<section class="panel">
+        <div class="panel-header"><h2>${esc(title)}</h2></div>
+        <div class="panel-body settings-section">${content}</div>
+      </section>`;
+
+    async function read(path){
+      const response=await fetch(path,{
+        cache:'no-store',
+        signal:AbortSignal.timeout(15000)
+      });
+      if(!response.ok)throw Error('HTTP '+response.status);
+      return response.json();
+    }
+
+    try{
+      if(page==='modeldetails'){
+        const d=await read('/api/model-quality');
+        const q=d?.quality;
+        const p=d?.parity;
+        const m=q?.overall;
+
+        if(
+          !q||!p||!m||
+          typeof d.run_id!=='string'||
+          q.production_ready!==false||
+          !Number.isSafeInteger(m.n)||
+          m.n<0
+        )throw Error('Model schema or safety validation failed');
+
+        if(!current())return;
+
+        const overall=[
+          row('Evaluated samples',count(m.n)),
+          row('Precision',percent(m.precision)),
+          row('Recall',percent(m.recall)),
+          row('F1 Score',percent(m.f1)),
+          row('False Positive Rate',percent(m.false_positive_rate)),
+          row('TP / FP',`${count(m.tp)} / ${count(m.fp)}`),
+          row('TN / FN',`${count(m.tn)} / ${count(m.fn)}`)
+        ].join('');
+
+        const gates=Object.entries(q.proposed_gate_results||{})
+          .filter(([key,value])=>
+            typeof key==='string'&&typeof value==='boolean'
+          )
+          .slice(0,30)
+          .map(([key,value])=>row(key,flag(value)))
+          .join('');
+
+        const rules=Object.entries(q.per_rule||{})
+          .filter(([key,value])=>
+            /^\d{1,8}$/.test(key)&&
+            value&&typeof value==='object'&&!Array.isArray(value)
+          )
+          .slice(0,50);
+
+        const ruleRows=rules.map(([id,r])=>`
+          <tr>
+            ${[
+              id,
+              count(r.n),
+              percent(r.precision),
+              percent(r.recall),
+              percent(r.f1),
+              percent(r.false_positive_rate)
+            ].map(v=>`
+              <td style="padding:10px;border-bottom:1px solid #29364a">
+                ${esc(v)}
+              </td>
+            `).join('')}
+          </tr>
+        `).join('');
+
+        const ruleTable=`
+          <div style="overflow:auto">
+            <table style="width:100%;border-collapse:collapse;font-size:12px">
+              <thead>
+                <tr>
+                  ${['Rule ID','Samples','Precision','Recall','F1','FPR']
+                    .map(v=>`<th style="padding:10px;text-align:left">
+                      ${esc(v)}</th>`).join('')}
+                </tr>
+              </thead>
+              <tbody>${ruleRows}</tbody>
+            </table>
+          </div>
+          <p class="form-help">
+            — means the metric is unavailable in this report.
+            Per-rule metrics must not be inferred from overall metrics.
+          </p>`;
+
+        const limitations=Array.isArray(q.limitations)
+          ?q.limitations.filter(v=>typeof v==='string').slice(0,20)
+          :[];
+
+        status.textContent=
+          'Offline report | Run: '+d.run_id;
+
+        body.innerHTML=
+          `<div class="grid-two">
+            ${panel('Overall Evaluation',overall)}
+            ${panel('Development Gates',
+              row('Numeric gate',flag(q.development_numeric_gate_pass))+
+              row('Shadow authorized',flag(q.shadow_authorized))+
+              row('Production ready',flag(q.production_ready))+
+              gates
+            )}
+            ${panel('Per-rule Evaluation',
+              ruleRows?ruleTable:'No per-rule metrics available')}
+            ${panel('Parity & Limitations',
+              row('Parity status',p.status)+
+              row('Compared rows',count(p.compared_rows))+
+              row('Raw-event check',p.raw_event_check?.status)+
+              limitations.map(v=>`<p class="form-help">${esc(v)}</p>`).join('')
+            )}
+          </div>`;
+
+      }else{
+        const sources=[
+          ['Model Quality','/api/model-quality'],
+          ['Shadow Severity / Behavioral','/api/shadow/events'],
+          ['BlueField Shadow','/api/shadow/bluefield'],
+          ['BlueField Historical','/api/bluefield/history']
+        ];
+
+        const results=await Promise.allSettled(
+          sources.map(([,url])=>read(url))
+        );
+
+        if(!current())return;
+
+        let available=0;
+
+        const cards=results.map((result,i)=>{
+          const [name]=sources[i];
+
+          if(result.status!=='fulfilled')
+            return panel(name,row('Status','Unavailable'));
+
+          const d=result.value;
+          const c=d?.counts;
+          let details='';
+
+          if(i===0){
+            if(
+              d?.quality?.production_ready!==false||
+              !Number.isSafeInteger(d?.quality?.overall?.n)
+            )return panel(name,row('Status','Validation failed'));
+
+            details=
+              row('Run ID',d.run_id)+
+              row('Samples',count(d.quality.overall.n))+
+              row('Checked at',d.checked_at)+
+              row('Production ready','NO');
+
+            const hashes=d.source||{};
+            for(const key of ['quality_sha256','parity_sha256']){
+              const h=hashes[key];
+              if(typeof h==='string'&&/^[a-f0-9]{64}$/i.test(h)){
+                details+=row(key+' prefix',h.slice(0,16)+'…');
+              }
+            }
+
+          }else if(i===1){
+            const valid=
+              d?.mode==='shadow'&&
+              c&&
+              Number.isSafeInteger(c.matched)&&c.matched>=0&&
+              Array.isArray(d.events)&&d.events.length<=200&&
+              d.events.every(r=>
+                r&&typeof r==='object'&&
+                (!r.severity||(
+                  r.severity.production_ready===false&&
+                  r.severity.automated_response_allowed===false
+                ))&&
+                (!r.behavioral||(
+                  r.behavioral.production_ready===false&&
+                  r.behavioral.automated_response_allowed===false
+                ))
+              );
+
+            if(!valid)
+              return panel(name,row('Status','Validation failed'));
+
+            details=
+              row('Severity documents',count(c.severity))+
+              row('Behavioral documents',count(c.behavioral))+
+              row('Shadow matched',count(c.matched))+
+              row('Conflicts',count(c.conflicts))+
+              row('Fetched at',d.fetched_at);
+
+          }else if(i===2){
+            const valid=
+              d?.mode==='shadow_bluefield'&&
+              d.historical===true&&
+              d.live===false&&
+              d.production_ready===false&&
+              d.automated_response_allowed===false&&
+              d.source_index==='shadow-bluefield-v1'&&
+              Number.isSafeInteger(c?.records)&&c.records>=0&&
+              Array.isArray(d.records)&&d.records.length===c.records;
+
+            if(!valid)
+              return panel(name,row('Status','Validation failed'));
+
+            details=
+              row('Index',d.source_index)+
+              row('Historical records',count(c.records))+
+              row('Interfaces',count(c.interfaces))+
+              row('Live','OFF')+
+              row('Fetched at',d.fetched_at);
+
+          }else{
+            const valid=
+              d?.mode==='historical_review'&&
+              d.live===false&&
+              d.production_ready===false&&
+              d.source_index===
+                'review-bluefield-20261012t141653z-6396a0d3'&&
+              Number.isSafeInteger(c?.records)&&c.records>=0&&
+              Array.isArray(d.records)&&d.records.length===c.records;
+
+            if(!valid)
+              return panel(name,row('Status','Validation failed'));
+
+            details=
+              row('Index',d.source_index)+
+              row('Historical records',count(c.records))+
+              row('Interfaces',count(c.interfaces))+
+              row('Live','OFF')+
+              row('Fetched at',d.fetched_at);
+          }
+
+          available++;
+          return panel(name,row('Status','Historical evidence available')+
+            details);
+        });
+
+        status.textContent=
+          `${available} of 4 historical evidence sources available. `+
+          'Counts across different indexes must not be summed.';
+
+        body.innerHTML=
+          `<div class="grid-two">${cards.join('')}</div>`;
+      }
+
+    }catch{
+      if(!current())return;
+      status.textContent='Research report unavailable or invalid';
+      body.textContent='No unverified results have been displayed.';
+    }
+  }
+
+
+
+  function allEventsPage(){
+    return pageHeading(
+      'All Events',
+      'Browse retained Wazuh events across the full history snapshot.'
+    ) + `
+      <div class="panel" id="history-view">
+        <div class="panel-header">
+          <div>
+            <h2>Wazuh Event History</h2>
+            <p class="panel-subtitle">
+              Historical snapshot · Read-only · Not real-time
+            </p>
+          </div>
+        </div>
+
+        <div class="table-toolbar" style="display:flex;gap:12px;flex-wrap:wrap;padding:16px">
+          <input
+            id="history-search"
+            aria-label="Search all historical events"
+            placeholder="Search Rule ID, Agent, Description, event_uid"
+            maxlength="128"
+            style="flex:1;min-width:220px"
+          >
+
+          <select id="history-hours" aria-label="History time range">
+            <option value="all">All Time</option>
+            <option value="24">Last 24 Hours</option>
+            <option value="168">Last 7 Days</option>
+            <option value="720">Last 30 Days</option>
+          </select>
+
+          <button class="button" id="history-go">Search</button>
+        </div>
+
+        <div style="padding:12px 16px">
+          <p id="history-summary" role="status">Loading history...</p>
+          <p id="history-error" role="alert" style="color:#ff9999"></p>
+        </div>
+
+        <div class="table-wrapper">
+          <table>
+            <thead>
+              <tr>
+                <th>TIME (ICT)</th>
+                <th>RULE</th>
+                <th>ENDPOINT</th>
+                <th>DESCRIPTION</th>
+                <th>AI SEVERITY</th>
+                <th>EVENT UID</th>
+              </tr>
+            </thead>
+            <tbody id="history-rows"></tbody>
+          </table>
+        </div>
+
+        <div style="display:flex;justify-content:space-between;align-items:center;padding:18px;gap:12px">
+          <button class="button" id="history-prev" disabled>Previous</button>
+          <strong id="history-page">Page —</strong>
+          <button class="button" id="history-next" disabled>Next</button>
+        </div>
+      </div>
+    `;
+  }
+
   /* COPILOT_INTEGRATED_PANEL_V1 */
   let copilotSelectedUid='';
   function copilotPage(){
@@ -186,15 +1107,15 @@
     reload.addEventListener('click',event=>{event.stopPropagation();load();});load();
   }
 
-  function render(preserve=false){const active=document.activeElement,id=active?.id,selection=active?.selectionStart;nav();$('main').innerHTML=({overview,alerts:alertsPage,copilot:copilotPage,endpoints:endpointsPage,cases:casesPage,logs:logsPage,coverage:coveragePage,integrations:integrationsPage,settings:settingsPage}[state.page]||overview)();document.title=`${pages[state.page]} · NEXUS SIEM`;if(preserve&&id&&$(id)){const el=$(id);el.focus({preventScroll:true});if(typeof selection==='number'&&typeof el.setSelectionRange==='function')try{el.setSelectionRange(selection,selection);}catch{}}}
+  function render(preserve=false){const active=document.activeElement,id=active?.id,selection=active?.selectionStart;nav();$('main').innerHTML=({overview,alerts:alertsPage,allevents:allEventsPage,copilot:copilotPage,endpoints:endpointsPage,cases:casesPage,logs:logsPage,coverage:coveragePage,research:researchPage,modeldetails:researchExtrasPage,researchevidence:researchExtrasPage,shadowdetails:shadowDetailsPage,bluefielddetails:bluefieldDetailsPage,integrations:integrationsPage,settings:settingsPage}[state.page]||overview)();document.title=`${pages[state.page]} · NEXUS SIEM`;if(preserve&&id&&$(id)){const el=$(id);el.focus({preventScroll:true});if(typeof selection==='number'&&typeof el.setSelectionRange==='function')try{el.setSelectionRange(selection,selection);}catch{}}}
   function navigate(page){if(!pages[page])return;state.page=page;state.selected.clear();location.hash=page;closeDrawer();$('sidebar').classList.remove('open');render();window.scrollTo({top:0,behavior:'instant'});}
   function canWrite(){return state.mode!=='api'||state.data.meta.write_enabled!==false;}
   function detailField(label,value){return `<div class="detail-field"><span>${E(label)}</span><strong>${E(value||'Unavailable')}</strong></div>`;}
   function detailSection(title,body){return `<section class="detail-section"><h3>${E(title)}</h3>${body}</section>`;}
   function drawerHeader(label,id){return `<header class="drawer-header"><span>${E(label)} <span class="mono">/ ${E(id)}</span></span><button class="icon-button" data-action="close-drawer" aria-label="Close details">${icon('close')}</button></header>`;}
-  function aiSeveritySection(ev){const status=ev&&ev.ai_status;if(status==='matched'){const valid=typeof ev.ai_score==='number'&&Number.isFinite(ev.ai_score)&&ev.ai_score>=0&&ev.ai_score<=1,score=valid?(ev.ai_score*100).toFixed(1)+'%':'—';return detailSection('AI severity analysis',`<div class="detail-grid">${detailField('AI status','Scored')}${detailField('AI severity score',score)}${detailField('AI label',ev.ai_label||ev.ai_class||'—')}${detailField('Model',ev.ai_model||ev.ai_engine||'—')}${detailField('Correlation','Exact event_uid')}</div>`);}const title=status==='unavailable'?'AI service unavailable':'ยังไม่มีผล AI';return detailSection('AI severity analysis',`<div class="notice">${icon('info')}<div><strong>${E(title)}</strong><p class="form-help">No exact event_uid AI result is available for this Wazuh alert.</p></div></div>`);}
+  function aiSeveritySection(ev){const status=ev&&ev.ai_status;if(status==='matched'){const valid=typeof ev.ai_score==='number'&&Number.isFinite(ev.ai_score)&&ev.ai_score>=0&&ev.ai_score<=1,score=valid?(ev.ai_score*100).toFixed(1)+' / 100':'ข้อมูลไม่ถูกต้อง';return detailSection('AI severity analysis',`<div class="detail-grid">${detailField('AI status',valid?'Scored':'Invalid AI score')}${detailField('คะแนนความรุนแรงจาก AI',score)}${detailField('Raw AI score (0–1)',valid?String(ev.ai_score):'—')}${detailField('AI label',ev.ai_label||ev.ai_class||'—')}${detailField('Model',ev.ai_model||ev.ai_engine||'—')}${detailField('Correlation','Exact event_uid')}</div><p class="form-help">คะแนน 0–100 แสดงแนวโน้มความรุนแรงจากโมเดลที่เรียนรู้ Wazuh severity ไม่ใช่เปอร์เซ็นต์โอกาสถูกโจมตี และไม่ใช้สั่งตอบสนองอัตโนมัติ</p>`);}const title=status==='unavailable'?'AI service unavailable':'ยังไม่มีผล AI';return detailSection('AI severity analysis',`<div class="notice">${icon('info')}<div><strong>${E(title)}</strong><p class="form-help">No exact event_uid AI result is available for this Wazuh alert.</p></div></div>`);}
   function alertDrawer(a){const ev=a.evidence||{},mitre=C.techniqueUrl(a.technique);const body=state.tab==='raw'?`<div class="form-actions" style="margin-bottom:15px"><button class="button quiet" data-action="copy-detail">${icon('copy')}Copy JSON</button></div><pre class="code-block">${E(JSON.stringify(a,null,2))}</pre>`:state.tab==='evidence'?detailSection('Observed process',`<div class="detail-grid">${detailField('Process',ev.process)}${detailField('Parent process',ev.parent_process)}${detailField('Process ID',ev.pid)}${detailField('Execution path',ev.process_path)}</div>`)+detailSection('Command line',`<div class="evidence-command">${E(ev.command_line||'No command-line evidence supplied.')}</div>`)+(ev.destination_ip?detailSection('Network evidence',`<div class="detail-grid">${detailField('Destination IP',ev.destination_ip)}${detailField('Destination port',ev.destination_port)}</div>`):'')+detailSection('Detection timeline',a.timeline.map(t=>`<div class="timeline-item"><small>${E(C.date(t.at))}</small><span>${E(t.action)}</span><span class="small-label">${E(t.actor)}</span></div>`).join('')||'<p class="notes-text">No timeline supplied.</p>'):detailSection('Detection context',`<div class="detail-grid">${detailField('Endpoint',a.host)}${detailField('Source IP',a.ip)}${detailField('User',a.user)}${detailField('Data source',a.source)}${detailField('Rule ID',a.rule_id)}${detailField('Last seen',C.date(a.last_seen))}</div>`)+aiSeveritySection(ev)+detailSection('MITRE ATT&CK',`<div class="notice">${icon('coverage')}<div><strong>${E(a.technique||'Unmapped')} · ${E(a.technique_name||'No technique mapping')}</strong><p class="form-help">${E(a.tactic)}</p>${mitre?`<a class="link-button" href="${E(mitre)}" target="_blank" rel="noopener noreferrer" style="margin-top:7px">Technique reference ${icon('external')}</a>`:''}</div></div>`)+detailSection('Evidence preview',`<div class="evidence-command">${E(ev.command_line||'No command-line evidence supplied.')}</div>`)+detailSection('Linked investigations',state.data.cases.filter(c=>c.alert_ids.includes(a.id)).map(c=>`<button class="button quiet full-width" style="margin-bottom:7px;justify-content:flex-start;white-space:normal;text-align:left" data-action="case-detail" data-id="${E(c.id)}">${icon('cases')}${E(c.title)}</button>`).join('')||'<p class="notes-text">No case linked. Create a case to track this investigation.</p>');return drawerHeader('DETECTION DETAILS',a.id)+`<div class="drawer-body"><div class="drawer-eyebrow">${tag(a.severity)}${tag(a.status)}</div><h2>${E(a.title)}</h2><p class="drawer-subtitle">${E(a.description)}</p><div class="detail-tabs">${[['summary','Overview'],['evidence','Evidence'],['raw','Raw event']].map(([v,t])=>`<button data-action="detail-tab" data-tab="${v}" class="${state.tab===v?'active':''}">${t}</button>`).join('')}</div>${body}</div><footer class="drawer-footer"><span class="drawer-note">${state.mode==='api'?'Changes are saved through the connected API.':state.mode==='demo'?'Demo workflow · changes saved in this browser.':'Imported snapshot · changes stay in this session.'}</span>${a.status!=='acknowledged'?`<button class="button quiet" data-action="alert-status" data-status="acknowledged" ${!canWrite()?'disabled':''}>Acknowledge</button>`:''}${a.status!=='resolved'?`<button class="button quiet" data-action="alert-status" data-status="resolved" ${!canWrite()?'disabled':''}>${icon('check')}Resolve</button>`:`<button class="button quiet" data-action="alert-status" data-status="new" ${!canWrite()?'disabled':''}>Reopen</button>`}<button class="button primary" data-action="new-case" data-alert-id="${E(a.id)}" ${!canWrite()?'disabled':''}>${icon('plus')}Create case</button></footer>`;}
-  function endpointDrawer(e){const rows=state.data.alerts.filter(a=>a.host===e.host&&a.status!=='resolved');return drawerHeader('ENDPOINT DETAILS',e.id)+`<div class="drawer-body"><div class="drawer-eyebrow">${tag(e.status)}<span class="small-label">Risk score: ${e.risk} / 100</span></div><h2>${E(e.host)}</h2><p class="drawer-subtitle">Endpoint telemetry and agent health.</p>${detailSection('Host inventory',`<div class="detail-grid">${detailField('IP address',e.ip)}${detailField('Operating system',e.os)}${detailField('Logged-in user',e.user)}${detailField('Department',e.department)}${detailField('Agent version',e.agent_version)}${detailField('Last seen',C.date(e.last_seen))}</div>`)}${detailSection('Unresolved detections',rows.map(a=>`<button class="button quiet full-width" style="justify-content:flex-start;margin-bottom:8px;text-align:left;white-space:normal" data-action="alert-detail" data-id="${E(a.id)}">${tag(a.severity)}${E(a.title)}</button>`).join('')||'<p class="notes-text">No unresolved detections for this endpoint.</p>')}<div class="notice">${icon('info')}<p>Endpoint response actions are managed by your EDR control plane. This dashboard provides investigation and triage.</p></div></div><footer class="drawer-footer"><button class="button" data-action="host-alerts" data-host="${E(e.host)}">${icon('alerts')}All host detections</button><button class="button primary" data-action="host-events" data-host="${E(e.host)}">${icon('logs')}Explore events</button></footer>`;}
+  function endpointDrawer(e){const rows=state.data.alerts.filter(a=>a.host===e.host&&a.status!=='resolved');return drawerHeader('ENDPOINT DETAILS',e.id)+`<div class="drawer-body"><div class="drawer-eyebrow">${tag(e.status)}<span class="small-label">Risk score: ${Number.isFinite(e.risk)?e.risk+' / 100':'N/A'}</span></div><h2>${E(e.host)}</h2><p class="drawer-subtitle">Endpoint telemetry and agent health.</p>${detailSection('Host inventory',`<div class="detail-grid">${detailField('IP address',e.ip)}${detailField('Operating system',e.os)}${detailField('Logged-in user',e.user)}${detailField('Department',e.department)}${detailField('Agent version',e.agent_version)}${detailField('Last seen',e.last_seen?C.date(e.last_seen):'Unknown')}</div>`)}${detailSection('Unresolved detections',rows.map(a=>`<button class="button quiet full-width" style="justify-content:flex-start;margin-bottom:8px;text-align:left;white-space:normal" data-action="alert-detail" data-id="${E(a.id)}">${tag(a.severity)}${E(a.title)}</button>`).join('')||'<p class="notes-text">No unresolved detections for this endpoint.</p>')}<div class="notice">${icon('info')}<p>Endpoint response actions are managed by your EDR control plane. This dashboard provides investigation and triage.</p></div></div><footer class="drawer-footer"><button class="button" data-action="host-alerts" data-host="${E(e.host)}">${icon('alerts')}All host detections</button><button class="button primary" data-action="host-events" data-host="${E(e.host)}">${icon('logs')}Explore events</button></footer>`;}
   function eventDrawer(e){return drawerHeader('EVENT INSPECTOR',e.id)+`<div class="drawer-body"><div class="drawer-eyebrow">${tag(e.source,'source')}${tag(e.severity)}</div><h2>${E(e.event_type)}</h2><p class="drawer-subtitle">${E(e.message)}</p>${detailSection('Event context',`<div class="detail-grid">${detailField('Timestamp',C.date(e.timestamp))}${detailField('Endpoint',e.host)}${detailField('IP address',e.ip)}${detailField('Event ID',e.event_id)}${detailField('Process',e.process)}${detailField('User',e.user)}</div>`)}${detailSection('Original payload',`<pre class="code-block">${E(JSON.stringify(e.raw,null,2))}</pre>`)}</div><footer class="drawer-footer"><button class="button" data-action="copy-detail">${icon('copy')}Copy event JSON</button><button class="button primary" data-action="host-alerts" data-host="${E(e.host)}">${icon('alerts')}Host detections</button></footer>`;}
   function caseDrawer(c){return drawerHeader('INVESTIGATION',c.id)+`<div class="drawer-body"><div class="drawer-eyebrow">${tag(c.severity)}${tag(c.status)}</div><h2>${E(c.title)}</h2><p class="drawer-subtitle">${E(c.description)}</p>${detailSection('Case context',`<div class="detail-grid">${detailField('Owner',c.owner)}${detailField('Created',C.date(c.created_at))}</div>`)}${detailSection('Linked detections',c.alert_ids.map(id=>{const a=state.data.alerts.find(a=>a.id===id);return a?`<button class="button quiet full-width" style="justify-content:flex-start;text-align:left;white-space:normal;margin-bottom:7px" data-action="alert-detail" data-id="${E(a.id)}">${tag(a.severity)}${E(a.title)}</button>`:`<p class="notes-text">${E(id)} · outside the loaded snapshot</p>`;}).join('')||'<p class="notes-text">No detections linked.</p>')}${detailSection('Analyst notes',c.comments.map(n=>`<div class="comment-box"><strong>${E(n.author)}</strong> <small>${E(C.date(n.at))}</small><p>${E(n.text)}</p></div>`).join('')||'<p class="notes-text">No notes yet.</p>')}<form id="note-form"><div class="form-field"><label for="case-note">Add investigation note</label><textarea id="case-note" placeholder="Record your findings…" maxlength="5000" required ${!canWrite()?'disabled':''}></textarea></div><button class="button" type="submit" ${!canWrite()?'disabled':''}>${icon('plus')}Add note</button></form></div><footer class="drawer-footer"><select class="select" id="case-status" aria-label="Case status" ${!canWrite()?'disabled':''}>${['open','investigating','closed'].map(s=>`<option value="${s}" ${s===c.status?'selected':''}>${s[0].toUpperCase()+s.slice(1)}</option>`).join('')}</select><button class="button primary" data-action="save-case-status" ${!canWrite()?'disabled':''}>${icon('check')}Update status</button></footer>`;}
   function showDrawer(type,id){returnFocus=document.activeElement;state.detail={type,id};state.tab='summary';renderDrawer();}
