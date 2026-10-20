@@ -37,7 +37,16 @@ const out =
     }
   ).outputText;
 
+const endpointExports = {};
+vm.runInNewContext(ts.transpileModule(
+  fs.readFileSync(path.join(__dirname, '../src/lib/nexus-endpoints.ts'), 'utf8'),
+  {compilerOptions:{module:ts.ModuleKind.CommonJS,target:ts.ScriptTarget.ES2022}}
+).outputText, {exports:endpointExports, Date, Map, Set});
 const scope = {
+  require: name => {
+    if (name === '@/lib/nexus-endpoints') return endpointExports;
+    throw new Error('Unexpected dependency: ' + name);
+  },
   exports: {},
   Date,
   Set,

@@ -1,3 +1,4 @@
+import { buildObservedEndpoints } from "@/lib/nexus-endpoints";
 export type Obj = Record<string, unknown>;
 
 const LIVE_SCHEMA = "live-severity-1";
@@ -719,7 +720,7 @@ export function buildNexusSnapshot(
     },
 
     alerts,
-    endpoints: [],
+    endpoints: buildObservedEndpoints(rows),
     events,
     cases: [],
 
