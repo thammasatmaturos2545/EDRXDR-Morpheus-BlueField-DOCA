@@ -9,7 +9,7 @@ type Dependencies = {
 const headers = { 'Cache-Control': 'no-store', 'X-Content-Type-Options': 'nosniff' };
 const reply = (body: unknown, status: number) => Response.json(body, { status, headers });
 
-async function boundedJson(request: Request) {
+export async function boundedJson(request: Request) {
   if (request.headers.get('content-type')?.split(';')[0].trim().toLowerCase() !== 'application/json') {
     throw new EvidenceError(415, 'JSON required');
   }

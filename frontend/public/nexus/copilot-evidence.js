@@ -82,6 +82,58 @@
         ai_status:f.ai_status,ai_score:f.ai_score,ai_label:f.ai_label,
         source_ref:{index:row.source_ref.index,id:row.source_ref.id}},null,2)));
       detail.append(evidence);
+      const generate=node('button','สร้างสรุปจากหลักฐานล่าสุด','button'); generate.type='button';
+      const draftStatus=node('p','การสร้างสรุปต้องมี reservation ของ LLM ที่ใช้งานได้');
+      const draftBody=node('div');detail.append(generate,draftStatus,draftBody);
+      generate.onclick=async()=>{
+        if(!current()||generate.disabled)return;
+        generate.disabled=true;draftBody.replaceChildren();draftStatus.textContent='กำลังอ่านหลักฐานใหม่และสร้างสรุป…';
+        const draftController=new AbortController();active=draftController;
+        const draftTimer=setTimeout(()=>draftController.abort(),120000);
+        try{
+          const response=await fetch('/api/nexus/v1/copilot/draft',{
+            method:'POST',credentials:'same-origin',cache:'no-store',redirect:'error',
+            headers:{'Content-Type':'application/json'},body:JSON.stringify({event_uids:[uid]}),signal:draftController.signal,
+          });
+          if(!current())return;
+          if(!response.ok){
+            if(response.status===401){detail.replaceChildren();status.textContent='ต้องยืนยันตัวตนใหม่ก่อนดูหลักฐาน';return;}
+            draftStatus.textContent=response.status===403?'ไม่มีสิทธิ์สร้างสรุปสำหรับ UID นี้':
+              response.status===429?'มีคำขอมากเกินไป กรุณารอแล้วลองใหม่':'ยังสร้างสรุปไม่ได้ ระบบอาจปิดอยู่หรือไม่มี reservation ที่ใช้ได้';return;
+          }
+          const result=await response.json();if(!current())return;
+          if(result.summary_status!=='generated_unreviewed'||result.provider!=='local-vllm'||
+            result.human_review_required!==true||result.production_ready!==false||
+            result.automated_response_allowed!==false||result.external_transfer_allowed!==false||
+            result.input_evidence_hash!==data.input_evidence_hash||
+            result.evidence?.input_evidence_hash!==data.input_evidence_hash||
+            result.evidence?.results?.length!==1||result.evidence.results[0].event_uid!==uid||
+            result.evidence.results[0].evidence_status!=='matched'){
+            draftStatus.textContent='ไม่แสดงสรุป: หลักฐานเปลี่ยนหรือผลลัพธ์ไม่ผ่านการตรวจ กรุณาเปิดเหตุการณ์ใหม่';return;
+          }
+          const value=result.draft,keys=['summary_th','facts','hypotheses','unknowns','suggested_checks'];
+          if(!value||Object.keys(value).sort().join(',')!==keys.slice().sort().join(','))throw Error();
+          const claim=c=>{
+            if(!c||Object.keys(c).sort().join(',')!=='evidence_uids,text'||typeof c.text!=='string'||
+              !c.text.trim()||c.text.length>500||!Array.isArray(c.evidence_uids)||
+              c.evidence_uids.length!==1||c.evidence_uids[0]!==uid)throw Error();
+            return c.text;
+          };
+          const sections=[['สรุปร่าง', [claim(value.summary_th)]]];
+          for(const [key,label] of [['facts','ข้อเท็จจริง'],['hypotheses','ข้อสันนิษฐาน'],['unknowns','สิ่งที่ยังไม่ทราบ'],['suggested_checks','ตรวจเพิ่มเติมโดย Analyst']]){
+            if(!Array.isArray(value[key])||value[key].length>3)throw Error();
+            sections.push([label,value[key].map(claim)]);
+          }
+          draftBody.replaceChildren();
+          for(const [label,texts] of sections){draftBody.append(node('h3',label));
+            for(const text of texts)draftBody.append(node('p',text));
+            if(!texts.length)draftBody.append(node('p','โมเดลไม่ได้ระบุ'));
+          }
+          draftBody.append(node('p','Citation: '+uid,'mono'));
+          draftStatus.textContent='สรุปร่างใหม่ · รอ Analyst ตรวจ · '+String(result.model||'')+' · '+String(result.generated_at||'');
+        }catch{if(current()){draftBody.replaceChildren();draftStatus.textContent='สร้างสรุปไม่สำเร็จหรือหมดเวลา ไม่มีสรุปเก่ามาแสดงแทน';}}
+        finally{clearTimeout(draftTimer);draftController.abort();if(current())generate.disabled=false;}
+      };
     } catch {
       if (current()) { detail.replaceChildren(); status.textContent='อ่านหลักฐานไม่สำเร็จหรือหมดเวลา ไม่มีผลเก่ามาแสดงแทน'; }
     } finally { clearTimeout(timer); }
