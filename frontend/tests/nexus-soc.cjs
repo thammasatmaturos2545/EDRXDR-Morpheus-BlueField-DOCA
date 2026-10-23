@@ -509,11 +509,9 @@ assert(
   )
 );
 
-assert(
-  html.includes(
-    "EDR / XDR Lab"
-  )
-);
+assert(!html.includes('class="workspace"'));
+assert(html.includes('id="main-nav"'));
+assert(html.includes('id="sidebar-state"'));
 
 for (const label of [
   "Security overview",
