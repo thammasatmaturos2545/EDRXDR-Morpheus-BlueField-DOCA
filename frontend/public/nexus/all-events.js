@@ -121,6 +121,16 @@
         addCell(tr, event.description);
         addAiCell(tr, event);
         addCell(tr, event.event_uid || "—");
+        if (typeof event.event_uid === "string" && /^[0-9a-f]{64}$/.test(event.event_uid)) {
+          const button = document.createElement("button");
+          button.type = "button";
+          button.className = "button";
+          button.textContent = "ตรวจหลักฐานใน Copilot";
+          const uid = event.event_uid;
+          button.addEventListener("click", () => window.NexusCopilotEvidence.select(uid));
+          tr.lastElementChild.appendChild(button);
+        }
+
 
         fragment.appendChild(tr);
       }

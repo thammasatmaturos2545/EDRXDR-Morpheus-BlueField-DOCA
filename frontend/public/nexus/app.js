@@ -1022,6 +1022,10 @@
   /* COPILOT_INTEGRATED_PANEL_V1 */
   let copilotSelectedUid='';
   function copilotPage(){
+    if(typeof window!=='undefined'&&window.NexusCopilotEvidence?.selected()){
+      queueMicrotask(()=>{if(state.page==='copilot')window.NexusCopilotEvidence.mount();});
+      return '<section class="panel" id="copilot-live-root" style="padding:24px;overflow-wrap:anywhere" aria-live="polite"></section>';
+    }
     queueMicrotask(()=>{if(state.page==='copilot')mountCopilotPage();});
     return `<style>
       .copilot-page .copilot-layout{display:grid;grid-template-columns:minmax(240px,.8fr) minmax(0,2fr);gap:20px;align-items:start}
