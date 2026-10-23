@@ -51,9 +51,12 @@ const generated=()=>({provider:'local-vllm',summary_status:'generated_unreviewed
       return {ok:true,json:async()=>out};
     });
     item.api.select(uid);await flush();assert.equal(posts,0);
+    assert(item.root.textContent.includes('ยังไม่สร้างสรุป · Automated response OFF'));
     const button=findButton(item.root);assert(button);await button.onclick();
     assert.equal(posts,1);
     assert.equal(item.root.textContent.includes('สรุปร่างสังเคราะห์'),mode==='success');
+    assert.equal(item.root.textContent.includes('สรุปร่างแล้ว · รอ Analyst ตรวจ · Automated response OFF'),mode==='success');
+    assert(!item.root.textContent.includes('ยังไม่สร้างสรุป · Automated response OFF'));
     if(mode==='auth')assert(!item.root.textContent.includes('Wazuh 7'));
   }
   console.log('PASS explicit click sends UID only; no automatic generation');
@@ -63,6 +66,7 @@ const generated=()=>({provider:'local-vllm',summary_status:'generated_unreviewed
   const raced=setup(async(url)=>url.endsWith('/evidence')?{ok:true,json:async()=>payload()}:
     new Promise(resolve=>{finish=resolve;}));
   raced.api.select(uid);await flush();const pending=findButton(raced.root).onclick();await flush();
+  assert(raced.root.textContent.includes('กำลังสร้างสรุป · Automated response OFF'));
   raced.api.select(second);await flush();finish({ok:true,json:async()=>generated()});await pending;
   assert(!raced.root.textContent.includes('สรุปร่างสังเคราะห์'));
   console.log('PASS late generation cannot overwrite new selection; DOM doubles only, no LLM');

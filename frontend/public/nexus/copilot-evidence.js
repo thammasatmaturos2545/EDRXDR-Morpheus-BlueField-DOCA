@@ -43,7 +43,8 @@
     root.replaceChildren();
     root.append(node('h1','SOC Copilot · ตรวจหลักฐาน'), node('p',uid,'mono'));
     const back = node('a','กลับ All Events','button'); back.href = '#allevents';
-    root.append(back, node('p','ยังไม่สร้างสรุป · Automated response OFF','notice warn'));
+    const banner=node('p','ยังไม่สร้างสรุป · Automated response OFF','notice warn');
+    root.append(back,banner);
     const status = node('p','กำลังตรวจสิทธิ์และอ่านหลักฐานล่าสุด…');
     const detail = node('div'); root.append(status, detail);
     const timer = setTimeout(() => controller.abort(), 45000);
@@ -88,6 +89,7 @@
       generate.onclick=async()=>{
         if(!current()||generate.disabled)return;
         generate.disabled=true;draftBody.replaceChildren();draftStatus.textContent='กำลังอ่านหลักฐานใหม่และสร้างสรุป…';
+        let completed=false;banner.textContent='กำลังสร้างสรุป · Automated response OFF';
         const draftController=new AbortController();active=draftController;
         const draftTimer=setTimeout(()=>draftController.abort(),120000);
         try{
@@ -131,8 +133,13 @@
           }
           draftBody.append(node('p','Citation: '+uid,'mono'));
           draftStatus.textContent='สรุปร่างใหม่ · รอ Analyst ตรวจ · '+String(result.model||'')+' · '+String(result.generated_at||'');
+          completed=true;
         }catch{if(current()){draftBody.replaceChildren();draftStatus.textContent='สร้างสรุปไม่สำเร็จหรือหมดเวลา ไม่มีสรุปเก่ามาแสดงแทน';}}
-        finally{clearTimeout(draftTimer);draftController.abort();if(current())generate.disabled=false;}
+        finally{clearTimeout(draftTimer);draftController.abort();if(current()){
+          generate.disabled=false;
+          banner.textContent=completed?'สรุปร่างแล้ว · รอ Analyst ตรวจ · Automated response OFF':
+            'ยังไม่มีสรุปใหม่ที่ผ่านการตรวจรูปแบบ · Automated response OFF';
+        }}
       };
     } catch {
       if (current()) { detail.replaceChildren(); status.textContent='อ่านหลักฐานไม่สำเร็จหรือหมดเวลา ไม่มีผลเก่ามาแสดงแทน'; }
