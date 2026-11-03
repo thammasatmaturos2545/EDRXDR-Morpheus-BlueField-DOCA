@@ -42,3 +42,17 @@
 ## Data handling
 Keep private logs, memberships, keys, datasets and weights on VM.
 Do not stage private artifacts or overwrite prior evidence.
+
+## Follow-up: one-hour pilot and CPU prototype
+
+- Later pilot observed 3300 seconds and finished RESTORED, logall_json=no.
+- New capture: 897 records, Agent003 822, aggregated into 12 windows.
+- The 422-record window includes 352 syscollector records; not an attack label.
+- Seven-feature CPU prototype trained for 5 epochs; fresh-process reload passed.
+- Separate inference adapter reproduced all 12 in-sample scores.
+- This supersedes the earlier statement that no Wazuh prototype was trained.
+- No independent evaluation, live deployment, threshold or BERT replacement.
+- Source and receipt: training/experiments/archive-cpu-prototype-v1/.
+- Private experiment: /home/saiuser/edrxdr-nvidia-lab-znmqaTGL/dfp-archive-cpu-prototype-uy_2ita1
+- CPU adaptation: /home/saiuser/edrxdr-nvidia-lab-znmqaTGL/dfp-cpu-adapter-RMNy70Z4
+- No further collection is running under this checkpoint.

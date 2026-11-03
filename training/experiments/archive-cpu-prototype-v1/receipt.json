@@ -1,0 +1,17 @@
+{
+  "status": "DEVELOPMENT_PROTOTYPE_IMPLEMENTATION_VERIFIED",
+  "model_sha256": "ecacecb3128f9ac6987315e2a1861fb02ac873f9fc42ddc11798a9fc0c25157e",
+  "cpu_source_manifest_sha256": "a32c517170fbf364581d65277ed9dc13ce497d1a1bd06b6b5a91c90e21183cc0",
+  "source_sha256": {
+    "train_prototype.py": "7bfb6d29716f227e45094a61f4e5148765b0acf8060914fae1a8cbee1b127d41",
+    "infer_prototype.py": "4fcfdeee6f9693c4c1a7cf29117641abc0aa87417a3175c8b2b7e1cd93631358"
+  },
+  "input_sha256": "cfa27c706f1d33c85628329f79cb23a764d032d5149f91f9388ccbd07fbd4cff",
+  "observations_sha256": "d1c8688ba89f09e32ea708e3eed2328bc4e3d2e9e953ffc4a03df024550c840b",
+  "feature_contract": "wazuh-archive-cpu-prototype-1",
+  "fit_windows": 12,
+  "independent_evaluation_windows": 0,
+  "scoring_scope": "in_sample_diagnostic",
+  "live_deployed": false,
+  "bert_replaced": false
+}
