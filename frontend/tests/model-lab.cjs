@@ -23,6 +23,31 @@ function event(pipeline='dfp', row=1) {
 function raw(events){return {timed_out:false,_shards:{failed:0,total:1,successful:1},hits:{total:{value:events.length,relation:'eq'},hits:events.map(e=>({_id:e.observation_id,_index:'edrxdr-ai-lab-v1',_source:e}))}};}
 const clone=v=>JSON.parse(JSON.stringify(v));
 async function run(){
+
+  function resign(e) {
+    const fields='schema_version pipeline_id model_name model_version model_sha256 source_type source_artifact_sha256 source_record_ref adapter_sha256'.split(' ').sort();
+    e.observation_id=crypto.createHash('sha256').update(JSON.stringify(Object.fromEntries(fields.map(k=>[k,e[k]])))).digest('hex');
+    return e;
+  }
+  const app=event('ransomware');
+  app.details.input_scope='nvidia_appshield_sample_window';
+  app.source_record_ref='json-row:1';
+  resign(app);
+  assert.equal(lib.validateObservation(app).observation_id,app.observation_id);
+  for(const change of [
+    e=>e.source_record_ref='json-object:0',
+    e=>e.source_record_ref='json-row:0',
+    e=>e.details.input_scope='live_appshield',
+    e=>e.details.input_scope='nvidia_training_csv_window',
+    e=>e.details.raw_log='private'
+  ]) {
+    const bad=clone(app);change(bad);resign(bad);
+    assert.throws(()=>lib.validateObservation(bad));
+  }
+  const mixed=[event(),event('ransomware'),app];
+  assert.equal(lib.projectLabResult(raw(mixed),{page:1,pipeline:'ransomware'}).total,2);
+  console.log('PASS AppShield scope/reference binding and mixed replay batch');
+
   for(const e of [event(),event('ransomware')]) assert.equal(lib.validateObservation(e).observation_id,e.observation_id);
   for(const change of [e=>e.raw_event='secret',e=>e.production_ready=true,e=>e.automated_response_allowed=true,e=>e.quality_metrics_evaluated=true,e=>e.observation_id='c'.repeat(64),e=>e.model_version='2',e=>e.scores.mean_abs_z=-1,e=>e.scores.max_abs_z=Infinity,e=>e.observed_at_utc='missing',e=>e.processing_mode='live']) {const e=event();change(e);assert.throws(()=>lib.validateObservation(e));}
   for(const change of [e=>e.details.class_mapping='verified',e=>e.details.snapshots=[1,3,4],e=>e.scores.output_1=.5,e=>e.details.raw_log='x']){const e=event('ransomware');change(e);assert.throws(()=>lib.validateObservation(e));}

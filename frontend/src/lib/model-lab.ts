@@ -37,11 +37,15 @@ export function validateObservation(value: unknown): Obj {
     requireValue(keys(scores, ["output_0", "output_1"]));
     requireValue(number(scores.output_0) && number(scores.output_1) && scores.output_0 >= 0 && scores.output_0 <= 1 && scores.output_1 >= 0 && scores.output_1 <= 1 && Math.abs(scores.output_0 + scores.output_1 - 1) <= 1e-4);
     requireValue(keys(details, ["execution_backend", "input_scope", "class_mapping", "input_features", "snapshots", "feature_order_sha256"]));
-    requireValue(details.execution_backend === "cpu" && details.input_scope === "nvidia_training_csv_window" && details.class_mapping === "unverified" && details.input_features === 297);
+    requireValue(details.execution_backend === "cpu" && (details.input_scope === "nvidia_training_csv_window" || details.input_scope === "nvidia_appshield_sample_window") && details.class_mapping === "unverified" && details.input_features === 297);
     requireValue(details.feature_order_sha256 === "ff504a45944322a33a148eb34e5a0e165d14bafca4e06119078f150daf34839b");
     const s = details.snapshots;
     requireValue(Array.isArray(s) && s.length === 3 && s.every((n, i) => Number.isSafeInteger(n) && n >= 0 && n === s[0] + i));
-    requireValue(v.source_record_ref === "json-object:0");
+    if (details.input_scope === "nvidia_training_csv_window") {
+      requireValue(v.source_record_ref === "json-object:0");
+    } else {
+      requireValue(typeof v.source_record_ref === "string" && /^json-row:[1-9][0-9]*$/.test(v.source_record_ref));
+    }
   }
   const identity = Object.fromEntries(identityFields.map(k => [k, v[k]]));
   requireValue(createHash("sha256").update(canonical(identity)).digest("hex") === v.observation_id);
