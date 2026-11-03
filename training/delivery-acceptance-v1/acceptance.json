@@ -1,0 +1,277 @@
+{
+  "schema": "edrxdr-delivery-acceptance-1",
+  "prepared_date": "2026-11-04",
+  "timezone": "Asia/Bangkok",
+  "status": "DELIVERY_NOT_ACCEPTED",
+  "evidence_basis": "operator-reported historical outputs; live state must be refreshed",
+  "items": [
+    {
+      "id": "scope",
+      "title": "ขอบเขตและเกณฑ์ส่งมอบ",
+      "required": true,
+      "status": "blocked_scope",
+      "depends_on": [],
+      "independent_evaluation_required": false,
+      "acceptance_criteria": "ยืนยันบทบาท BERT และขอบเขต Agent004/Network/BlueField โดยไม่เริ่มส่วนที่ยังห้ามไว้"
+    },
+    {
+      "id": "release",
+      "title": "Source/runtime/dependency manifests",
+      "required": true,
+      "status": "partial",
+      "depends_on": [
+        "scope"
+      ],
+      "independent_evaluation_required": false,
+      "acceptance_criteria": "ผูก commit/image/config/model versions กับ release และเก็บ rollback"
+    },
+    {
+      "id": "source_identity",
+      "title": "Endpoint/source identity",
+      "required": true,
+      "status": "partial",
+      "depends_on": [
+        "scope"
+      ],
+      "independent_evaluation_required": false,
+      "acceptance_criteria": "ยืนยันตัวตนและ continuity ของเครื่องเป้าหมาย ไม่ใช้ agent ID เป็น physical identity โดยลำพัง"
+    },
+    {
+      "id": "capture_restore",
+      "title": "รอบเก็บข้อมูลและคืนค่า",
+      "required": true,
+      "status": "partial",
+      "depends_on": [
+        "source_identity"
+      ],
+      "independent_evaluation_required": false,
+      "acceptance_criteria": "ตรวจผลรอบที่อนุญาต ไม่สั่งรันซ้ำ; logall_json=no และ Manager ready หลังจบ"
+    },
+    {
+      "id": "coverage",
+      "title": "Collection coverage และช่วงขาด",
+      "required": true,
+      "status": "pending",
+      "depends_on": [
+        "capture_restore"
+      ],
+      "independent_evaluation_required": false,
+      "acceptance_criteria": "หลักฐาน exposure, aliases/rotation/truncation/gaps และ incomplete intervals"
+    },
+    {
+      "id": "feature_contract",
+      "title": "Versioned extractor/features",
+      "required": true,
+      "status": "partial",
+      "depends_on": [
+        "coverage"
+      ],
+      "independent_evaluation_required": false,
+      "acceptance_criteria": "source/model binding, missing fields, memberships และข้อมูลไม่ซ้ำกับการประเมิน",
+      "last_observed": "Raw frozen-capture equivalence 822 records/12 windows; new capture 845 records/12 windows; seven actual StandardScaler features."
+    },
+    {
+      "id": "dfp_quality",
+      "title": "DFP independent evaluation",
+      "required": true,
+      "status": "partial",
+      "depends_on": [
+        "feature_contract"
+      ],
+      "independent_evaluation_required": true,
+      "acceptance_criteria": "protocol และเกณฑ์คุณภาพตรึงก่อนดูผล; ห้ามใช้ 12 fitting windows เป็น independent evaluation",
+      "last_observed": "Frozen model scored 12 new-capture windows on CPU; no independent quality acceptance, threshold or coverage acceptance."
+    },
+    {
+      "id": "dfp_live",
+      "title": "DFP live shadow path",
+      "required": true,
+      "status": "pending",
+      "depends_on": [
+        "dfp_quality",
+        "release"
+      ],
+      "independent_evaluation_required": false,
+      "acceptance_criteria": "ทดสอบ Agent003 -> features -> scores -> index -> NEXUS แบบ shadow พร้อม rollback"
+    },
+    {
+      "id": "ransom_mapping",
+      "title": "Ransomware class mapping",
+      "required": true,
+      "status": "pending",
+      "depends_on": [
+        "scope"
+      ],
+      "independent_evaluation_required": false,
+      "acceptance_criteria": "หลักฐาน training/model provenance อธิบาย output_0/output_1"
+    },
+    {
+      "id": "ransom_telemetry",
+      "title": "Compatible ransomware telemetry",
+      "required": true,
+      "status": "pending",
+      "depends_on": [
+        "source_identity",
+        "ransom_mapping"
+      ],
+      "independent_evaluation_required": false,
+      "acceptance_criteria": "ได้รับอนุญาต telemetry ที่ตรง 297-feature snapshot/process contract"
+    },
+    {
+      "id": "ransom_quality",
+      "title": "Ransomware independent evaluation",
+      "required": true,
+      "status": "pending",
+      "depends_on": [
+        "ransom_telemetry"
+      ],
+      "independent_evaluation_required": true,
+      "acceptance_criteria": "ประเมินข้อมูลอิสระและ false-alert behavior ก่อน live routing"
+    },
+    {
+      "id": "ransom_live",
+      "title": "Ransomware live shadow path",
+      "required": true,
+      "status": "pending",
+      "depends_on": [
+        "ransom_quality",
+        "release"
+      ],
+      "independent_evaluation_required": false,
+      "acceptance_criteria": "แยก live จาก sample replay พร้อม identity/version/failure state"
+    },
+    {
+      "id": "bert_role",
+      "title": "บทบาท/การสลับ BERT",
+      "required": true,
+      "status": "pending",
+      "depends_on": [
+        "dfp_live",
+        "ransom_live"
+      ],
+      "independent_evaluation_required": false,
+      "acceptance_criteria": "ระบุฟังก์ชันที่แทนได้จริง ไม่เปลี่ยน loss เป็น severity; ทดลองสลับ/rollbackตามสิทธิ์"
+    },
+    {
+      "id": "transport",
+      "title": "Kafka/OpenSearch reliability",
+      "required": true,
+      "status": "partial",
+      "depends_on": [
+        "release"
+      ],
+      "independent_evaluation_required": false,
+      "acceptance_criteria": "idempotency/retry/schema/offset/partial failure และ retention ที่ทดสอบจริง"
+    },
+    {
+      "id": "ui",
+      "title": "NEXUS real-browser acceptance",
+      "required": true,
+      "status": "partial",
+      "depends_on": [
+        "transport",
+        "dfp_live",
+        "ransom_live"
+      ],
+      "independent_evaluation_required": false,
+      "acceptance_criteria": "Overview/Events/Model Lab live-replay/auth/unavailable/zero/stale/citations"
+    },
+    {
+      "id": "copilot",
+      "title": "Copilot evidence-bound workflow",
+      "required": true,
+      "status": "partial",
+      "depends_on": [
+        "ui"
+      ],
+      "independent_evaluation_required": false,
+      "acceptance_criteria": "canonical evidence/auth/no fabricated facts/LLM unavailable/manual-review labels"
+    },
+    {
+      "id": "manual_response",
+      "title": "Response แบบคนยืนยัน",
+      "required": true,
+      "status": "pending",
+      "depends_on": [
+        "ui",
+        "bert_role"
+      ],
+      "independent_evaluation_required": false,
+      "acceptance_criteria": "permissions/exact target/expiry/idempotency/audit/rollback บน authorized test endpoint"
+    },
+    {
+      "id": "automatic_response",
+      "title": "Limited automated response",
+      "required": true,
+      "status": "pending",
+      "depends_on": [
+        "manual_response",
+        "dfp_quality",
+        "ransom_quality"
+      ],
+      "independent_evaluation_required": false,
+      "acceptance_criteria": "approved policy, false-alert suppression, allowlist/kill switch และผลทดสอบแยกจาก production"
+    },
+    {
+      "id": "security",
+      "title": "Access/secrets/data boundaries",
+      "required": true,
+      "status": "partial",
+      "depends_on": [
+        "release"
+      ],
+      "independent_evaluation_required": false,
+      "acceptance_criteria": "auth/authorization/secret handling/private artifacts และการตรวจ repo/release ตามขอบเขต"
+    },
+    {
+      "id": "operations",
+      "title": "Restart/monitoring/storage",
+      "required": true,
+      "status": "partial",
+      "depends_on": [
+        "transport",
+        "security"
+      ],
+      "independent_evaluation_required": false,
+      "acceptance_criteria": "startup/restart/reboot ตามสิทธิ์, health/lag/error alerts และ storage limits"
+    },
+    {
+      "id": "restore",
+      "title": "Backup/restore acceptance",
+      "required": true,
+      "status": "partial",
+      "depends_on": [
+        "operations"
+      ],
+      "independent_evaluation_required": false,
+      "acceptance_criteria": "restore isolated target ตรวจ hashes/data/service; downloads ไม่เท่ากับ restore success"
+    },
+    {
+      "id": "e2e",
+      "title": "End-to-end and sustained tests",
+      "required": true,
+      "status": "pending",
+      "depends_on": [
+        "dfp_live",
+        "ransom_live",
+        "automatic_response",
+        "copilot",
+        "operations"
+      ],
+      "independent_evaluation_required": false,
+      "acceptance_criteria": "fix duration/criteriaก่อนทดสอบ รวม failure/recovery และ latency/resources"
+    },
+    {
+      "id": "handoff",
+      "title": "Clean install and teammate handoff",
+      "required": true,
+      "status": "partial",
+      "depends_on": [
+        "restore",
+        "e2e"
+      ],
+      "independent_evaluation_required": false,
+      "acceptance_criteria": "เพื่อนติดตั้ง/ใช้งาน/แก้ปัญหาจาก repo/คู่มือบน target ที่อนุญาตได้"
+    }
+  ]
+}

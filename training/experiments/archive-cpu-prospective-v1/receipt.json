@@ -1,0 +1,23 @@
+{
+  "status": "FROZEN_CPU_NEW_CAPTURE_DIAGNOSTIC_VERIFIED_NOT_QUALITY_ACCEPTANCE",
+  "evidence_basis": "operator-reported VM outputs; installer verifies referenced aggregate report hashes",
+  "model_sha256": "ecacecb3128f9ac6987315e2a1861fb02ac873f9fc42ddc11798a9fc0c25157e",
+  "source_capture_sha256": "6e8478a917eebe277e725b746c08b481f34f4b805f7a7d6e24a096ed1c68510f",
+  "postcapture_report_sha256": "6de4aa5337450a5b3bf7359774169f04f22a8f63f00a72ff04dca985bdcb06df",
+  "cpu_report_sha256": "e88839c64f9221b88c653126359046d2a053507f82653b249861eef13fdd6fc1",
+  "scored_records": 845,
+  "scored_windows": 12,
+  "numeric_scaler_class_counts": {
+    "StandardScaler": 7
+  },
+  "numeric_loss_mean_parity": true,
+  "repeat_score_parity": true,
+  "source_coverage_accepted": false,
+  "independent_quality_evaluation_windows": 0,
+  "quality_metrics_evaluated": false,
+  "threshold_selected": false,
+  "training_performed": false,
+  "gpu_used": false,
+  "live_deployed": false,
+  "bert_replaced": false
+}

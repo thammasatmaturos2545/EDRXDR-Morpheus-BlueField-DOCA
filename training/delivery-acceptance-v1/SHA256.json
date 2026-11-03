@@ -1,0 +1,9 @@
+{
+  "acceptance.json": "9c0342cd52f637e7b84df9e949833ba9b5ff2c2a1abaabeb1901c88805dc8c92",
+  "acceptance.py": "6e4826b2e6e561dddb98fcd1fc5e6c5736343a28acd21d500e004e5259466a98",
+  "collect_status.py": "a082a6adef4a72044a495d4841eab4c7fcf557eebf9e9db643c637622454060c",
+  "DELIVERY-PLAN.md": "10dbba55da7c8a82b05733a832fde8c5136fa57b1ad047f62510c79c942f603c",
+  "README.md": "ec47c0a774114d956144e860c49370d47242eb77a9ca78a359140e7f881c66f3",
+  "test_acceptance.py": "5ffdd66f1a2c7e122473661dd3413cdeefe8b21574f4683595784f3addf281d9",
+  "test_collect.py": "e74f29da79bc5c2637c3a0331b717fc8b84938a6c15ef498c0aef48434bd5f6c"
+}
