@@ -1,0 +1,145 @@
+{
+  "schema_version": "wazuh-dfp-diagnostic-bundle-1",
+  "processing_mode": "offline_frozen_cpu_diagnostic",
+  "source_type": "frozen_archive_window_scores",
+  "agent_id": "003",
+  "identity_basis": "manager_agent_id_not_physical_device_verified",
+  "model_name": "EDRXDR-ARCHIVE-CPU-PROTOTYPE",
+  "model_version": "1",
+  "model_sha256": "ecacecb3128f9ac6987315e2a1861fb02ac873f9fc42ddc11798a9fc0c25157e",
+  "source_capture_sha256": "6e8478a917eebe277e725b746c08b481f34f4b805f7a7d6e24a096ed1c68510f",
+  "features_sha256": "90a5d3871341a6580bff524ff40edf75cc0cc4add1ea6d2841b2b895165d1fd2",
+  "diagnostic_report_sha256": "e88839c64f9221b88c653126359046d2a053507f82653b249861eef13fdd6fc1",
+  "feature_contract": "wazuh-archive-cpu-prototype-1",
+  "score_semantics": "mean_squared_reconstruction_error_transformed_numeric_features",
+  "window_seconds": 300,
+  "source_coverage_accepted": false,
+  "quality_metrics_evaluated": false,
+  "threshold_selected": false,
+  "production_ready": false,
+  "automated_response_allowed": false,
+  "live_deployed": false,
+  "bert_replaced": false,
+  "observations": [
+    {
+      "observation_id": "063d6eeffe7bba9d1496b9a5ee9f49d7a7734a314344ca4d20c0065e9a997277",
+      "window_start_utc": "2030-01-01T00:00:00+00:00",
+      "record_count": 70,
+      "reconstruction_score": 0.0,
+      "nominally_inside_observation_interval": false,
+      "syscollector_record_count": 0,
+      "coverage_status": "unknown",
+      "window_complete": false
+    },
+    {
+      "observation_id": "f53d8e761111f1a32bca16283797098643a715da263bfa3e37626607a2606468",
+      "window_start_utc": "2030-01-01T00:05:00+00:00",
+      "record_count": 70,
+      "reconstruction_score": 2.0,
+      "nominally_inside_observation_interval": true,
+      "syscollector_record_count": 0,
+      "coverage_status": "unknown",
+      "window_complete": false
+    },
+    {
+      "observation_id": "03d13de98b53055edf2558212d7da689126fb4a2171d38794bb5db2156435e72",
+      "window_start_utc": "2030-01-01T00:10:00+00:00",
+      "record_count": 70,
+      "reconstruction_score": 4.0,
+      "nominally_inside_observation_interval": true,
+      "syscollector_record_count": 0,
+      "coverage_status": "unknown",
+      "window_complete": false
+    },
+    {
+      "observation_id": "642d3e0d6c7dea341960c85777725191255ac27c072d39ee9445405d752ede30",
+      "window_start_utc": "2030-01-01T00:15:00+00:00",
+      "record_count": 70,
+      "reconstruction_score": 6.0,
+      "nominally_inside_observation_interval": true,
+      "syscollector_record_count": 0,
+      "coverage_status": "unknown",
+      "window_complete": false
+    },
+    {
+      "observation_id": "98b6d60225d6c301a5e1b9796e1f8946713a6cca5fc9cad63f24b5f515ca1053",
+      "window_start_utc": "2030-01-01T00:20:00+00:00",
+      "record_count": 70,
+      "reconstruction_score": 8.0,
+      "nominally_inside_observation_interval": true,
+      "syscollector_record_count": 0,
+      "coverage_status": "unknown",
+      "window_complete": false
+    },
+    {
+      "observation_id": "e4c7cce01685e82e8d4165b7cbde26c6b1b460dacdba72028f9a4d45cef7a77f",
+      "window_start_utc": "2030-01-01T00:25:00+00:00",
+      "record_count": 70,
+      "reconstruction_score": 10.0,
+      "nominally_inside_observation_interval": true,
+      "syscollector_record_count": 0,
+      "coverage_status": "unknown",
+      "window_complete": false
+    },
+    {
+      "observation_id": "3a1fa1e6dfd5b36186c00abda46ff41605fa5ea878473942c0d771bca4859465",
+      "window_start_utc": "2030-01-01T00:30:00+00:00",
+      "record_count": 70,
+      "reconstruction_score": 12.0,
+      "nominally_inside_observation_interval": true,
+      "syscollector_record_count": 10,
+      "coverage_status": "unknown",
+      "window_complete": false
+    },
+    {
+      "observation_id": "c43e7072f78b10f4292d1443278c1db30e67ff74b3fde73734c0e60d5bd2a6f6",
+      "window_start_utc": "2030-01-01T00:35:00+00:00",
+      "record_count": 70,
+      "reconstruction_score": 14.0,
+      "nominally_inside_observation_interval": true,
+      "syscollector_record_count": 0,
+      "coverage_status": "unknown",
+      "window_complete": false
+    },
+    {
+      "observation_id": "42a1432699b5e7c0a88c80672f2216029c818100fe6c9c0744ec380e8b5a51ec",
+      "window_start_utc": "2030-01-01T00:40:00+00:00",
+      "record_count": 70,
+      "reconstruction_score": 16.0,
+      "nominally_inside_observation_interval": true,
+      "syscollector_record_count": 0,
+      "coverage_status": "unknown",
+      "window_complete": false
+    },
+    {
+      "observation_id": "7ad05b0daf4f78cdf1fb5ad8cb6a7f7ff6456a876115b47eae864a7a58702983",
+      "window_start_utc": "2030-01-01T00:45:00+00:00",
+      "record_count": 70,
+      "reconstruction_score": 18.0,
+      "nominally_inside_observation_interval": true,
+      "syscollector_record_count": 0,
+      "coverage_status": "unknown",
+      "window_complete": false
+    },
+    {
+      "observation_id": "7d176004a9852b3a48398f5b628e91df10088d99c2bf74b806cac1aa2ec60b1b",
+      "window_start_utc": "2030-01-01T00:50:00+00:00",
+      "record_count": 70,
+      "reconstruction_score": 20.0,
+      "nominally_inside_observation_interval": true,
+      "syscollector_record_count": 0,
+      "coverage_status": "unknown",
+      "window_complete": false
+    },
+    {
+      "observation_id": "c82ab1e5d870e79c7c9e2da0f4f542b95765f19d4fc9be81c816537f9c884031",
+      "window_start_utc": "2030-01-01T00:55:00+00:00",
+      "record_count": 75,
+      "reconstruction_score": 22.0,
+      "nominally_inside_observation_interval": false,
+      "syscollector_record_count": 0,
+      "coverage_status": "unknown",
+      "window_complete": false
+    }
+  ]
+}
