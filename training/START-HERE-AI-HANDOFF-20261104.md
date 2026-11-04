@@ -1,13 +1,14 @@
 # START HERE — EDRXDR–Morpheus–NEXUS handoff — 2026-11-04
 
+> **ACTIVE ARCHITECTURE:** [EDRXDR–DFP–RANSOMWARE–NEXUS v1](../docs/architecture/EDRXDR-DFP-RANSOMWARE-NEXUS-v1.md). DFP and Ransomware Detection are the active target pipelines. BERT v4 is superseded as an active target; retain its historical code, datasets, weights, checkpoints and evaluation evidence. Architecture approval does not mean implementation or model acceptance is complete.
+
 ## Receiving AI: start here
 
 VM: saiuser@172.16.30.147. Repo: /home/saiuser/EDRXDR-Morpheus.
 Branch: work/nexus-exact-ai-v1. Last confirmed application source commit:
 aed1715a080205dc92544ab8b4c84a144adba0c5. This handoff adds a documentation
 commit after it; inspect actual HEAD and Git status, never assume they match.
-Owner paused implementation and requested this handoff. Continue with read-only
-checks and report findings; obtain a concrete new scope before new operations.
+Owner subsequently approved Architecture v1 and authorized staged documentation alignment and implementation planning. Use the committed Architecture v1 as the authoritative target. Runtime details below are a historical snapshot; re-verify services, runtime and artifacts before operational changes. Architecture approval does not establish model acceptance or production readiness.
 
 Read in order:
 1. This document (latest deployment update supersedes older preview-only notes).
@@ -48,7 +49,7 @@ expiry is normal. Do not extend or restart it under the old authorization.
 
 DFP Diagnostic is an authenticated, read-only viewer of frozen CPU results.
 It does not collect events, invoke models, write Kafka/OpenSearch, select a
-threshold, detect live attacks or replace BERT. API is disabled by default;
+threshold or detect live attacks. Under Architecture v1, DFP and Ransomware Detection are the active target pipelines; BERT v4 is superseded as an active target and preserved as legacy. API is disabled by default;
 production explicitly enables it with a server-pinned private artifact hash.
 Model Lab is sample/replay: 666 Duo DFP observations and 107 ransomware CPU
 observations (including AppShield replay). These counts are not live quality.
@@ -122,9 +123,7 @@ private configurations, raw log bodies or full API event responses.
 5. Progress delivery acceptance honestly: operational monitoring, recovery/restore
    verification, reproducible artifacts and teammate instructions remain gates.
 
-Ransomware remains sample replay: compatible live telemetry, class mapping and
-independent evaluation are unresolved. Agent004 is paused; Network/BlueField is
-outside current scope. Live BERT role/replacement is undecided. Host CUDA error
+Ransomware remains sample/replay in the last verified runtime snapshot. Compatible live telemetry and class mapping remain implementation and acceptance gates under Architecture v1, not excluded from scope. BERT v4 is superseded as the active target by ../docs/architecture/EDRXDR-DFP-RANSOMWARE-NEXUS-v1.md. Its historical artifacts remain preserved and unchanged. Host CUDA error
 999 was not resolved by these CPU diagnostics. No GPU or new training booking
 is active. Automated response remains OFF; policy, approval, audit, rollback and
 controlled end-to-end validation must precede any response automation.
@@ -139,7 +138,7 @@ Preserve ALL actual WIP, not just this list. No reset/clean, broad git add,
 force checkout, deletion or overwrite. No push was performed for this handoff.
 
 No new GPU/training/logging/collector, runtime restart/switch, Kafka/OpenSearch
-writes, threshold/class/label changes or BERT replacement without agreed scope.
+writes, threshold/class/label changes or changes to preserved BERT artifacts without agreed scope.
 Prior one-off approvals do not authorize new rounds. Use exact project/service/
 container identities; LuckyFive shared stack and peer processes are not targets.
 Do not share raw logs/datasets/weights/keys/secrets in chat or public Git. A

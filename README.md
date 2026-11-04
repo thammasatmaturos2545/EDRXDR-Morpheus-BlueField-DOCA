@@ -1,3 +1,5 @@
+> **ACTIVE ARCHITECTURE:** [EDRXDR–DFP–RANSOMWARE–NEXUS v1](docs/architecture/EDRXDR-DFP-RANSOMWARE-NEXUS-v1.md). DFP and Ransomware Detection are the active target pipelines. BERT v4 is superseded as an active target; retain its historical code, datasets, weights, checkpoints and evaluation evidence. Architecture approval does not mean implementation or model acceptance is complete.
+
 > Latest scope and takeover guide: [Company scope handoff](training/HANDOFF-COMPANY-SCOPE-20261014.md). Verified rehearsal results remain unchanged; earlier sections retain historical context.
 
 > Latest rehearsal: [14 Oct 5/5/5](training/HANDOFF-REHEARSAL-20261014.md) — verified Windows origin, API/UI and clean exit after supervisor update. Earlier results remain historical.
@@ -198,7 +200,7 @@ npm run test:regression 2>&1 | tee "$evidence_dir/regression-$stamp.txt"
 ถูกแทนที่ด้วยผลยืนยันด้านบน. ตำแหน่ง model/dataset และข้อจำกัดคุณภาพยังใช้เป็นจุดเริ่มตรวจต่อได้.
 
 ต้นแบบรวบรวม security events ผ่าน Wazuh/Kafka และวิเคราะห์ด้วย NVIDIA Morpheus,
-BERT severity baseline และ Behavioral v1.4 พร้อมเก็บผลใน OpenSearch.
+legacy BERT severity baseline (historical; superseded as active target) และ Behavioral v1.4 พร้อมเก็บผลใน OpenSearch.
 
 สถานะอ้างอิง VM ณ `2026-10-11T02:32:23+07:00`; branch `work/shadow-mode-v1`,
 base commit `12d6049741235ba4bb45d65c1e3f59d4e01ce5b3`.
@@ -219,7 +221,7 @@ not-scored ไม่ได้แปลว่าปลอดภัย.
 
 | งาน | หลักฐาน / ข้อจำกัด |
 |---|---|
-| Dataset และ BERT checkpoint | มีใน Docker volumes; ไม่ต้อง train ใหม่เพื่อเปิด Dashboard |
+| Legacy BERT dataset/checkpoint | Historical artifacts; preserved for reproducibility; not part of the active DFP/Ransomware target |
 | Morpheus tokenizer framing และ inference | เคยตรวจ HF parity ผ่าน; Shadow GPU batch ล่าสุดประมวลผลครบ 32 |
 | Behavioral v1.4 | ประมวลผล 32; รอบนี้ AE-scored = 0, limited_history 31, novel_cohort 1 |
 | Shadow capture → score สองเส้นทาง → index | อย่างละ 32; occurrence join และ raw hash ตรงกัน 32/32 |

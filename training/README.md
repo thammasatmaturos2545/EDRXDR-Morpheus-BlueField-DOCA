@@ -1,8 +1,10 @@
+> **ACTIVE ARCHITECTURE:** [EDRXDR–DFP–RANSOMWARE–NEXUS v1](../docs/architecture/EDRXDR-DFP-RANSOMWARE-NEXUS-v1.md). DFP and Ransomware Detection are the active target pipelines. BERT v4 is superseded as an active target; retain its historical code, datasets, weights, checkpoints and evaluation evidence. Architecture approval does not mean implementation or model acceptance is complete.
+
 > Current status: see [LATEST_STATUS.md](LATEST_STATUS.md). Raw integration passed on H100; model quality gates have not passed.
 
 **งานต่อ:** [NEXT_STEPS_TH.md](NEXT_STEPS_TH.md) — raw-event integration พร้อมทดสอบบน H100; ยังไม่มีผล GPU ใหม่
 
-# EDRXDR-Morpheus — training and offline inference
+# Legacy BERT training and offline inference reference
 
 **เริ่มอ่าน [HANDOFF.md](HANDOFF.md) สำหรับสถานะล่าสุดและวิธีรับช่วงต่อ (9 ตุลาคม 2026 เวลาไทย)**
 
@@ -19,7 +21,7 @@ v1/v2/v2b ฝึกสำเร็จ และ Morpheus offline integration **P
 
 ไม่มี raw logs, credentials, model weights หรือ Docker images ในชุดเอกสารและสคริปต์นี้ อ่านตำแหน่ง volumes และรายงานใน HANDOFF ก่อนรัน ห้ามถือว่าการฝึกสำเร็จหมายถึงพร้อม deploy
 
-## Original v1 reference
+## Legacy reference only — Original BERT v1 training
 
 Weakly supervised binary Wazuh severity baseline. Labels come from the existing
 Wazuh severity mapping: this is not an independent threat detector and the score
