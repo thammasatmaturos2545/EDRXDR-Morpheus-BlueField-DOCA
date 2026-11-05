@@ -1,3 +1,5 @@
+> **SUPERSEDED — 2026-11-05:** Current owner scope is Agent003 endpoint behavior without BlueField and human-reviewed recommendations. Read [architecture v2](EDRXDR-ENDPOINT-HUMAN-REVIEW-v2-20261105.md) and [current handoff](../../training/HANDOFF-PROJECT-NEXUS-ENDPOINT-20261105.md). The historical text below is preserved; it is not authorization to run collectors, train models or execute responses.
+
 # EDRXDR–Morpheus–NEXUS
 # Target Architecture v1
 ## DFP + Ransomware Detection

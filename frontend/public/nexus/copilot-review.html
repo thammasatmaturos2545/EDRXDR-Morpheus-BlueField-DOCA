@@ -1,41 +1,7 @@
 <!doctype html>
-<html lang="th">
-<head>
-  <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="referrer" content="no-referrer"><title>NEXUS · SOC Copilot</title>
-  <style>
-    :root{color-scheme:dark;font:15px/1.7 system-ui,sans-serif;background:#08111f;color:#dce7f5}
-    *{box-sizing:border-box}body{margin:0}header,main{max-width:1250px;margin:auto;padding:26px}
-    header{display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid #26374b;gap:20px}
-    .brand{font-size:13px;letter-spacing:.22em;color:#71d9cf}h1{font-size:32px;margin:6px 0}h2{font-size:20px;margin:0}
-    p{margin:10px 0}.muted,small{color:#9eb0c8}.notice{border-left:3px solid #e7b76a;padding:12px 18px;background:#191c25;margin:0 0 22px}
-    a{color:#75ded4}button,select{font:inherit;padding:8px 14px;background:#15263b;border:1px solid #36516e;color:#eaf3ff;border-radius:6px}
-    button{cursor:pointer}.toolbar{display:flex;gap:12px;align-items:center;flex-wrap:wrap;margin:20px 0}
-    #list{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,480px),1fr));gap:18px}
-    article{border:1px solid #293c52;border-radius:12px;background:#0e1b2c;padding:22px;min-width:0}
-    .badge{display:inline-block;color:#eac47e;background:#332c21;border-radius:4px;padding:2px 9px;font-size:12px}
-    .uid{overflow-wrap:anywhere;font-family:ui-monospace,monospace;font-size:12px;color:#8dcac7;margin:12px 0}
-    .scores{display:flex;gap:24px;flex-wrap:wrap;border-block:1px solid #26374b;padding:12px 0;margin:14px 0}
-    .score{font-size:23px;font-weight:650;color:#e9f3ff}.section-title{font-size:13px;color:#74d4ca;margin:18px 0 5px}
-    ul{padding-left:20px;margin:0}li{margin-bottom:8px}details{margin-top:18px}summary{cursor:pointer;color:#9dbfe5}
-    pre{white-space:pre-wrap;overflow-wrap:anywhere;font-size:12px;background:#08121f;padding:12px;border-radius:6px}
-    #status{overflow-wrap:anywhere}#auth{display:none}footer{margin:24px 0;color:#9eb0c8;font-size:12px}
-  </style>
-  <script src="/nexus/copilot-review.js" defer></script>
-</head>
-<body>
-  <header><div><div class="brand">NEXUS / SOC COPILOT</div><h1>Incident evidence review</h1>
-    <div class="muted">สรุป 8 เหตุการณ์ด้วย Local LLM · หลักฐานแบบ Exact UID</div></div>
-    <a href="/nexus/index.html#allevents">กลับ All Events ↗</a></header>
-  <main>
-    <div class="notice">ผลสรุปที่บันทึกไว้ต้องให้ Analyst ตรวจ ยังไม่รับรองความถูกต้อง และไม่ใช่ข้อมูล realtime<br>
-      Automated response: OFF · ไม่มีการเรียก LLM/GPU จากหน้านี้</div>
-    <div id="status" role="status">กำลังตรวจสิทธิ์และโหลดผลสรุป…</div>
-    <div id="auth"><a href="/api/nexus/v1/copilot/review" target="_blank" rel="noopener">ยืนยันตัวตนในหน้าต่างใหม่</a>
-      แล้วกลับมากดโหลดผลสรุป</div>
-    <div class="toolbar"><button id="reload" type="button">โหลดผลสรุป</button>
-      <label>เหตุการณ์ <select id="filter"><option value="all">ทั้งหมด 8 รายการ</option></select></label></div>
-    <div id="list"></div>
-    <footer>คะแนน AI แสดงเป็น /100 จากค่าดิบเดิม ไม่ใช่เปอร์เซ็นต์โอกาสถูกโจมตี · สถานะ generated_unreviewed</footer>
-  </main>
-</body></html>
+<html lang="th"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="referrer" content="no-referrer"><title>NEXUS · หน้าสรุปเลิกใช้แล้ว</title>
+<link rel="stylesheet" href="./decision-review.css"></head><body><main>
+<h1>หน้าสรุปนี้เลิกใช้แล้ว</h1><p>รุ่นนี้ไม่ใช้ LLM สรุปผล ไม่มีการเรียกโมเดลจากหน้านี้</p>
+<p><a href="./decision-review.html">ไปหน้าทบทวนแจ้งเตือนและบันทึกการตัดสินใจ</a></p>
+<p><a href="./index.html">กลับ NEXUS</a></p></main></body></html>

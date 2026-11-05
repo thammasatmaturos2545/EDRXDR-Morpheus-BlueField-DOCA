@@ -1,0 +1,20 @@
+:root{color-scheme:dark;font:16px/1.65 system-ui,sans-serif;background:#0b1320;color:#e8eef6}
+*{box-sizing:border-box}body{margin:0}header,main{max-width:1120px;margin:auto;padding:24px}
+header{display:flex;align-items:center;justify-content:space-between;gap:20px;border-bottom:1px solid #2b3b50}
+h1{font-size:30px;line-height:1.3;margin:8px 0}h2{font-size:21px;margin:10px 0}h3{font-size:16px;margin:18px 0 6px}
+p{margin:8px 0}.eyebrow{font-size:12px;letter-spacing:.16em;color:#7ed8cb}.muted{color:#b2c2d7}
+a{color:#8be4d6}a:focus-visible,button:focus-visible,select:focus-visible,textarea:focus-visible{outline:3px solid #89e3d8;outline-offset:3px}
+.notice{border-left:4px solid #e7be7c;padding:14px 18px;background:#242331;border-radius:4px}
+.toolbar{display:flex;gap:20px;align-items:center;flex-wrap:wrap;margin:20px 0}
+button,select,textarea{font:inherit;color:inherit;background:#14253a;border:1px solid #536d8b;border-radius:7px;padding:9px 13px}
+button{cursor:pointer}button:disabled{opacity:.55;cursor:not-allowed}textarea{display:block;width:100%;min-height:95px;resize:vertical;margin:8px 0}
+#list{display:grid;gap:20px}article{padding:22px;border:1px solid #34485f;border-radius:12px;background:#101d2e;overflow-wrap:anywhere}
+.badges{display:flex;gap:8px;flex-wrap:wrap}.badge{padding:3px 9px;border-radius:4px;background:#293646;font-size:13px}
+.experimental{background:#49351e;color:#ffe0a2}.facts{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:8px;margin:14px 0}
+.facts p{background:#152538;padding:10px;border-radius:5px}.facts small{display:block;color:#afc2d8}
+ul{margin:6px 0;padding-left:23px}.recommendation{padding:12px 16px;border-left:3px solid #75cbbf;background:#142b32}
+.decision{border-top:1px solid #34485f;margin-top:20px;padding-top:15px}.decision label{display:block;margin-top:10px}
+.decision select{max-width:100%;width:360px}.save{background:#255c61;border-color:#7bc2b9;margin-top:6px}
+.message{min-height:26px;color:#ffe0a2}.uid,pre{font:12px/1.7 ui-monospace,monospace;color:#b4cdde;white-space:pre-wrap;overflow-wrap:anywhere}
+summary{cursor:pointer;color:#9cddcf}details{margin-top:16px}.history{padding-left:22px}.history li{padding:8px 0;border-bottom:1px solid #26394d}
+.footnote{font-size:13px;margin:24px 0}@media(max-width:600px){header,main{padding:18px}header{align-items:flex-start}h1{font-size:25px}article{padding:16px}}
