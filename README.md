@@ -18,9 +18,9 @@
 | --- | --- |
 | Wazuh และเส้นทางรับส่งเหตุการณ์ | มีระบบเดิมใช้งานอยู่ การรับข้อมูลครบถ้วนสำหรับโมเดลยังต้องประเมิน |
 | NEXUS Dashboard | มี Model Lab และ DFP Diagnostic สำหรับดูผล sample/replay และผลวิเคราะห์ที่บันทึกไว้ |
-| DFP | โมเดล CPU ทดลองแยกสองบัญชีผ่าน fit/save/reload/scoring แต่ยังไม่ผ่านการรับรองคุณภาพ |
-| Endpoint file behavior | ทดสอบการส่งเหตุการณ์ในพื้นที่แยกผ่าน ยังไม่ใช่ผลวัดความแม่นยำการตรวจ ransomware |
-| Ransomware classifier | มี sample/replay; live telemetry และ class mapping ยังไม่ผ่านรับรอง |
+| DFP | โมเดล CPU จริง 2 ตัวผ่าน native Morpheus บน observed replay 62 windows ตาม handoff 6 พ.ย.; direct-vs-pipeline delta 0.0 ยังไม่ใช่ live inference หรือการรับรองคุณภาพ |
+| Endpoint file behavior / lab response | ตาม handoff กฎใน lab หยุด registered simulator ได้ 1 กรณี; อีก 3 กรณีไม่สั่งหยุด ยังไม่ใช่การรับรองคุณภาพบนโปรแกรมทั่วไป |
+| แนวทาง Ransomware / endpoint | เป้าหมายล่าสุดใน handoff ใช้กฎพฤติกรรมไฟล์ร่วม DFP ได้ ไม่บังคับ classifier ใหม่; sample classifier เดิมไม่ใช่ live detector |
 | Human Review | มี foundation, candidate publisher และ preview บัญชีผู้ทบทวน; ยังไม่ใช่ workflow แจ้งเตือนจริงที่ผ่านรับรอง |
 
 ผล replay 773 รายการ, FIM 12/12 และ controlled modifications 20/20 เป็นคนละขอบเขตกับ detection quality ห้ามใช้แทน accuracy, recall หรือ false-positive rate
@@ -39,7 +39,7 @@
 
 ## งานที่ต้องทำต่อ
 
-1. ตรวจสถานะ observer รอบเดิมและ runtime แบบอ่านอย่างเดียวก่อนเริ่มงาน
+1. ตรวจ Git/runtime และหลักฐานล่าสุดแบบอ่านอย่างเดียว; handoff รายงาน observer รอบเดิมจบแล้ว ไม่เริ่มหรือขยายรอบใหม่
 2. รับรอง source coverage และ baseline พร้อมกำหนด chronological evaluation
 3. ประเมินโมเดลและเลือก threshold ตาม protocol ที่อนุมัติ
 4. เชื่อม trusted alert publisher กับ named reviewers ภายใต้ขอบเขตที่ยืนยันแล้ว
@@ -48,6 +48,8 @@
 ขอบเขตปัจจุบันไม่ใช้ BlueField, Agent004 พักไว้ และ Network อยู่นอก scope ไม่เปิด final holdout หรือเริ่ม GPU/training/logging/collector/observer รอบใหม่จากคำแนะนำใน README นี้
 
 ## การส่งต่อและประวัติ
+
+ความคืบหน้า Morpheus และ lab response ข้างต้นอ้างอิง handoff วันที่ 6 พ.ย. ที่เจ้าของส่งมา ยังไม่ได้ตรวจ artifacts บน VM ซ้ำในรอบเอกสารนี้ DFP กับ lab response ยังไม่เชื่อมกัน และยังไม่เชื่อม live source → NEXUS → actuator ครบเส้นทาง
 
 การ push ซอร์สไม่ใช่การ deploy รุ่นที่รันจริงอาจอยู่ใน release directory แยกต่างหาก ห้ามรัน helper เก่าอัตโนมัติหรือถือว่า candidate ที่อยู่ใน Git เปิดใช้งานแล้ว
 
