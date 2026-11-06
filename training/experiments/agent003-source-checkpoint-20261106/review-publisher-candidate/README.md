@@ -1,0 +1,16 @@
+# Evidence/policy publisher candidate — 5 November2026
+
+OFFLINE ONLY. No actual producer policy/threshold provisioned, no live publication CLI, no real user/catalog/DB reads/writes, no preview update/restart/extension, no model/GPU/training/observer/holdout/BlueField operations. Preserves existing source baseline2fd3a6c and Git WIP. Existing named-review preview remains separately bounded; this package does not make it a live alert feed.
+
+build_catalog takes bounded batch bytes, exact batch hash, externally operator-pinned policy bytes/hash and a dictionary of redacted evidence artifact bytes. Requires matching producer/source/model-artifact/feature/endpoint/identity contracts, explicitly frozen native score semantics/window width/comparison/threshold, unique observation membership, exact artifact bytes and aligned closed-window timing. Extra raw fields, duplicate/missing identities, unreferenced artifacts/observations, foreign scope and classifier semantics are rejected. All generated alerts remain experimental with unknown coverage, investigate-only recommendations and response disabled. Genuine zero and reconstruction error above one are preserved. Threshold/policy fixtures are SYNTHETIC TEST CONFIGURATION ONLY; no real threshold is selected by this task.
+
+New catalog schema nexus-human-review-v2 uses typed evidence {record_ref, identity_contract, sha256}. Journal/file record references are not renamed to legacy event_uid. Old v1 catalogs/readers remain represented in migration history, but production v1 reader MUST NOT receive v2 before reviewed reader/UI deployment. Candidate reader/UI accepts both versions and preserves old revision evidence. Changing policy changes displayed revision even when score/alert identity stays unchanged. Candidate lifecycle/transactions/history tests exercise the end-to-end path on disposable SQLite only.
+
+Trust limit: policy hash must be supplied by a separate private operator configuration, never self-declared by a browser or submitted bundle. This pure builder does NOT establish operating-system publisher authorization, independent model-execution attestation, source identity, producer redaction correctness, source coverage, representative baseline or detection quality merely from declarations and hashes. Real producer execution sealing, private bounded IO/provisioning and accepted calibration/evaluation remain open. Do not label this a completed trusted live publisher.
+
+No company test data or final holdout read. Source membership/record refs are opaque test digests in fixtures, not real accounts or logs. No classifier/ransomware class mapping is inferred from AppShield replay. Actual owner-selected protected folder remains unresolved.
+
+Checks: python3 -B run_checks.py
+47 new+existing lifecycle/reader/publisher Python tests, original17 worker tests,16API/DOM groups. Windows local skips3POSIX cases across both suites; VM must pass those independently. Real v2 browser/build/preview not performed by this package. No need to repeat named-user staging, passwords or the previous preview launch.
+
+Core resource limits remain32publication transitions,20cumulative alert identities,2MiB catalog snapshot history,100decisions/alert,8MiB response. These bounded batch foundations are not an unbounded production stream.

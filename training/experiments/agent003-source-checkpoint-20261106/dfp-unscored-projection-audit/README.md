@@ -1,0 +1,11 @@
+# Existing normalized-projection audit — 5 November2026
+
+Approved scope: analyze stored transformed data only. run.py requires --audit-existing-projections. First runs12synthetic tests, then verifies exact original observer store/adapter source hashes and reads observations-private.sqlite in mode=ro with query_only and a bounded read transaction (10sec/100000records/200MiB DB). No Store import, schema creation, WAL checkpoint, database copy, journal query, secret-key/model load, collector restart or format reclassification. Active observer can continue; this snapshot need not match an earlier live receipt.
+
+Code finding: journal_adapter.route maps all non-format-candidate parse states to unsupported_message_format. Store persists normalized status/reason/kind/roles/references but discards source program and detailed parser failure. Saved projections alone cannot recover whether unscored rows were unknown programs, nontext/multiline/oversized messages or unmatched strings. Do not guess source program, benignness, missed-auth count or false-negative rate from106unscored records. Some unmatched messages may be outside the six selected features; this cannot be decided from lost details.
+
+Audit reports accounting, known coarse reasons, candidate roles/kinds, time-bucket co-occurrence, first-observation lag and explicit unknowns. It exports no event/account/IP/hash references or raw values. It does not assign account profiles to unscored records or mark empty intervals complete. Source coverage/baseline/training eligibility remain unaccepted. Unknown reason strings are masked instead of echoed.
+
+diagnostic_candidate.py is a finite-enum metadata helper for FUTURE code review. It distinguishes parser stage labels and source family without storing messages or identity values. It is tested with synthetic messages only and is NOT installed or applied to the active observer. A future collection/version change needs separate scoped authorization; this audit does not provide it. Existing 24h deadline is unchanged.
+
+If detailed historical subcauses become necessary, a separate explicitly approved bounded existing-source review would be required. No such raw source review is performed here, and no original record is overwritten or retroactively relabeled.

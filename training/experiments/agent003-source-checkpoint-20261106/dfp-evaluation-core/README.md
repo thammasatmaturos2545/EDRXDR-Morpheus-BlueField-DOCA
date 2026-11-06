@@ -1,0 +1,13 @@
+# DFP descriptive evaluation core — engineering candidate
+
+Pure function only. Does not read company data, observationDBs, private labels, finalholdout, models or keys; does not train, score, search/select thresholds, assign splits or modify services. Only CLI is --synthetic-self-test. No real accepted evaluation protocol or threshold is shipped.
+
+Input predictions are explicit bools from an externally frozen decision policy; numeric loss/probability is not accepted as an alert decision. Protocol pins one account-specific detector artifact and policy, Agent003,6count feature contract,300sec windows. Evaluate the2account models separately; no pooling sparse Model2 into a larger Model1 report. Checks exact fields, unique IDs/memberships, no cross-split source leakage, disjoint aligned windows and chronological fit/calibration/evaluation. Does not infer benign labels from owner recognition or map unsupported formats to attacks.
+
+Known covered reference-labelled evaluation cases produce two distinct descriptive reports: conditional_scored_case_metrics covers scored cases only; end_to_end_eligible_case_metrics counts a positive case with no score/emitted alert asFN. Explicit scoring fraction and positive/negative unscored counts prevent hiding missing predictions. Unknown/incomplete coverage or unknown reference cases stay in exclusion accounting (nonexclusive reasons), not confusion-matrixbenign negatives. Positive/negative labels require evidence refs; digest shape/policy pin does not independently authenticate labels or coverage, so acceptance staysfalse.
+
+False-alert rate denominator is only eligible labelled-negative entity-window hours, NOT the whole24hour observer duration or unlabeled exposure. Empty/undefined denominators yieldnull. TP latency is specifically window-end-to-alert, not attack-onset-to-response or complete ingestionlatency. No real detections are implied by synthetic cases.
+
+19synthetic tests cover confusion accounting, unscored positive handling, undefinedmetrics, leakage/time guards, raw-field rejection, evidence requirements, per-model scope and immutability. Tests passing do not establish detectionquality or independentlabels. Current original observer and its6Nov04:00post-round review remain unchanged. No new observation authorized.
+
+Next actual use requires accepted source/reference context and a frozen evaluation membership/policy; don't run calibration experiments on the independent test or reuse the old inspected retrospective partition as a fresh independentevaluation. Exam classifier criterion and protected directory remain owner decisions. Preserve current artifacts/WIP; this module is not installed/deployed or wired into legacyModelQuality.

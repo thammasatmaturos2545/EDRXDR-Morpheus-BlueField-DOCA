@@ -1,0 +1,15 @@
+{
+  "schema_version": "evaluation-readiness-draft-1",
+  "endpoint_id": "003",
+  "feature_contract": "linux-journal-auth-observed-counts-engineering-0",
+  "threshold": null,
+  "data_split_assignment": null,
+  "source_coverage_accepted": false,
+  "representative_baseline_accepted": false,
+  "independent_quality_accepted": false,
+  "producer_policy_provisioned": false,
+  "training_allowed_by_this_document": false,
+  "new_observer_allowed_by_this_document": false,
+  "bert_replacement_allowed": false,
+  "automated_response_allowed": false
+}

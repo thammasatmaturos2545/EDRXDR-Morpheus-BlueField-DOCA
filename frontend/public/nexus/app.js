@@ -1033,6 +1033,8 @@
     `;
   }
 
+  function dfpDiagnosticPage(){queueMicrotask(()=>{if(state.page==='dfpdiagnostic')window.NexusDfpDiagnostic?.mount();});return '<section class="panel" id="dfp-diagnostic-root" style="padding:24px" aria-live="polite"></section>';}
+  function modelLabPage(){queueMicrotask(()=>{if(state.page==='modellab')window.NexusModelLab?.mount();});return '<section class="panel" id="model-lab-root" style="padding:24px" aria-live="polite"></section>';}
   function retiredCopilotPage(){
     return '<section class="panel" style="padding:24px"><h1>หน้านี้เลิกใช้แล้ว</h1><p>การสรุปด้วย LLM ไม่อยู่ในขอบเขตรุ่นนี้</p><a class="button" href="./decision-review.html">ไปหน้าทบทวนแจ้งเตือน</a></section>';
   }
