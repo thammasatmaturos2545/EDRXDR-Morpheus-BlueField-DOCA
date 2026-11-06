@@ -1,3 +1,5 @@
+> **Start here:** [Current implementation status and repository map](PROJECT-STATUS.md). The target architecture is not fully deployed. DFP remains development; live BERT is not replaced; automated response is disabled. Candidate snapshots and dated handoffs must not be mistaken for production entry points.
+
 > **ACTIVE ARCHITECTURE:** [EDRXDR–DFP–RANSOMWARE–NEXUS v1](docs/architecture/EDRXDR-DFP-RANSOMWARE-NEXUS-v1.md). DFP and Ransomware Detection are the active target pipelines. BERT v4 is superseded as an active target; retain its historical code, datasets, weights, checkpoints and evaluation evidence. Architecture approval does not mean implementation or model acceptance is complete.
 
 > Latest scope and takeover guide: [Company scope handoff](training/HANDOFF-COMPANY-SCOPE-20261014.md). Verified rehearsal results remain unchanged; earlier sections retain historical context.
